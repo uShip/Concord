@@ -39,7 +39,8 @@ namespace concord
                 string lib,
                 string @out,
                 int? concurrentThreads,
-                string categories)
+                string categories,
+                bool rerunFailedCategories)
             {
                 var serviceLocator = ServiceLocator.Instance;
 
@@ -51,7 +52,7 @@ namespace concord
                     var outputPath = @out ?? Environment.CurrentDirectory;
                     _logger.Log("Output at" + @out);
 
-                    var batchBuilder = builderFactory.Create(lib, categories, outputPath);
+                    var batchBuilder = builderFactory.Create(lib, rerunFailedCategories, categories, outputPath);
 
                     batchBuilder.GetRunResultsAsXml(concurrentThreads.HasValue ? concurrentThreads.Value : 15);
                 }

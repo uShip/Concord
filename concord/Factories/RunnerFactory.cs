@@ -6,6 +6,7 @@ using StructureMap;
 using concord.Builders;
 using concord.Configuration;
 using concord.Logging;
+using concord.Parsers;
 using concord.Services;
 
 namespace concord.Factories
@@ -13,21 +14,20 @@ namespace concord.Factories
     internal class RunnerFactory : IRunnerFactory
     {
         private readonly ICategoryFinderService _categoryFinderService;
-        private readonly ISettings _settings;
+        private readonly IResultsParser _resultsParser;
 
-
-        public RunnerFactory(ICategoryFinderService categoryFinderService)
+        public RunnerFactory(ICategoryFinderService categoryFinderService, IResultsParser resultsParser)
         {
-            _settings = Settings.Instance;
             _categoryFinderService = categoryFinderService;
+            _resultsParser = resultsParser;
         }
 
-        public IRunner Create(string assemblyFileName, string categoriesList = null, string outputPath = null)
+        public IRunner Create(string assemblyFileName, bool rerunFailedCategories = false, string categoriesList = null, string outputPath = null)
         {
-            return Create(Assembly.LoadFrom(assemblyFileName), categoriesList, outputPath);
+            return Create(Assembly.LoadFrom(assemblyFileName), rerunFailedCategories, categoriesList, outputPath);
         }
 
-        public IRunner Create(Assembly assembly, string categoriesList = null, string outputPath = null)
+        public IRunner Create(Assembly assembly, bool rerunFailedCategories = false, string categoriesList = null, string outputPath = null)
         {
             var fixtures = _categoryFinderService.FindCategories(assembly);
 
@@ -37,6 +37,12 @@ namespace concord.Factories
             var categoriesToRun = categoriesList != null
                                     ? categoriesList.Split(',', ';').Select(x => x.Trim())
                                     : new string[0];
+
+            if (rerunFailedCategories)
+            {
+                var erroredCategories = _resultsParser.GetErrorsCategories(ProcessRunner.RunStatsOutputFilepath(outputPath));
+                categoriesToRun = categoriesToRun.Concat(erroredCategories);
+            }
 
             //return new ThreadRunner(_assembly.Location, _featureTypes, ObjectFactory.GetInstance<ILogger>(), _outputPath);
             return new ProcessRunner(assembly.Location, fixtures, categoriesToRun, ObjectFactory.GetInstance<ILogger>(), outputPath);

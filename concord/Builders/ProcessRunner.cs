@@ -31,8 +31,6 @@ namespace concord.Builders
         private readonly ILogger _logger;
         private readonly string _outputPath;
 
-        //private readonly bool _outputRunStats = false;
-
         public ProcessRunner(string assemblyLocation, IEnumerable<string> categories, IEnumerable<string> categoriesToRun,
                              ILogger logger, string outputPath)
         {
@@ -45,7 +43,7 @@ namespace concord.Builders
 
         public string GetRunResultsAsXml()
         {
-            return GetRunResultsAsXml(100);
+            return GetRunResultsAsXml(-1);
         }
 
         public string GetRunResultsAsXml(int maxConcurrentRunners)
@@ -217,7 +215,7 @@ namespace concord.Builders
                 }
             }
 
-            File.WriteAllText(Path.Combine(outputPath, "RunStats.html"), sb.ToString());
+            File.WriteAllText(RunStatsOutputFilepath(outputPath), sb.ToString());
 
             //var toOutput = new
             //{
@@ -227,6 +225,11 @@ namespace concord.Builders
             //};
 
             //toOutput.ToXml().Save(Path.Combine(outputPath, "RunStats.html"));
+        }
+
+        internal static string RunStatsOutputFilepath(string outputPath)
+        {
+            return Path.Combine(outputPath, "RunStats.html");
         }
 
         private string MergeResults(string outputPath)

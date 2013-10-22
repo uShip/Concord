@@ -5,7 +5,7 @@ namespace concord.Factories
 {
     public interface IRunnerFactory
     {
-        IRunner Create(string assemblyFileName, string categoriesList = null, string outputPath = null);
-        IRunner Create(Assembly assembly, string categoriesList = null, string outputPath = null);
+        IRunner Create(string assemblyFileName, bool rerunFailedCategories = false, string categoriesList = null, string outputPath = null);
+        IRunner Create(Assembly assembly, bool rerunFailedCategories = false, string categoriesList = null, string outputPath = null);
     }
 }
