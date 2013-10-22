@@ -1,0 +1,193 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="ExampleResults" xml:space="preserve">
+    <value>Total Runtime: 00:03:05.0078887
+00:02:34.2589301 = 67 -- _ListingsInternational  ExitCode:0
+00:01:53.4835323 = 54 -- _ListingsPaymentCodes  ExitCode:0
+00:01:48.9752779 = 49 -- _ListingsBidFeature  ExitCode:0
+00:01:44.4782718 = 35 -- _ListingBookItNow  ExitCode:0
+00:01:23.9845272 = 69 -- SearchFeature  ExitCode:1
+00:01:23.8222413 = 39 -- _ListingsStatus  ExitCode:0
+00:01:22.2356298 = 24 -- _BidConversationFeature  ExitCode:0
+00:01:21.0741129 = 22 -- _ListingConversationsFeature  ExitCode:0
+00:01:19.7432659 = 42 -- _TimeFrames  ExitCode:0
+00:01:15.9567659 = 47 -- Devices  ExitCode:0
+00:01:08.3527595 = 33 -- _UsersBids  ExitCode:0
+00:01:07.5315816 = 16 -- all  ExitCode:0
+00:01:03.7230799 = 50 -- ListingPostBookItNow  ExitCode:0
+00:01:02.0606962 = 20 -- _ListingsHypermedia  ExitCode:0
+00:00:57.8632058 = 13 -- _ListingPostBookItNow  ExitCode:0
+00:00:54.8716752 = 41 -- ListingPostAuction  ExitCode:0
+00:00:50.3479290 = 56 -- ListingsV2  ExitCode:0
+00:00:44.1706137 = 43 -- ListingsLister  ExitCode:0
+00:00:43.6437236 = 68 -- UsersCreate  ExitCode:0
+00:00:42.7881919 = 5 -- _ListingLocalizations  ExitCode:0
+00:00:40.8606030 = 4 -- _IsReadyForPickup  ExitCode:0
+00:00:40.4986496 = 17 -- _SuspendUsers  ExitCode:0
+00:00:38.8714621 = 2 -- _ListingBidFeesFeature  ExitCode:0
+00:00:37.0865669 = 66 -- V2Stuff  ExitCode:0
+00:00:36.1112681 = 3 -- _ListingsBAN  ExitCode:0
+00:00:35.6312407 = 62 -- UsersCreateAndFunction  ExitCode:0
+00:00:34.9858444 = 27 -- ListingEvents  ExitCode:0
+00:00:34.4691884 = 34 -- ListingsFixedPrice  ExitCode:0
+00:00:33.4587752 = 45 -- ListingsuShipPaymentsEligibility  ExitCode:0
+00:00:33.0413917 = 61 -- OAuthApiIntegration  ExitCode:0
+00:00:31.5018270 = 65 -- SavedSearchesTestData  ExitCode:0
+00:00:30.0495468 = 46 -- MasheryOAuth2SecurityRegistrationAndAccess  ExitCode:0
+00:00:29.4709801 = 52 -- SavedSearchesFeature  ExitCode:0
+00:00:28.9416307 = 18 -- API_1025  ExitCode:0
+00:00:27.0170798 = 55 -- TestResources  ExitCode:0
+00:00:26.0551599 = 38 -- ListingsPublicBrokered  ExitCode:0
+00:00:24.5020766 = 60 -- UsersSub  ExitCode:0
+00:00:24.3337625 = 57 -- UsersFind  ExitCode:0
+00:00:24.1131834 = 59 -- UsersMeWihOAuth  ExitCode:0
+00:00:24.0684499 = 23 -- ListingPostAuctionWithoutTargetPrice  ExitCode:0
+00:00:23.8018228 = 25 -- ListingPostFixedPrice  ExitCode:0
+00:00:22.9144648 = 53 -- UserSavedSearchesFeature  ExitCode:0
+00:00:21.5687326 = 19 -- ListingPostAuctionWithoutTargetOrMaxPrice  ExitCode:0
+00:00:21.2169615 = 28 -- ListingsCreate  ExitCode:0
+00:00:21.1780085 = 63 -- ListingPostEurope  ExitCode:0
+00:00:19.8062489 = 51 -- TestMessageQueues  ExitCode:0
+00:00:19.2773347 = 7 -- _ListingV1  ExitCode:0
+00:00:18.6120267 = 36 -- LookupsRegions  ExitCode:0
+00:00:18.4313803 = 58 -- V1Stuff  ExitCode:0
+00:00:17.4310531 = 44 -- SavedSearchesLegacyFeature  ExitCode:0
+00:00:16.7951295 = 40 -- OAuth  ExitCode:0
+00:00:15.9920515 = 48 -- MarketplaceEstimates  ExitCode:0
+00:00:15.8505094 = 12 -- AnyThread  ExitCode:0
+00:00:14.6244933 = 30 -- ListingsTrailerTypes  ExitCode:0
+00:00:14.5108324 = 15 -- DeveloperProfiles  ExitCode:0
+00:00:13.4746041 = 31 -- LookupCarriers  ExitCode:0
+00:00:11.4837704 = 64 -- USE_882  ExitCode:0
+00:00:11.3505935 = 14 -- GetUserAddresses  ExitCode:0
+00:00:05.5162949 = 1 -- _ListingsSearchFeature  ExitCode:0
+00:00:04.5451968 = 29 -- ListingPartner  ExitCode:0
+00:00:04.2397599 = 0 -- _Autobid  ExitCode:0
+00:00:04.2204276 = 9 -- API_586  ExitCode:0
+00:00:04.1375546 = 11 -- API_970  ExitCode:0
+00:00:03.8675250 = 8 -- API_523  ExitCode:0
+00:00:03.6864589 = 32 -- PR_1351?  ExitCode:-100
+00:00:03.6505817 = 6 -- API_433  ExitCode:0
+00:00:03.5217536 = 10 -- API_643  ExitCode:0
+00:00:03.4921862 = 26 -- ListingPostWithoutTargetAndMax  ExitCode:0
+00:00:02.9202617 = 21 -- ListingsNetworkedBrokered  ExitCode:0
+00:00:02.6202115 = 37 -- SearchTestDataFeature  ExitCode:0</value>
+  </data>
+</root>

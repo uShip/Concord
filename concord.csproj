@@ -91,6 +91,8 @@
     <Compile Include="Nunit\IResultMerger.cs" />
     <Compile Include="Nunit\MergedResults.cs" />
     <Compile Include="Nunit\ResultMerger.cs" />
+    <Compile Include="Parsers\IResultsParser.cs" />
+    <Compile Include="Parsers\ResultsParser.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Configuration\ISettings.cs" />
