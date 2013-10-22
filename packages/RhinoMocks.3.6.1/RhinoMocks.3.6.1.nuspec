@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
+<package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
   <metadata>
     <id>RhinoMocks</id>
     <version>3.6.1</version>
@@ -17,8 +17,5 @@ The Dynamic Proxy project has been invaluable resource a</summary>
     <copyright />
     <language />
     <tags>tdd mocking mocks unittest unittesting</tags>
-    <references>
-      <reference file="Rhino.Mocks.dll" />
-    </references>
   </metadata>
 </package>
