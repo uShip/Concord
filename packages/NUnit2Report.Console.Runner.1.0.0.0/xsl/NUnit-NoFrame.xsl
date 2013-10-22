@@ -33,36 +33,24 @@
 			span.covered {
 				background: #00df00; 
 				border:#9c9c9c 1px solid;
-				display:block;
-				height:14px;
-				float:left;
 			}
 			span.uncovered {
 				background: #df0000; 
 				border-top:#9c9c9c 1px solid;
 				border-bottom:#9c9c9c 1px solid;
 				border-right:#9c9c9c 1px solid;
-				display:block;
-				height:14px;
-				float:left;
 				}
 			span.ignored {
 				background: #ffff00;
 				border-top:#9c9c9c 1px solid;
 				border-bottom:#9c9c9c 1px solid;
 				border-right:#9c9c9c 1px solid;
-				display:block;
-				height:14px;
-				float:left;
 			}
 
 			td {
 				FONT-SIZE: 68%;
 				BORDER-BOTTOM: #dcdcdc 1px solid; 
 				BORDER-RIGHT: #dcdcdc 1px solid;
-			}
-			table {
-				empty-cells: hide;
 			}
 			p {
 				line-height:1.5em;
@@ -106,12 +94,8 @@
 			}
 			.FailureDetail {
 				font-size: -1;
-				padding: 0 0.5em 0 2.0em;
+				padding-left: 2.0em;
 				background:#cdcdcd;
-				white-space: pre-wrap;
-				
-				margin-left: 1.0em;
-				text-indent: -1.0em;
 			}
 			.Pass {
 				padding-left:2px;
@@ -264,10 +248,9 @@
 			<xsl:for-each select="//test-suite[(child::results/test-case)]">
 				<xsl:sort select="@name"/>
 				<xsl:variable name="testCount" select="count(child::results/test-case)"/>
-				<xsl:variable name="errorCount" select="count(child::results/test-case[@executed='False' and @result!='Ignored'])"/>
+				<xsl:variable name="errorCount" select="count(child::results/test-case[@executed='False'])"/>
 				<xsl:variable name="failureCount" select="count(child::results/test-case[@success='False'])"/>
-				<xsl:variable name="ignoreCount" select="count(child::results/test-case[@result='Ignored'])"/>
-				<xsl:variable name="runCount" select="$testCount - $ignoreCount - $errorCount - $failureCount"/>
+				<xsl:variable name="runCount" select="$testCount - $errorCount - $failureCount"/>
 				<xsl:variable name="timeCount" select="translate(@time,',','.')"/>
 		
 				<!-- write a summary for the package -->
@@ -277,17 +260,16 @@
 						<xsl:choose>
 						    <xsl:when test="$failureCount &gt; 0">Failure</xsl:when>
 							<xsl:when test="$errorCount &gt; 0"> Error</xsl:when>
-							<xsl:when test="$ignoreCount &gt; 0">Ignored</xsl:when>
 							<xsl:otherwise>Pass</xsl:otherwise>
 						</xsl:choose>
-					</xsl:attribute>
+					</xsl:attribute> 	
 					<td width="25%">
 						<a href="#{generate-id(@name)}">
 						<xsl:attribute name="class">
 							<xsl:choose>
 								<xsl:when test="$failureCount &gt; 0">Failure</xsl:when>
 							</xsl:choose>
-						</xsl:attribute>
+						</xsl:attribute> 	
 						<xsl:value-of select="@name"/>
 						</a>
 					</td>
@@ -300,47 +282,33 @@
 						</b>
 					</td>
 					<td width="20%" height="9px">
-						<xsl:text> </xsl:text>
 						<xsl:if test="round($runCount * 200 div $testCount )!=0">
-						<span class="covered">
-							<xsl:attribute name="style">width:<xsl:value-of select="round($runCount * 200 div $testCount )"/>px</xsl:attribute>
-							<xsl:attribute name="title">
-								<xsl:text>Success</xsl:text>
-							</xsl:attribute>
-							<xsl:text> </xsl:text>
-						</span>
+							<span class="covered">
+								<xsl:attribute name="style">width:<xsl:value-of select="round($runCount * 200 div $testCount )"/>px</xsl:attribute>
+							</span>
 						</xsl:if>
 						<xsl:if test="round($errorCount * 200 div $testCount )!=0">
 						<span class="ignored">
 							<xsl:attribute name="style">width:<xsl:value-of select="round($errorCount * 200 div $testCount )"/>px</xsl:attribute>
-							<xsl:attribute name="title">
-								<xsl:text>Errors</xsl:text>
-							</xsl:attribute>
-							<xsl:text> </xsl:text>
 						</span>
 						</xsl:if>
 						<xsl:if test="round($failureCount * 200 div $testCount )!=0">
-						<span class="uncovered">
-							<xsl:attribute name="style">width:<xsl:value-of select="round($failureCount * 200 div $testCount )"/>px</xsl:attribute>
-							<xsl:attribute name="title">
-								<xsl:text>Failures</xsl:text>
-							</xsl:attribute>
-							<xsl:text> </xsl:text>
-						</span>
+							<span class="uncovered">
+								<xsl:attribute name="style">width:<xsl:value-of select="round($failureCount * 200 div $testCount )"/>px</xsl:attribute>
+							</span>
 						</xsl:if>
 					</td>
 					<td><xsl:value-of select="$runCount"/></td>
 					<td><xsl:value-of select="$errorCount"/></td>
 					<td><xsl:value-of select="$failureCount"/></td>
-					<td><xsl:value-of select="$ignoreCount"/></td>
 					<td>
                        <xsl:call-template name="display-time">
                         	<xsl:with-param name="value" select="$timeCount"/>
-                        </xsl:call-template>
-					</td>
+                        </xsl:call-template>				
+					</td>					
 				</tr>
 			</xsl:for-each>
-		</table>
+		</table>		
 	</xsl:template>
 	
 
@@ -348,7 +316,7 @@
 		<xsl:for-each select="//test-suite[(child::results/test-case)]">
 			<xsl:sort select="@name"/>
 			<!-- create an anchor to this class name -->
-			<a name="{generate-id(@name)}"></a>
+			<a name="#{generate-id(@name)}"></a>
 			<h3>TestSuite <xsl:value-of select="@name"/></h3>
 
 			<table border="0" cellpadding="1" cellspacing="1" width="95%">

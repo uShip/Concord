@@ -33,43 +33,43 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="CLAP">
-      <HintPath>packages\CLAP.4.3\lib\net35\CLAP.dll</HintPath>
+      <HintPath>..\packages\CLAP.4.3\lib\net35\CLAP.dll</HintPath>
     </Reference>
     <Reference Include="FubuCore">
-      <HintPath>packages\FubuCore.1.0.0.225\lib\FubuCore.dll</HintPath>
+      <HintPath>..\packages\FubuCore.1.0.0.225\lib\FubuCore.dll</HintPath>
     </Reference>
     <Reference Include="nunit">
-      <HintPath>packages\NUnit.Runners.2.6.2\tools\nunit.exe</HintPath>
+      <HintPath>..\packages\NUnit.Runners.2.6.2\tools\nunit.exe</HintPath>
     </Reference>
     <Reference Include="nunit-agent">
-      <HintPath>packages\NUnit.Runners.2.6.2\tools\nunit-agent.exe</HintPath>
+      <HintPath>..\packages\NUnit.Runners.2.6.2\tools\nunit-agent.exe</HintPath>
     </Reference>
     <Reference Include="nunit-console">
-      <HintPath>packages\NUnit.Runners.2.6.2\tools\nunit-console.exe</HintPath>
+      <HintPath>..\packages\NUnit.Runners.2.6.2\tools\nunit-console.exe</HintPath>
     </Reference>
     <Reference Include="nunit-console-runner">
-      <HintPath>packages\NUnit.Runners.2.6.2\tools\lib\nunit-console-runner.dll</HintPath>
+      <HintPath>..\packages\NUnit.Runners.2.6.2\tools\lib\nunit-console-runner.dll</HintPath>
     </Reference>
     <Reference Include="nunit-editor">
-      <HintPath>packages\NUnit.Runners.2.6.2\tools\nunit-editor.exe</HintPath>
+      <HintPath>..\packages\NUnit.Runners.2.6.2\tools\nunit-editor.exe</HintPath>
     </Reference>
     <Reference Include="nunit.core">
-      <HintPath>packages\NUnit.Runners.2.6.2\tools\lib\nunit.core.dll</HintPath>
+      <HintPath>..\packages\NUnit.Runners.2.6.2\tools\lib\nunit.core.dll</HintPath>
     </Reference>
     <Reference Include="nunit.core.interfaces">
-      <HintPath>packages\NUnit.Runners.2.6.2\tools\lib\nunit.core.interfaces.dll</HintPath>
+      <HintPath>..\packages\NUnit.Runners.2.6.2\tools\lib\nunit.core.interfaces.dll</HintPath>
     </Reference>
     <Reference Include="nunit.framework">
-      <HintPath>packages\NUnit.2.6.2\lib\nunit.framework.dll</HintPath>
+      <HintPath>..\packages\NUnit.2.6.2\lib\nunit.framework.dll</HintPath>
     </Reference>
     <Reference Include="nunit.util">
-      <HintPath>packages\NUnit.Runners.2.6.2\tools\lib\nunit.util.dll</HintPath>
+      <HintPath>..\packages\NUnit.Runners.2.6.2\tools\lib\nunit.util.dll</HintPath>
     </Reference>
     <Reference Include="pnunit-launcher">
-      <HintPath>packages\NUnit.Runners.2.6.2\tools\pnunit-launcher.exe</HintPath>
+      <HintPath>..\packages\NUnit.Runners.2.6.2\tools\pnunit-launcher.exe</HintPath>
     </Reference>
     <Reference Include="StructureMap">
-      <HintPath>packages\structuremap.2.6.4.1\lib\net40\StructureMap.dll</HintPath>
+      <HintPath>..\packages\structuremap.2.6.4.1\lib\net40\StructureMap.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
