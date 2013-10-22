@@ -76,7 +76,7 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\concord.csproj">
+    <ProjectReference Include="..\concord\concord.csproj">
       <Project>{7f3912eb-eb63-445b-91aa-b24a659d3c6e}</Project>
       <Name>concord</Name>
     </ProjectReference>
