@@ -102,6 +102,7 @@
     <Compile Include="Wrappers\TextWriterWrapper.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="concord.nuspec" />
     <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

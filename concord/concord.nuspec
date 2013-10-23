@@ -1,0 +1,40 @@
+<?xml version="1.0"?>
+<package >
+  <metadata>
+    <id>concord</id>
+    <version>$version$</version>
+    <title>concord test runner</title>
+    <authors>Greg Walker, Stephen Guerra</authors>
+    <owners>uShip</owners>
+    <licenseUrl>http://LICENSE_URL_HERE_OR_DELETE_THIS_LINE</licenseUrl>
+    <projectUrl>https://github.com/uShip/Concord</projectUrl>
+    <iconUrl>http://ICON_URL_HERE_OR_DELETE_THIS_LINE</iconUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>A parallel runner for the nunit runner, allowing easier porting from unit tests to parallelized unit tests</description>
+    <releaseNotes>Improved or fixed things...</releaseNotes>
+    <copyright>Copyright © uShip 2013</copyright>
+    <references>
+      <reference file="CLAP.dll" />
+      <reference file="FubuCore.dll" />
+      <reference file="nunit-agent.exe" />
+      <reference file="nunit-console-runner.dll" />
+      <reference file="nunit-console.exe" />
+      <reference file="nunit-editor.exe" />
+      <reference file="nunit.core.dll" />
+      <reference file="nunit.core.interfaces.dll" />
+      <reference file="nunit.exe" />
+      <reference file="nunit.framework.dll" />
+      <reference file="nunit.util.dll" />
+      <reference file="pnunit-launcher.exe" />
+      <reference file="pnunit.framework.dll" />
+      <reference file="StructureMap.dll" />
+    </references>
+    <tags>utility tdd test testing runner nunit unittest unittesting</tags>
+  </metadata>
+  <files>
+    <file src="bin\Debug\*.dll" target="lib\net45" />
+    <file src="bin\Debug\*.exe" target="lib\net45" exclude="**concord*" />
+    <file src="bin\Release\*.dll" target="lib\net45" />
+    <file src="bin\Release\*.exe" target="lib\net45" exclude="**concord*" />
+  </files>
+</package>
