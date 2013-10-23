@@ -13,7 +13,7 @@
     <description>A parallel runner for the nunit runner, allowing easier porting from unit tests to parallelized unit tests</description>
     <releaseNotes>Improved or fixed things...</releaseNotes>
     <copyright>Copyright © uShip 2013</copyright>
-    <references>
+    <!--<references>
       <reference file="CLAP.dll" />
       <reference file="FubuCore.dll" />
       <reference file="nunit-agent.exe" />
@@ -28,13 +28,15 @@
       <reference file="pnunit-launcher.exe" />
       <reference file="pnunit.framework.dll" />
       <reference file="StructureMap.dll" />
-    </references>
+    </references>-->
     <tags>utility tdd test testing runner nunit unittest unittesting</tags>
   </metadata>
   <files>
-    <file src="bin\Debug\*.dll" target="lib\net45" />
-    <file src="bin\Debug\*.exe" target="lib\net45" exclude="**concord*" />
-    <file src="bin\Release\*.dll" target="lib\net45" />
-    <file src="bin\Release\*.exe" target="lib\net45" exclude="**concord*" />
+    <!--<file src="bin\*\*.dll" target="lib" />
+    <file src="bin\*\*.exe" target="lib" exclude="**concord*" />-->
+    <file src="bin\*\*.dll" target="tools" />
+    <file src="bin\*\*.exe" target="tools" exclude="**concord*" />
+    <!--<file src="bin\*\*.dll" target="lib\net45" />
+    <file src="bin\*\*.exe" target="lib\net45" exclude="**concord*" />-->
   </files>
 </package>
