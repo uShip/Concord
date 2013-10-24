@@ -40,6 +40,14 @@ namespace concord.Configuration
                 }).FirstOrDefault();
         }
 
+        private static string FindMatchingDirectory(string path, string startsWith)
+        {
+            string searchPattern = startsWith + "*";
+            return Directory.GetDirectories(path, searchPattern)
+                            .OrderByDescending(x => x)
+                            .FirstOrDefault();
+        }
+
         public static ISettings Instance
         {
             get { return LazyInstance.Value; }
@@ -47,7 +55,11 @@ namespace concord.Configuration
 
         public string NunitPath
         {
-            get { return Path.Combine(_packagesPath, @"NUnit.Runners.2.6.2\tools\nunit-console.exe"); }
+            get
+            {
+                var nunitRunnersDirectory = FindMatchingDirectory(_packagesPath, @"NUnit.Runners");
+                return Path.Combine(nunitRunnersDirectory, @"tools\nunit-console.exe");
+            }
         }
 
         public string NunitReportPath
