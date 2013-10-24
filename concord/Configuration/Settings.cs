@@ -52,7 +52,7 @@ namespace concord.Configuration
 
         public string NunitReportPath
         {
-            get { return Path.Combine(_libPath, @"NUnit2Report.Console.Runner.1.0.0.0\NUnit2Report.Console.exe"); }
+            get { return Path.Combine(_libPath, @"net40\NUnit2Report.Console.Runner.1.0.0.0\NUnit2Report.Console.exe"); }
         }
     }
 }
