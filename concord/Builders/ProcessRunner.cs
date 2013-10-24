@@ -328,23 +328,32 @@ namespace concord.Builders
 
         public int BuildBlockingProcess(string category, ITestFilter filter)
         {
-            var args = BuildParameterString(category, filter);
+            try
+            {
+                var args = BuildParameterString(category, filter);
 
-            var processStartInfo = new ProcessStartInfo(Settings.Instance.NunitPath, args)
-                {
-                    CreateNoWindow = true,
-                    WindowStyle = ProcessWindowStyle.Hidden,
-                    UseShellExecute = false,
-                };
-            var testRun = new Process
-                {
-                    StartInfo = processStartInfo,
-                };
+                var processStartInfo = new ProcessStartInfo(Settings.Instance.NunitPath, args)
+                    {
+                        CreateNoWindow = true,
+                        WindowStyle = ProcessWindowStyle.Hidden,
+                        UseShellExecute = false,
+                    };
+                var testRun = new Process
+                    {
+                        StartInfo = processStartInfo,
+                    };
 
-            testRun.Start();
-            testRun.PriorityClass = ProcessPriorityClass.BelowNormal;
-            testRun.WaitForExit();
-            return testRun.ExitCode;
+                testRun.Start();
+                testRun.PriorityClass = ProcessPriorityClass.BelowNormal;
+                testRun.WaitForExit();
+                return testRun.ExitCode;
+            }
+            catch (Exception ex)
+            {
+                Console.Error.WriteLine("ERROR: " + ex.ToString());
+                Console.Error.WriteLine("nunit path: " + Settings.Instance.NunitPath);
+                throw;
+            }
         }
 
         public string BuildParameterString(string category, ITestFilter filter)

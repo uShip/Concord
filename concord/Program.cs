@@ -67,6 +67,17 @@ namespace concord
                     Console.WriteLine(exception.ToString());
                 }
             }
+
+            [Verb]
+            public static void Debug()
+            {
+                Console.WriteLine("Attach if you want to, then press any key");
+                Console.ReadKey(true);
+
+                Console.WriteLine("Debugging paths:");
+                Console.WriteLine("Nunit: " + Settings.Instance.NunitPath);
+                Console.WriteLine("Report Gen: " + Settings.Instance.NunitReportPath);
+            }
         }
     }
 }
