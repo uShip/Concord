@@ -44,6 +44,10 @@
     <!--If not doing a tools package, could do this:-->
     <!--<file src="bin\*\*.dll" target="lib\net45" />
     <file src="bin\*\*.exe" target="lib\net45" exclude="**concord*" />-->
-    <file src="lib\NUnit2Report.Console.Runner.1.0.0.0\**" target="lib\net40\NUnit2Report.Console.Runner.1.0.0.0" />
+    
+    <!--<file src="lib\NUnit2Report.Console.Runner.1.0.0.0\**" target="lib\net40\NUnit2Report.Console.Runner.1.0.0.0" />-->
+    <file src="lib\NUnit2Report.Console.Runner.1.0.0.0\**" target="tools\lib\NUnit2Report.Console.Runner.1.0.0.0" />
+    
+    <file src="Readme.txt" target="lib\net45" />
   </files>
 </package>

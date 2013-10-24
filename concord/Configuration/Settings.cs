@@ -22,9 +22,9 @@ namespace concord.Configuration
 
             _libPath = FindValidPath(_assemblyPath, new[]
                 {
-                    @"..\lib", //Nuget location
-                    @"lib", //why not
-                    @"..\..\lib" //From bin
+                    @"lib", //Nuget location
+                    @"..\..\lib", //From bin
+                    @"..\lib" //why not
                 });
             if (_libPath == null) throw new FileNotFoundException("Could not find the lib folder!");
         }
