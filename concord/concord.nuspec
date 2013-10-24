@@ -13,6 +13,8 @@
     <description>A parallel runner for the nunit runner, allowing easier porting from unit tests to parallelized unit tests</description>
     <releaseNotes>Improved or fixed things...</releaseNotes>
     <copyright>Copyright © uShip 2013</copyright>
+    <!--Cannot have references unless they exist in the lib folder,
+        but we want a tool nuget package-->
     <!--<references>
       <reference file="CLAP.dll" />
       <reference file="FubuCore.dll" />
@@ -32,10 +34,11 @@
     <tags>utility tdd test testing runner nunit unittest unittesting</tags>
   </metadata>
   <files>
-    <!--<file src="bin\*\*.dll" target="lib" />
-    <file src="bin\*\*.exe" target="lib" exclude="**concord*" />-->
+    <!--Need to copy all references that the exe needs manually... nuget was meant for libraries, not tools.
+        Alternatively we could make a chocolatey nuget package-->
     <file src="bin\*\*.dll" target="tools" />
     <file src="bin\*\*.exe" target="tools" exclude="**concord*" />
+    <!--If not doing a tools package, could do this:-->
     <!--<file src="bin\*\*.dll" target="lib\net45" />
     <file src="bin\*\*.exe" target="lib\net45" exclude="**concord*" />-->
   </files>
