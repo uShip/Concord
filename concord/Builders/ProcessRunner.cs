@@ -84,6 +84,9 @@ namespace concord.Builders
                                          : _categories;
             int totalToRun = runnableCategories.Count() + (shouldRunOther ? 1 : 0);
 
+            stdOut.WriteLine();
+            stdOut.WriteLine("Found {0} categories to run", totalToRun);
+
             var testResults = new ConcurrentBag<RunStats>();
             bool cancelled = false;
 
