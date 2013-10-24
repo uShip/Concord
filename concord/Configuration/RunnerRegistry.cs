@@ -2,6 +2,7 @@
 using concord.Factories;
 using concord.Logging;
 using concord.Nunit;
+using concord.Parsers;
 using concord.Services;
 
 namespace concord.Configuration
@@ -16,6 +17,7 @@ namespace concord.Configuration
                 .Use<RunnerFactory>();
             For<ILogger>().Use<Logger>();
             For<IResultMerger>().Use<ResultMerger>();
+            For<IResultsParser>().Use<ResultsParser>();
         }
     }
 }
