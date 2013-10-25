@@ -20,13 +20,13 @@ namespace concord.Configuration
                 throw new InvalidOperationException("The assembly provided is not a valid nunit test runner");
             _packagesPath = Path.Combine(_assemblyPath, @"..\..\..\packages");
 
-            _libPath = FindValidPath(_assemblyPath, new[]
-                {
-                    @"lib", //Nuget location
-                    @"..\..\lib", //From bin
-                    @"..\lib" //why not
-                });
-            if (_libPath == null) throw new FileNotFoundException("Could not find the lib folder!");
+            //_libPath = FindValidPath(_assemblyPath, new[]
+            //    {
+            //        @"lib", //Nuget location
+            //        @"..\..\lib", //From bin
+            //        @"..\lib" //why not
+            //    });
+            //if (_libPath == null) throw new FileNotFoundException("Could not find the lib folder!");
         }
 
         private static string FindValidPath(string basePath, IEnumerable<string> possiblePaths)
@@ -64,7 +64,11 @@ namespace concord.Configuration
 
         public string NunitReportGeneratorPath
         {
-            get { return Path.Combine(_libPath, @"NUnit2Report.Console.Runner.1.0.0.0\NUnit2Report.Console.exe"); }
+            get
+            {
+                var nunitReportBuilderDirectory = FindMatchingDirectory(_packagesPath, @"NUnit2Report.Console.Runner");
+                return Path.Combine(nunitReportBuilderDirectory, @"NUnit2Report.Console.exe");
+            }
         }
     }
 }

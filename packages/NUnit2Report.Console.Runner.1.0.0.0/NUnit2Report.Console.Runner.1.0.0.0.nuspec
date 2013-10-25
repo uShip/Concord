@@ -15,7 +15,6 @@
       The original author is: Gilles
       People can contact Gilles via the mail address gilles.bayon@laposte.net or website  http://nunit2report.sourceforge.net</releaseNotes>
     <copyright>Copyright (c) 2012, Juan Pablo Olmos Lara (Jupaol)</copyright>
-    <language />
     <tags>NUnit report html NUnit2ReportTask NUnit2Report NCastor AutoBuilder NCastor.AutoBuilder</tags>
   </metadata>
 </package>
