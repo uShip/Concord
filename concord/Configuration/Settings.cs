@@ -10,7 +10,7 @@ namespace concord.Configuration
     {
         private static readonly Lazy<ISettings> LazyInstance = new Lazy<ISettings>(() => new Settings());
         private readonly string _assemblyPath;
-        private readonly string _packagesPath;
+        private readonly string _toolPackagesPath;
         private readonly string _libPath;
 
         private Settings()
@@ -18,7 +18,7 @@ namespace concord.Configuration
             _assemblyPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
             if (_assemblyPath == null)
                 throw new InvalidOperationException("The assembly provided is not a valid nunit test runner");
-            _packagesPath = Path.Combine(_assemblyPath, @"..\..\..\packages");
+            _toolPackagesPath = Path.Combine(_assemblyPath, @"..\..\..\packages");
 
             //_libPath = FindValidPath(_assemblyPath, new[]
             //    {
@@ -40,6 +40,12 @@ namespace concord.Configuration
                 }).FirstOrDefault();
         }
 
+        /// <summary>
+        /// Find the dependency folder, without depending on the version number
+        /// </summary>
+        /// <param name="path"></param>
+        /// <param name="startsWith"></param>
+        /// <returns></returns>
         private static string FindMatchingDirectory(string path, string startsWith)
         {
             string searchPattern = startsWith + "*";
@@ -48,6 +54,13 @@ namespace concord.Configuration
                             .FirstOrDefault();
         }
 
+        private string BuildDependencyPath(string dependencyName, string filepath)
+        {
+            var dependencyDirectory = FindMatchingDirectory(_toolPackagesPath, dependencyName);
+            return Path.Combine(dependencyDirectory, filepath);
+        }
+
+
         public static ISettings Instance
         {
             get { return LazyInstance.Value; }
@@ -55,20 +68,12 @@ namespace concord.Configuration
 
         public string NunitPath
         {
-            get
-            {
-                var nunitRunnersDirectory = FindMatchingDirectory(_packagesPath, @"NUnit.Runners");
-                return Path.Combine(nunitRunnersDirectory, @"tools\nunit-console.exe");
-            }
+            get { return BuildDependencyPath(@"NUnit.Runners", @"tools\nunit-console.exe"); }
         }
 
         public string NunitReportGeneratorPath
         {
-            get
-            {
-                var nunitReportBuilderDirectory = FindMatchingDirectory(_packagesPath, @"NUnit2Report.Console.Runner");
-                return Path.Combine(nunitReportBuilderDirectory, @"NUnit2Report.Console.exe");
-            }
+            get { return BuildDependencyPath(@"NUnit2Report.Console.Runner", @"NUnit2Report.Console.exe"); }
         }
     }
 }
