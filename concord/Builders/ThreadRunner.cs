@@ -146,7 +146,7 @@ namespace concord.Builders
             _logger.Log("Written: " + outputResultsXmlPath);
             var processReport = new Process
                 {
-                    StartInfo = new ProcessStartInfo(Settings.Instance.NunitReportPath, args)
+                    StartInfo = new ProcessStartInfo(Settings.Instance.NunitReportGeneratorPath, args)
                 };
             processReport.Start();
             var mergedContents = File.ReadAllText(outputResultsXmlPath);

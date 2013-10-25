@@ -29,16 +29,16 @@ namespace concord.Builders
         private readonly List<string> _categories;
         private readonly List<string> _categoriesToRun;
         private readonly ILogger _logger;
-        private readonly string _outputPath;
+        private readonly RunnerSettings _runnerSettings;
 
         public ProcessRunner(string assemblyLocation, IEnumerable<string> categories, IEnumerable<string> categoriesToRun,
-                             ILogger logger, string outputPath)
+                             ILogger logger, RunnerSettings runnerSettings)
         {
             _assemblyLocation = assemblyLocation;
             _categories = categories.ToList();
             _categoriesToRun = categoriesToRun.ToList();
             _logger = logger;
-            _outputPath = outputPath;
+            _runnerSettings = runnerSettings;
         }
 
         public string GetRunResultsAsXml()
@@ -54,7 +54,7 @@ namespace concord.Builders
             totalRuntime.Start();
 
 
-            var outputPath = _outputPath;
+            var outputPath = _runnerSettings.OutputBasePath;
             if (!Directory.Exists(outputPath))
                 Directory.CreateDirectory(outputPath);
 
@@ -218,7 +218,7 @@ namespace concord.Builders
                 }
             }
 
-            File.WriteAllText(RunStatsOutputFilepath(outputPath), sb.ToString());
+            File.WriteAllText(_runnerSettings.ResultsStatsFilepath, sb.ToString());
 
             //var toOutput = new
             //{
@@ -230,15 +230,10 @@ namespace concord.Builders
             //toOutput.ToXml().Save(Path.Combine(outputPath, "RunStats.html"));
         }
 
-        internal static string RunStatsOutputFilepath(string outputPath)
-        {
-            return Path.Combine(outputPath, "RunStats.html");
-        }
-
         private string MergeResults(string outputPath)
         {
-            var outputResultsXmlPath = Path.Combine(outputPath, "results.xml");
-            var outputResultsReportPath = Path.Combine(outputPath, "report.html");
+            var outputResultsXmlPath = _runnerSettings.ResultsXmlFilepath;
+            var outputResultsReportPath = _runnerSettings.ResultsHtmlReportFilepath;
 
             CleanupPreviousFiles(outputResultsXmlPath, outputResultsReportPath);
 
@@ -288,7 +283,7 @@ namespace concord.Builders
         {
             var args = string.Format(@"--fileset={0} --todir {1} --out {2}", outputResultsXmlPath, outputPath, outputResultsReportPath);
             _logger.Log("args: " + args);
-            var processStartInfo = new ProcessStartInfo(Settings.Instance.NunitReportPath, args)
+            var processStartInfo = new ProcessStartInfo(Settings.Instance.NunitReportGeneratorPath, args)
                 {
                     CreateNoWindow = true,
                     WindowStyle = ProcessWindowStyle.Hidden,
@@ -364,7 +359,7 @@ namespace concord.Builders
             return string.Format(@"{0} /xml:{2} {1}",
                                  ToParameterString(filter),
                                  _assemblyLocation,
-                                 Path.Combine(_outputPath, string.Format("{0}.xml", category)));
+                                 Path.Combine(_runnerSettings.OutputBasePath, string.Format("{0}.xml", category)));
         }
 
         public string ToParameterString(ITestFilter filter)

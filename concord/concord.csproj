@@ -81,6 +81,7 @@
     <Compile Include="Builders\IRunner.cs" />
     <Compile Include="Builders\ThreadRunner.cs" />
     <Compile Include="Configuration\RunnerRegistry.cs" />
+    <Compile Include="Configuration\RunnerSettings.cs" />
     <Compile Include="Configuration\ServiceLocator.cs" />
     <Compile Include="Extensions\ActionExtensions.cs" />
     <Compile Include="Extensions\TypeExtensions.cs" />

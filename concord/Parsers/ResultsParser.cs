@@ -20,7 +20,7 @@ namespace concord.Parsers
             return fileLines
                 .Select(line => regex.Match(line))
                 .Where(x => x.Success) // && x.Groups["exitcode"].Value
-                .Select(x => x.Groups["feature"].Value);
+                .Select(x => x.Groups["feature"].Value.TrimStart('_'));
         }
     }
 }

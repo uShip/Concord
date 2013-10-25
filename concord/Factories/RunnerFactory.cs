@@ -22,12 +22,12 @@ namespace concord.Factories
             _resultsParser = resultsParser;
         }
 
-        public IRunner Create(string assemblyFileName, bool rerunFailedCategories = false, string categoriesList = null, string outputPath = null)
+        public IRunner Create(RunnerSettings runnerSettings, string assemblyFileName, bool rerunFailedCategories = false, string categoriesList = null)
         {
-            return Create(Assembly.LoadFrom(assemblyFileName), rerunFailedCategories, categoriesList, outputPath);
+            return Create(runnerSettings, Assembly.LoadFrom(assemblyFileName), rerunFailedCategories, categoriesList);
         }
 
-        public IRunner Create(Assembly assembly, bool rerunFailedCategories = false, string categoriesList = null, string outputPath = null)
+        public IRunner Create(RunnerSettings runnerSettings, Assembly assembly, bool rerunFailedCategories = false, string categoriesList = null)
         {
             var fixtures = _categoryFinderService.FindCategories(assembly);
 
@@ -40,12 +40,12 @@ namespace concord.Factories
 
             if (rerunFailedCategories)
             {
-                var erroredCategories = _resultsParser.GetErrorsCategories(ProcessRunner.RunStatsOutputFilepath(outputPath));
+                var erroredCategories = _resultsParser.GetErrorsCategories(runnerSettings.ResultsStatsFilepath);
                 categoriesToRun = categoriesToRun.Concat(erroredCategories);
             }
 
             //return new ThreadRunner(_assembly.Location, _featureTypes, ObjectFactory.GetInstance<ILogger>(), _outputPath);
-            return new ProcessRunner(assembly.Location, fixtures, categoriesToRun, ObjectFactory.GetInstance<ILogger>(), outputPath);
+            return new ProcessRunner(assembly.Location, fixtures, categoriesToRun, ObjectFactory.GetInstance<ILogger>(), runnerSettings);
         }
     }
 }

@@ -44,13 +44,10 @@ namespace concord
 
                 var builderFactory = serviceLocator.Get<IRunnerFactory>();
 
-                _logger.Log("Report at" + @out);
                 try
                 {
-                    var outputPath = @out ?? Environment.CurrentDirectory;
-                    _logger.Log("Output at" + @out);
-
-                    var batchBuilder = builderFactory.Create(lib, rerunFailedCategories, categories, outputPath);
+                    var runnerSettings = new RunnerSettings(@out);
+                    var batchBuilder = builderFactory.Create(runnerSettings, lib, rerunFailedCategories, categories);
 
                     batchBuilder.GetRunResultsAsXml(concurrentThreads.HasValue ? concurrentThreads.Value : 15);
                 }
@@ -76,7 +73,7 @@ namespace concord
 
                 Console.WriteLine("Debugging paths:");
                 Console.WriteLine("Nunit: " + Settings.Instance.NunitPath);
-                Console.WriteLine("Report Gen: " + Settings.Instance.NunitReportPath);
+                Console.WriteLine("Report Gen: " + Settings.Instance.NunitReportGeneratorPath);
             }
         }
     }

@@ -3,6 +3,6 @@
     internal interface ISettings
     {
         string NunitPath { get; }
-        string NunitReportPath { get; }
+        string NunitReportGeneratorPath { get; }
     }
 }
