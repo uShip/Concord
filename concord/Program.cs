@@ -12,11 +12,15 @@ namespace concord
 {
     internal class Program
     {
+        private const string LibraryName = "$lib$";
+
         private static ILogger _logger;
+        private static IRunnerSettingsBuilder _runnerSettingsBuilder;
 
         private static void Main(string[] args)
         {
             _logger = ServiceLocator.Instance.Get<ILogger>();
+            _runnerSettingsBuilder = ServiceLocator.Instance.Get<IRunnerSettingsBuilder>();
             Parser.Run<CommandLineRunner>(args);
         }
 
@@ -36,6 +40,7 @@ namespace concord
             public static void RunReport(
                 string lib,
                 string @out,
+                string outputPrefix,
                 int? concurrentThreads,
                 string categories,
                 bool rerunFailedCategories)
@@ -46,8 +51,15 @@ namespace concord
 
                 try
                 {
-                    var runnerSettings = new RunnerSettings(@out);
-                    var batchBuilder = builderFactory.Create(runnerSettings, lib, rerunFailedCategories, categories);
+                    var runnerSettings = _runnerSettingsBuilder.SetOutputFolder(@out);
+                    if (!string.IsNullOrEmpty(outputPrefix))
+                    {
+                        runnerSettings.PrependFilenames(
+                            outputPrefix.Replace(
+                                LibraryName,
+                                Path.GetFileNameWithoutExtension(lib)));
+                    }
+                    var batchBuilder = builderFactory.Create(runnerSettings.Build(), lib, rerunFailedCategories, categories);
 
                     batchBuilder.GetRunResultsAsXml(concurrentThreads.HasValue ? concurrentThreads.Value : 15);
                 }

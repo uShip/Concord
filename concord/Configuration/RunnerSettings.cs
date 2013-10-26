@@ -17,14 +17,19 @@ namespace concord.Configuration
             ResultsStatsFilename = resultsStatsFilename;
         }
 
-        public RunnerSettings(string outputBasePath, string prependFiles)
+        public RunnerSettings(string outputBasePath, string prependFilenames)
             : this(outputBasePath)
         {
             OutputBasePath = outputBasePath;
 
-            ResultsXmlFilename = prependFiles + ResultsXmlFilename;
-            ResultsHtmlReportFilename = prependFiles + ResultsHtmlReportFilename;
-            ResultsStatsFilename = prependFiles + ResultsStatsFilename;
+            PrependFilenames(prependFilenames);
+        }
+
+        internal void PrependFilenames(string prependWith)
+        {
+            ResultsXmlFilename = prependWith + ResultsXmlFilename;
+            ResultsHtmlReportFilename = prependWith + ResultsHtmlReportFilename;
+            ResultsStatsFilename = prependWith + ResultsStatsFilename;
         }
 
         public string OutputBasePath { get; set; }

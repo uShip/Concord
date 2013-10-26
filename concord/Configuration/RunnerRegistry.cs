@@ -18,6 +18,7 @@ namespace concord.Configuration
             For<ILogger>().Use<Logger>();
             For<IResultMerger>().Use<ResultMerger>();
             For<IResultsParser>().Use<ResultsParser>();
+            For<IRunnerSettingsBuilder>().Use<RunnerSettingsBuilder>();
         }
     }
 }
