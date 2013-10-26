@@ -15,26 +15,27 @@ namespace concord.Extensions
 
         public static IEnumerable<string> GetCategories(this IEnumerable<Type> types)
         {
-            Func<Attribute, string> getNameProperty = a => a.GetType().GetProperty("Name").GetValue(a).ToString();
-            Func<Type, string> getCategoryAttribute =
-                t => GetCategoryAttribute(getNameProperty, t);
-
 //             return types
 //                 .Select(x => x.GetCustomAttributesEndingWith("CategoryAttribute").FirstOrDefault())
 //                .Where(x => x != null)
 //                .Select(x => x.GetType().GetProperty("Name").GetValue(x).ToString())
 //                .Distinct()
 //                .ToList();
-            return types.Select(getCategoryAttribute)
+            return types.Select(GetCategoryAttribute)
                         .Where(x => x != null)
                         .OrderBy(x => x)
                         .Where(x => !"long".Equals(x, StringComparison.OrdinalIgnoreCase))
                         .Distinct();
         }
 
-        private static string GetCategoryAttribute(Func<Attribute, string> getNameProperty, Type t)
+        private static string GetCategoryName(Attribute a)
         {
-            Func<Attribute, bool> isTheLongRunningAttribute = x => "Long".Equals(getNameProperty(x),
+            return a.GetType().GetProperty("Name").GetValue(a).ToString();
+        }
+
+        private static string GetCategoryAttribute(Type t)
+        {
+            Func<Attribute, bool> isTheLongRunningAttribute = x => "Long".Equals(GetCategoryName(x),
                                                                                  StringComparison
                                                                                      .OrdinalIgnoreCase);
             var attributes = t.GetCustomAttributesEndingWith("CategoryAttribute").ToArray();
@@ -42,10 +43,20 @@ namespace concord.Extensions
 
             if (firstAttribute == null) return null;
 
-            var firstAttributeName = getNameProperty(firstAttribute);
+            var firstAttributeName = GetCategoryName(firstAttribute);
             return attributes.Any(isTheLongRunningAttribute)
                        ? "_" + firstAttributeName
                        : firstAttributeName;
+        }
+
+        public static bool HasCategoryAttribute(this Type t, IEnumerable<string> categories)
+        {
+            return categories.Contains(GetCategoryAttribute(t).TrimLongPrefix());
+        }
+
+        public static string TrimLongPrefix(this string category)
+        {
+            return category.TrimStart('_');
         }
     }
 }

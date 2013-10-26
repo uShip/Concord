@@ -29,9 +29,12 @@ namespace concord.Factories
 
         public IRunner Create(RunnerSettings runnerSettings, Assembly assembly, bool rerunFailedCategories = false, string categoriesList = null)
         {
-            var fixtures = _categoryFinderService.FindCategories(assembly);
+            var categories = _categoryFinderService.FindCategories(assembly);
 
-            if (!fixtures.Any())
+            var other = categories.Concat(new[] { "Long" });
+            var otherFixtures = _categoryFinderService.FindTestFixturesExcludingCategories(assembly, other).ToList();
+
+            if (!categories.Any() && !otherFixtures.Any())
                 throw new InvalidOperationException("Cannot run if there are no tests.");
 
             var categoriesToRun = categoriesList != null
@@ -45,7 +48,7 @@ namespace concord.Factories
             }
 
             //return new ThreadRunner(_assembly.Location, _featureTypes, ObjectFactory.GetInstance<ILogger>(), _outputPath);
-            return new ProcessRunner(assembly.Location, fixtures, categoriesToRun, ObjectFactory.GetInstance<ILogger>(), runnerSettings);
+            return new ProcessRunner(assembly.Location, categories, otherFixtures, categoriesToRun, ObjectFactory.GetInstance<ILogger>(), runnerSettings);
         }
     }
 }

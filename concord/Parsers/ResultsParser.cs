@@ -2,6 +2,7 @@
 using System.IO;
 using System.Text.RegularExpressions;
 using System.Linq;
+using concord.Extensions;
 
 namespace concord.Parsers
 {
@@ -20,7 +21,7 @@ namespace concord.Parsers
             return fileLines
                 .Select(line => regex.Match(line))
                 .Where(x => x.Success) // && x.Groups["exitcode"].Value
-                .Select(x => x.Groups["feature"].Value.TrimStart('_'));
+                .Select(x => x.Groups["feature"].Value.TrimLongPrefix());
         }
     }
 }

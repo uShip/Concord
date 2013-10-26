@@ -37,6 +37,13 @@ namespace concord.Services
                 .ToArray();
         }
 
+        public IEnumerable<string> FindTestFixturesExcludingCategories(Assembly assembly, IEnumerable<string> excludeCategories)
+        {
+            var testFixtures = FindTestFixtures(assembly);
+            return testFixtures.Where(x => !x.HasCategoryAttribute(excludeCategories))
+                               .Select(x => x.AssemblyQualifiedName);
+        }
+
         public IList<string> FindCategories(Assembly assembly)
         {
             var fixtures = FindTestFixtures(assembly);

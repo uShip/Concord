@@ -14,6 +14,7 @@ using concord.Configuration;
 using concord.Logging;
 using concord.Nunit;
 using concord.Wrappers;
+using concord.Extensions;
 
 namespace concord.Builders
 {
@@ -25,16 +26,21 @@ namespace concord.Builders
     internal class ProcessRunner : IRunner
     {
         private readonly string _assemblyLocation;
+        private readonly IEnumerable<string> _otherTestFixtures;
         private readonly CancellationTokenSource _cancelTokenSource = new CancellationTokenSource();
         private readonly List<string> _categories;
         private readonly List<string> _categoriesToRun;
         private readonly ILogger _logger;
         private readonly RunnerSettings _runnerSettings;
 
-        public ProcessRunner(string assemblyLocation, IEnumerable<string> categories, IEnumerable<string> categoriesToRun,
+        public ProcessRunner(string assemblyLocation,
+                             IEnumerable<string> categories,
+                             IEnumerable<string> otherTestFixtures,
+                             IEnumerable<string> categoriesToRun,
                              ILogger logger, RunnerSettings runnerSettings)
         {
             _assemblyLocation = assemblyLocation;
+            _otherTestFixtures = otherTestFixtures;
             _categories = categories.ToList();
             _categoriesToRun = categoriesToRun.ToList();
             _logger = logger;
@@ -79,10 +85,17 @@ namespace concord.Builders
                                                  : -1,
                     CancellationToken = _cancelTokenSource.Token
                 };
+
+            var testFixturesToRun = new List<string>();
+            if (shouldRunOther)
+            {
+                testFixturesToRun.AddRange(_otherTestFixtures);
+            }
+
             var runnableCategories = _categoriesToRun.Count > 0
                                          ? _categories.Intersect(_categoriesToRun).ToList()
                                          : _categories;
-            int totalToRun = runnableCategories.Count() + (shouldRunOther ? 1 : 0);
+            int totalToRun = runnableCategories.Count() + testFixturesToRun.Count;
 
             stdOut.WriteLine();
             stdOut.WriteLine("Found {0} categories to run", totalToRun);
@@ -135,7 +148,7 @@ namespace concord.Builders
                     };
 
                 var token = options.CancellationToken;
-                Parallel.ForEach(BuildAllActions(_categories, runnableCategories, shouldRunOther),
+                Parallel.ForEach(BuildAllActions(testFixturesToRun, runnableCategories),
                                  options,
                                  action =>
                                      {
@@ -297,19 +310,31 @@ namespace concord.Builders
         }
 
 
-        public IEnumerable<TestRunAction> BuildAllActions(List<string> categories, List<string> runnableCategories, bool shouldRunOther)
+        public IEnumerable<TestRunAction> BuildAllActions(List<string> testFixtures, List<string> runnableCategories)
         {
             int indexOffset = 0;
-            if (shouldRunOther)
+//            if (shouldRunOther)
+//            {
+//                var other = GetExcludeFitler(categories.Concat(new[] {"Long"}).ToArray());
+//                yield return new TestRunAction
+//                    {
+//                        Name = "all",
+//                        Index = 0,
+//                        RunTests = () => BuildFilteredBlockingProcess("all", other)
+//                    };
+//                indexOffset = 1;
+//            }
+
+            foreach (var fixture in testFixtures.Select((x, i) => new {Name = x, Index = i}))
             {
-                var other = GetExcludeFitler(categories.Concat(new[] {"Long"}).ToArray());
+                var x = fixture.Name;
                 yield return new TestRunAction
                     {
                         Name = "all",
                         Index = 0,
-                        RunTests = () => BuildBlockingProcess("all", other)
+                        RunTests = () => BuildFilteredBlockingProcess(x)
                     };
-                indexOffset = 1;
+                ++indexOffset;
             }
 
             foreach (var cat in runnableCategories.Select((x, i) => new {Name = x, Index = i + indexOffset}))
@@ -319,17 +344,27 @@ namespace concord.Builders
                     {
                         Name = x,
                         Index = cat.Index,
-                        RunTests = () => BuildBlockingProcess(x, GetIncludefilter(x))
+                        RunTests = () => BuildFilteredBlockingProcess(x, GetIncludefilter(x))
                     };
             }
         }
 
-        public int BuildBlockingProcess(string category, ITestFilter filter)
+        private int BuildFilteredBlockingProcess(string category, ITestFilter filter)
+        {
+            var args = BuildParameterString(BuildOutputXmlPath(category), ToParameterString(filter));
+            return BuildBlockingProcess(args);
+        }
+
+        private int BuildFilteredBlockingProcess(string testFixture)
+        {
+            var args = BuildParameterString(BuildOutputXmlPath("fixture-" + testFixture), SpecifyFixture(testFixture));
+            return BuildBlockingProcess(args);
+        }
+
+        private int BuildBlockingProcess(string args)
         {
             try
             {
-                var args = BuildParameterString(category, filter);
-
                 var processStartInfo = new ProcessStartInfo(Settings.Instance.NunitPath, args)
                     {
                         CreateNoWindow = true,
@@ -354,12 +389,17 @@ namespace concord.Builders
             }
         }
 
-        public string BuildParameterString(string category, ITestFilter filter)
+        public string BuildParameterString(string outputXmlPath, string parameters)
         {
-            return string.Format(@"{0} /xml:{2} {1}",
-                                 ToParameterString(filter),
-                                 _assemblyLocation,
-                                 Path.Combine(_runnerSettings.OutputBasePath, string.Format("{0}.xml", category)));
+            return string.Format(@"{0} /xml:{1} {2}",
+                                 parameters,
+                                 outputXmlPath,
+                                 _assemblyLocation);
+        }
+
+        private string BuildOutputXmlPath(string category)
+        {
+            return Path.Combine(_runnerSettings.OutputBasePath, string.Format("{0}.xml", category));
         }
 
         public string ToParameterString(ITestFilter filter)
@@ -372,10 +412,19 @@ namespace concord.Builders
             return "/include:" + str;
         }
 
+        /// <summary>
+        /// Can be a class or namespace
+        /// </summary>
+        /// <param name="fixture"></param>
+        /// <returns></returns>
+        public string SpecifyFixture(string fixture)
+        {
+            return "/fixture:" + fixture;
+        }
+
         public ITestFilter GetIncludefilter(string includeCategory)
         {
-            if (includeCategory.StartsWith("_"))
-                includeCategory = includeCategory.Substring(1);
+            includeCategory = includeCategory.TrimLongPrefix();
             return new CategoryFilter(includeCategory);
         }
 
