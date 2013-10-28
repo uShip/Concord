@@ -46,12 +46,6 @@ namespace concord
                 bool rerunFailedCategories,
                 bool uncategorizedInParallel)
             {
-                Console.WriteLine("Attach if you want to, then press any key");
-                Console.ReadKey(true);
-
-
-
-
                 var serviceLocator = ServiceLocator.Instance;
 
                 var builderFactory = serviceLocator.Get<IRunnerFactory>();
@@ -67,7 +61,7 @@ namespace concord
                                 Path.GetFileNameWithoutExtension(lib)));
                     }
 
-                    if (uncategorizedInParallel) runnerSettings.RunUncategorizedTestFixturesParallel();
+                    runnerSettings.RunUncategorizedTestFixturesParallel(uncategorizedInParallel);
 
                     var batchBuilder = builderFactory.Create(runnerSettings.Build(), lib, rerunFailedCategories, categories);
 

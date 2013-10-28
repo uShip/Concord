@@ -95,7 +95,15 @@ namespace concord.Builders
             var runnableCategories = _categoriesToRun.Count > 0
                                          ? _categories.Intersect(_categoriesToRun).ToList()
                                          : _categories;
-            int totalToRun = runnableCategories.Count() + testFixturesToRun.Count;
+            int totalToRun = runnableCategories.Count();
+            if (_runnerSettings.RunUncategorizedTestFixturesParallel)
+            {
+                totalToRun += testFixturesToRun.Count;
+            }
+            else if (shouldRunOther)
+            {
+                totalToRun += 1;
+            }
 
             stdOut.WriteLine();
             stdOut.WriteLine("Found {0} categories to run", totalToRun);
@@ -108,9 +116,11 @@ namespace concord.Builders
                 var runningTests = new int[totalToRun];
 
                 int indicatorPos = 0;
+                var buildingDisplay = new object();
                 var timer = new Timer(x =>
                     {
                         if (Console.IsOutputRedirected) return;
+                        if (!Monitor.TryEnter(buildingDisplay)) return;
 
                         try
                         {
@@ -122,7 +132,12 @@ namespace concord.Builders
                         }
                         catch (Exception exception)
                         {
+                            stdOut.Write("display error...");
                             throw new ApplicationException("Unable to properly build progress display.", exception);
+                        }
+                        finally
+                        {
+                            Monitor.Exit(buildingDisplay);
                         }
                     }, null, 0, 250);
 
@@ -315,14 +330,14 @@ namespace concord.Builders
             int indexOffset = 0;
             if (_runnerSettings.RunUncategorizedTestFixturesParallel)
             {
-
+                //TODO these should NOT be added first... want Long categories first!!
                 foreach (var fixture in testFixtures.Select((x, i) => new {Name = x, Index = i}))
                 {
                     var x = fixture.Name;
                     yield return new TestRunAction
                         {
                             Name = "Fix-" + x,
-                            Index = 0,
+                            Index = fixture.Index,
                             RunTests = () => BuildFilteredBlockingProcess(x)
                         };
                     ++indexOffset;
