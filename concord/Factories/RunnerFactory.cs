@@ -38,8 +38,10 @@ namespace concord.Factories
                 throw new InvalidOperationException("Cannot run if there are no tests.");
 
             var categoriesToRun = categoriesList != null
-                                    ? categoriesList.Split(',', ';').Select(x => x.Trim())
-                                    : new string[0];
+                                      ? categoriesList.Split(',', ';', '\n', '\r')
+                                                      .Select(x => x.Trim())
+                                                      .Where(x => x.Length > 0)
+                                      : new string[0];
 
             if (rerunFailedCategories)
             {
