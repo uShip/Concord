@@ -39,6 +39,12 @@ namespace concord.Configuration
             return this;
         }
 
+        public RunnerSettingsBuilder RunUncategorizedTestFixturesParallel(bool runParallel = true)
+        {
+            _runnerSettings.RunUncategorizedTestFixturesParallel = runParallel;
+            return this;
+        }
+
         public RunnerSettings Build()
         {
             if (_runnerSettings == null) throw new Exception("Must start with SetOutputFolder");

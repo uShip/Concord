@@ -41,7 +41,7 @@ namespace concord.Services
         {
             var testFixtures = FindTestFixtures(assembly);
             return testFixtures.Where(x => !x.HasCategoryAttribute(excludeCategories))
-                               .Select(x => x.AssemblyQualifiedName);
+                               .Select(x => x.FullName);
         }
 
         public IList<string> FindCategories(Assembly assembly)

@@ -43,8 +43,15 @@ namespace concord
                 string outputPrefix,
                 int? concurrentThreads,
                 string categories,
-                bool rerunFailedCategories)
+                bool rerunFailedCategories,
+                bool uncategorizedInParallel)
             {
+                Console.WriteLine("Attach if you want to, then press any key");
+                Console.ReadKey(true);
+
+
+
+
                 var serviceLocator = ServiceLocator.Instance;
 
                 var builderFactory = serviceLocator.Get<IRunnerFactory>();
@@ -59,6 +66,9 @@ namespace concord
                                 LibraryName,
                                 Path.GetFileNameWithoutExtension(lib)));
                     }
+
+                    if (uncategorizedInParallel) runnerSettings.RunUncategorizedTestFixturesParallel();
+
                     var batchBuilder = builderFactory.Create(runnerSettings.Build(), lib, rerunFailedCategories, categories);
 
                     batchBuilder.GetRunResultsAsXml(concurrentThreads.HasValue ? concurrentThreads.Value : 15);

@@ -51,7 +51,9 @@ namespace concord.Extensions
 
         public static bool HasCategoryAttribute(this Type t, IEnumerable<string> categories)
         {
-            return categories.Contains(GetCategoryAttribute(t).TrimLongPrefix());
+            var categoryAttribute = GetCategoryAttribute(t);
+            return categoryAttribute != null
+                   && categories.Contains(categoryAttribute.TrimLongPrefix());
         }
 
         public static string TrimLongPrefix(this string category)

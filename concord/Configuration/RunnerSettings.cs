@@ -58,5 +58,7 @@ namespace concord.Configuration
                 return Path.Combine(OutputBasePath, ResultsStatsFilename);
             }
         }
+
+        public bool RunUncategorizedTestFixturesParallel { get; set; }
     }
 }

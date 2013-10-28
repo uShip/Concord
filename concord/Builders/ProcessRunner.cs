@@ -313,28 +313,36 @@ namespace concord.Builders
         public IEnumerable<TestRunAction> BuildAllActions(List<string> testFixtures, List<string> runnableCategories)
         {
             int indexOffset = 0;
-//            if (shouldRunOther)
-//            {
-//                var other = GetExcludeFitler(categories.Concat(new[] {"Long"}).ToArray());
-//                yield return new TestRunAction
-//                    {
-//                        Name = "all",
-//                        Index = 0,
-//                        RunTests = () => BuildFilteredBlockingProcess("all", other)
-//                    };
-//                indexOffset = 1;
-//            }
-
-            foreach (var fixture in testFixtures.Select((x, i) => new {Name = x, Index = i}))
+            if (_runnerSettings.RunUncategorizedTestFixturesParallel)
             {
-                var x = fixture.Name;
-                yield return new TestRunAction
-                    {
-                        Name = "all",
-                        Index = 0,
-                        RunTests = () => BuildFilteredBlockingProcess(x)
-                    };
-                ++indexOffset;
+
+                foreach (var fixture in testFixtures.Select((x, i) => new {Name = x, Index = i}))
+                {
+                    var x = fixture.Name;
+                    yield return new TestRunAction
+                        {
+                            Name = "Fix-" + x,
+                            Index = 0,
+                            RunTests = () => BuildFilteredBlockingProcess(x)
+                        };
+                    ++indexOffset;
+                }
+            }
+            else
+            {
+                //If any other features exist, run them all as one test run
+                //  This excludes all categories we know about
+                if (testFixtures.Any())
+                {
+                    var other = GetExcludeFitler(_categories.Concat(new[] { "Long" }).ToArray());
+                    yield return new TestRunAction
+                        {
+                            Name = "all",
+                            Index = 0,
+                            RunTests = () => BuildFilteredBlockingProcess("all", other)
+                        };
+                    indexOffset = 1;
+                }
             }
 
             foreach (var cat in runnableCategories.Select((x, i) => new {Name = x, Index = i + indexOffset}))
