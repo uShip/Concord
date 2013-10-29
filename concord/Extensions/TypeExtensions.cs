@@ -53,7 +53,7 @@ namespace concord.Extensions
         {
             var categoryAttribute = GetCategoryAttribute(t);
             return categoryAttribute != null
-                   && categories.Contains(categoryAttribute.TrimLongPrefix());
+                   && categories.Contains(categoryAttribute.TrimLongPrefix(), CategoryNameComparer.Default);
         }
 
         public static string TrimLongPrefix(this string category)
