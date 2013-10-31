@@ -133,7 +133,7 @@ namespace concord.Builders
             }
 
             stdOut.WriteLine();
-            stdOut.WriteLine("Found {0} categories to run", totalToRun);
+            stdOut.WriteLine("Found {0} categories/fixtures to run", totalToRun);
 
             var testResults = new ConcurrentBag<RunStats>();
             bool cancelled = false;
@@ -256,6 +256,7 @@ namespace concord.Builders
         {
             var sb = new StringBuilder();
 
+            sb.AppendLine("<pre>");
             sb.AppendLine("Total Runtime: " + totalRuntime.ToString());
             foreach (var r in runners.OrderByDescending(t => t.RunTime))
             {
@@ -272,6 +273,7 @@ namespace concord.Builders
                     sb.AppendLine();
                 }
             }
+            sb.AppendLine("</pre>");
 
             File.WriteAllText(_runnerSettings.ResultsStatsFilepath, sb.ToString());
 
@@ -353,6 +355,7 @@ namespace concord.Builders
         public IEnumerable<TestRunAction> BuildAllActions(List<string> testFixtures, List<string> runnableCategories)
         {
             int indexOffset = 0;
+            //TestFixtures that do not have a category:
             if (_runnerSettings.RunUncategorizedTestFixturesParallel)
             {
                 //TODO these should NOT be added first... want Long categories first!!
@@ -385,6 +388,7 @@ namespace concord.Builders
                 }
             }
 
+            //Categories:
             foreach (var cat in runnableCategories.Select((x, i) => new {Name = x, Index = i + indexOffset}))
             {
                 var x = cat.Name;
