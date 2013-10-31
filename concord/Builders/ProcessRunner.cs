@@ -194,7 +194,7 @@ namespace concord.Builders
                     };
 
                 var token = options.CancellationToken;
-                Parallel.ForEach(BuildAllActions(testFixturesToRun, runnableCategories),
+                Parallel.ForEach(BuildSortedAllActions(testFixturesToRun, runnableCategories),
                                  options,
                                  action =>
                                      {
@@ -356,7 +356,22 @@ namespace concord.Builders
         }
 
 
-        public IEnumerable<TestRunAction> BuildAllActions(List<string> testFixtures, List<string> runnableCategories)
+        public IEnumerable<TestRunAction> BuildSortedAllActions(IEnumerable<string> testFixtures, IEnumerable<string> runnableCategories)
+        {
+            var actions = BuildAllActions(testFixtures, runnableCategories).ToList();
+
+            var TargetRunOrder = _resultsParser.GetCategoriesInOrder(_runnerSettings.ResultsStatsFilepath);
+
+            //Take ones in the order of TargetRunOrder, then append any others after that
+            //  Ideally the Others would go first...
+            return TargetRunOrder
+                .Select(name => actions.SingleOrDefault(x => x.Name == name))
+                .Where(foundAction => foundAction != null)
+                .Union(actions)
+                .ToList();
+        }
+
+        private IEnumerable<TestRunAction> BuildAllActions(IEnumerable<string> testFixtures, IEnumerable<string> runnableCategories)
         {
             int indexOffset = 0;
             //TestFixtures that do not have a category:
