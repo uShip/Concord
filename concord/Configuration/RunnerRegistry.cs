@@ -3,6 +3,7 @@ using concord.Builders;
 using concord.Factories;
 using concord.Logging;
 using concord.Nunit;
+using concord.Output;
 using concord.Parsers;
 using concord.Services;
 
@@ -24,6 +25,7 @@ namespace concord.Configuration
             For<IResultMerger>().Use<ResultMerger>();
             For<IResultsParser>().Use<ResultsParser>();
             For<IRunnerSettingsBuilder>().Use<RunnerSettingsBuilder>();
+            For<IProgressDisplay>().Use<ProgressDisplay>();
         }
     }
 }

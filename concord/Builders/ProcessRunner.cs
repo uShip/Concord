@@ -13,6 +13,7 @@ using NUnit.Core.Filters;
 using concord.Configuration;
 using concord.Logging;
 using concord.Nunit;
+using concord.Output;
 using concord.Parsers;
 using concord.Wrappers;
 using concord.Extensions;
@@ -30,15 +31,18 @@ namespace concord.Builders
         private readonly ILogger _logger;
         private readonly IResultMerger _resultMerger;
         private readonly IResultsParser _resultsParser;
+        private readonly IProgressDisplay _progressDisplayBuilder;
 
         public ProcessRunner(
             ILogger logger,
             IResultMerger resultMerger,
-            IResultsParser resultsParser)
+            IResultsParser resultsParser,
+            IProgressDisplay progressDisplayBuilder)
         {
             _logger = logger;
             _resultMerger = resultMerger;
             _resultsParser = resultsParser;
+            _progressDisplayBuilder = progressDisplayBuilder;
         }
 
         private bool _configured = false;
@@ -102,8 +106,8 @@ namespace concord.Builders
             stdOut.WriteLine("Starting tests...");
             if (maxConcurrentRunners > 0) stdOut.WriteLine("   Running upto " + maxConcurrentRunners + " concurrently");
             stdOut.WriteLine("(ctrl-c and a few seconds to cancel, '{0}' means running, '{1}' means finished)",
-                             ArrayValueToRunningStatus(1),
-                             ArrayValueToRunningStatus(2));
+                             _progressDisplayBuilder.ArrayValueToRunningStatusChar(1),
+                             _progressDisplayBuilder.ArrayValueToRunningStatusChar(2));
 
             var options = new ParallelOptions
                 {
@@ -154,7 +158,7 @@ namespace concord.Builders
                             int windowWidth = Console.WindowWidth;
 
                             stdOut.Write("\r");
-                            stdOut.Write(BuildProgressDisplay(windowWidth, runningTests,
+                            stdOut.Write(_progressDisplayBuilder.BuildProgressDisplay(windowWidth, runningTests,
                                                               ref indicatorPos));
                         }
                         catch (Exception exception)
@@ -485,53 +489,7 @@ namespace concord.Builders
             return new NotFilter(new CategoryFilter(excludeCategories));
         }
 
-        private string BuildProgressDisplay(int width, int[] runningTests, ref int indicatorPos)
-        {
-            int totalCount = runningTests.Length;
-            int displayWidth = Math.Min(width - 4, totalCount);
-
-            int totalRunning = runningTests.Count(x => x == Running);
-            int totalFinished = runningTests.Count(x => x == Finished);
-
-
-            int finishedDisplayChars = totalFinished * displayWidth / totalCount;
-            int startedDisplayChars = totalRunning * displayWidth / totalCount;
-            int remainingDisplayChars = displayWidth - finishedDisplayChars - startedDisplayChars;
-
-            return string.Format(@"[{0}{1}{3}{2}]",
-                                 new string(ArrayValueToRunningStatus(Finished), finishedDisplayChars),
-                                 new string(ArrayValueToRunningStatus(Running), startedDisplayChars > 0 ? (startedDisplayChars - 1) : 0),
-                                 new string(ArrayValueToRunningStatus(NotStarted), remainingDisplayChars),
-                                 startedDisplayChars > 0 ? WorkingIndicator[indicatorPos++ % WorkingIndicator.Length].ToString(CultureInfo.InvariantCulture) : "");
-        }
-
-        //private string BuildProgressDisplay(int width, int[] runningTests)
-        //{
-        //    int displayWidth = Math.Min(width - 4, runningTests.Length);
-
-        //    return string.Format(@"[{0}]",
-        //                         new string(runningTests.Select(ArrayValueToRunningStatus).ToArray()));
-        //}
-
-        private readonly char[] WorkingIndicator = new[] { '|', '/', '─', '\\' };
-
-        const int NotStarted = 0;
-        const int Running = 1;
-        const int Finished = 2;
-        private static char ArrayValueToRunningStatus(int value)
-        {
-            switch (value)
-            {
-                case NotStarted:
-                    return '·';
-                case Running:
-                    return '*';
-                case Finished:
-                    return '=';
-                default:
-                    return 'e';
-            }
-        }
+        
 
         public static string TimeSpanFormat(TimeSpan ts)
         {
