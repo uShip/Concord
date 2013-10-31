@@ -11,3 +11,7 @@ You can do: -categories@=IAMAFILEPATH.txt  to run only specific categories
 * ~~Bug when using -uncategorizedInParallel: running some that have category names...~~
 * If a full feature is ignored, do not include it in the run
   * I don't believe I can do this with categories though, becauase a category might have two features, where one is ignored and the other isn't
+* Ability to say run by namespaces, or groups of fixtures... idk
+* Make the general design of the runners use IOC, instead of hacked together as it is now
+  * Use RunnerSettings for more stuff
+  * Find an alternative to the ConfigureRun method

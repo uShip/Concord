@@ -1,4 +1,5 @@
 ﻿using StructureMap.Configuration.DSL;
+using concord.Builders;
 using concord.Factories;
 using concord.Logging;
 using concord.Nunit;
@@ -15,6 +16,10 @@ namespace concord.Configuration
                 .Use<CategoryFinderService>();
             For<IRunnerFactory>()
                 .Use<RunnerFactory>();
+
+            For<IRunner>()
+                .Use<ProcessRunner>();
+
             For<ILogger>().Use<Logger>();
             For<IResultMerger>().Use<ResultMerger>();
             For<IResultsParser>().Use<ResultsParser>();

@@ -13,6 +13,7 @@ using NUnit.Core.Filters;
 using concord.Configuration;
 using concord.Logging;
 using concord.Nunit;
+using concord.Parsers;
 using concord.Wrappers;
 using concord.Extensions;
 
@@ -25,26 +26,47 @@ namespace concord.Builders
     /// </summary>
     internal class ProcessRunner : IRunner
     {
-        private readonly string _assemblyLocation;
-        private readonly IEnumerable<string> _otherTestFixtures;
         private readonly CancellationTokenSource _cancelTokenSource = new CancellationTokenSource();
-        private readonly List<string> _categories;
-        private readonly List<string> _categoriesToRun;
         private readonly ILogger _logger;
-        private readonly RunnerSettings _runnerSettings;
+        private readonly IResultMerger _resultMerger;
+        private readonly IResultsParser _resultsParser;
 
-        public ProcessRunner(string assemblyLocation,
-                             IEnumerable<string> categories,
-                             IEnumerable<string> otherTestFixtures,
-                             IEnumerable<string> categoriesToRun,
-                             ILogger logger, RunnerSettings runnerSettings)
+        public ProcessRunner(
+            ILogger logger,
+            IResultMerger resultMerger,
+            IResultsParser resultsParser)
         {
+            _logger = logger;
+            _resultMerger = resultMerger;
+            _resultsParser = resultsParser;
+        }
+
+        private bool _configured = false;
+        private string _assemblyLocation;
+        private IEnumerable<string> _otherTestFixtures;
+        private List<string> _categories;
+        private List<string> _categoriesToRun;
+        private RunnerSettings _runnerSettings;
+
+        public void ConfigureRun(
+            string assemblyLocation,
+            IEnumerable<string> categories,
+            IEnumerable<string> otherTestFixtures,
+            IEnumerable<string> categoriesToRun,
+            RunnerSettings runnerSettings)
+        {
+            if (_configured)
+            {
+                throw new InvalidOperationException("Need to at least wait until this run is complete..." + "\n"
+                                                    + "Then we can talk, but for now, just create a new one");
+            }
+
             _assemblyLocation = assemblyLocation;
             _otherTestFixtures = otherTestFixtures;
             _categories = categories.ToList();
             _categoriesToRun = categoriesToRun.ToList();
-            _logger = logger;
             _runnerSettings = runnerSettings;
+            _configured = true;
         }
 
         public string GetRunResultsAsXml()
@@ -54,6 +76,11 @@ namespace concord.Builders
 
         public string GetRunResultsAsXml(int maxConcurrentRunners)
         {
+            if (!_configured)
+            {
+                throw new InvalidOperationException("You must call ConfigureRun first");
+            }
+
             //Keep a reference to standard out
             var stdOut = new TextWriterWrapper(Console.Out);
             var totalRuntime = new Stopwatch();
@@ -281,10 +308,8 @@ namespace concord.Builders
 
         private void MergeResults(string outputPath, string outputResultsXmlPath)
         {
-            var resultMerger = new ResultMerger();
-
             _logger.Log("Merged at" + outputPath);
-            var mergedResults = resultMerger.MergeResults(outputPath);
+            var mergedResults = _resultMerger.MergeResults(outputPath);
             _logger.Log("Merge results: " + mergedResults.XmlOutput);
 
             foreach (var file in Directory.GetFiles(outputPath, "*.xml", SearchOption.TopDirectoryOnly))

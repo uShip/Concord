@@ -26,20 +26,32 @@ namespace concord.Builders
     [Obsolete("Not working, nor finished... issues with config files getting loaded")]
     internal class ThreadRunner : IRunner
     {
-        private readonly string _assemblyLocation;
-        private readonly List<Type> _featureTypes;
+        private string _assemblyLocation;
+        private List<Type> _featureTypes;
         private readonly ILogger _logger;
         private readonly string _outputPath;
 
         private readonly bool _outputRunStats = false;
 
-        public ThreadRunner(string assemblyLocation, IEnumerable<Type> featureTypes,
+        private ThreadRunner(string assemblyLocation, IEnumerable<Type> featureTypes,
                             ILogger logger, string outputPath)
         {
             _assemblyLocation = assemblyLocation;
             _featureTypes = featureTypes.ToList();
             _logger = logger;
             _outputPath = outputPath;
+        }
+
+        public void ConfigureRun(
+            string assemblyLocation,
+            IEnumerable<string> categories,
+            IEnumerable<string> otherTestFixtures,
+            IEnumerable<string> categoriesToRun,
+            RunnerSettings runnerSettings)
+        {
+            _assemblyLocation = assemblyLocation;
+            //TODO does this design make any sense... not all runners need the same thing
+            throw new NotImplementedException("This runner needs to be completely re-worked...");
         }
 
         public string GetRunResultsAsXml()

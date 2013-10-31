@@ -15,11 +15,15 @@ namespace concord.Factories
     {
         private readonly ICategoryFinderService _categoryFinderService;
         private readonly IResultsParser _resultsParser;
+        private readonly IRunner _runner;
 
-        public RunnerFactory(ICategoryFinderService categoryFinderService, IResultsParser resultsParser)
+        public RunnerFactory(ICategoryFinderService categoryFinderService,
+                             IResultsParser resultsParser,
+                             IRunner runner)
         {
             _categoryFinderService = categoryFinderService;
             _resultsParser = resultsParser;
+            _runner = runner;
         }
 
         public IRunner Create(RunnerSettings runnerSettings, string assemblyFileName, bool rerunFailedCategories = false, string categoriesList = null)
@@ -50,7 +54,10 @@ namespace concord.Factories
             }
 
             //return new ThreadRunner(_assembly.Location, _featureTypes, ObjectFactory.GetInstance<ILogger>(), _outputPath);
-            return new ProcessRunner(assembly.Location, categories, otherFixtures, categoriesToRun, ObjectFactory.GetInstance<ILogger>(), runnerSettings);
+            //return new ProcessRunner(assembly.Location, categories, otherFixtures, categoriesToRun, ObjectFactory.GetInstance<ILogger>(), runnerSettings);
+            //TODO: With this, this is no longer a factory...
+            _runner.ConfigureRun(assembly.Location, categories, otherFixtures, categoriesToRun, runnerSettings);
+            return _runner;
         }
     }
 }
