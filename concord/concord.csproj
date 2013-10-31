@@ -94,6 +94,8 @@
     <Compile Include="Nunit\ResultMerger.cs" />
     <Compile Include="Output\IProgressDisplay.cs" />
     <Compile Include="Output\ProgressDisplay.cs" />
+    <Compile Include="Output\ResultsStatsWriter.cs" />
+    <Compile Include="Output\ResultsWriter.cs" />
     <Compile Include="Parsers\IResultsParser.cs" />
     <Compile Include="Parsers\ResultsParser.cs" />
     <Compile Include="Program.cs" />

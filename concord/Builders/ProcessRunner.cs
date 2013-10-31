@@ -2,17 +2,13 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Globalization;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using NUnit.Core;
 using NUnit.Core.Filters;
 using concord.Configuration;
-using concord.Logging;
-using concord.Nunit;
 using concord.Output;
 using concord.Parsers;
 using concord.Wrappers;
@@ -28,21 +24,21 @@ namespace concord.Builders
     internal class ProcessRunner : IRunner
     {
         private readonly CancellationTokenSource _cancelTokenSource = new CancellationTokenSource();
-        private readonly ILogger _logger;
-        private readonly IResultMerger _resultMerger;
+        private readonly IResultsWriter _resultsWriter;
         private readonly IResultsParser _resultsParser;
         private readonly IProgressDisplay _progressDisplayBuilder;
+        private readonly IResultsStatsWriter _resultsStatsWriter;
 
         public ProcessRunner(
-            ILogger logger,
-            IResultMerger resultMerger,
+            IResultsWriter resultsWriter,
             IResultsParser resultsParser,
-            IProgressDisplay progressDisplayBuilder)
+            IProgressDisplay progressDisplayBuilder,
+            IResultsStatsWriter resultsStatsWriter)
         {
-            _logger = logger;
-            _resultMerger = resultMerger;
+            _resultsWriter = resultsWriter;
             _resultsParser = resultsParser;
             _progressDisplayBuilder = progressDisplayBuilder;
+            _resultsStatsWriter = resultsStatsWriter;
         }
 
         private bool _configured = false;
@@ -238,9 +234,11 @@ namespace concord.Builders
 
             var SkippedTests = _categories.Except(testResults.Select(a => a.Name)).ToList();
 
-            OutputRunStats(outputPath, totalRuntime.Elapsed, testResults, SkippedTests);
+            _resultsStatsWriter.OutputRunStats(_runnerSettings.ResultsStatsFilepath, totalRuntime.Elapsed, testResults, SkippedTests);
 
-            var xmlOutput = MergeResults(outputPath);
+            var outputResultsXmlPath = _runnerSettings.ResultsXmlFilepath;
+            var outputResultsReportPath = _runnerSettings.ResultsHtmlReportFilepath;
+            var xmlOutput = _resultsWriter.MergeResults(outputPath, outputResultsXmlPath, outputResultsReportPath);
 
             if (cancelled)
             {
@@ -256,104 +254,6 @@ namespace concord.Builders
             return xmlOutput;
         }
 
-        public void OutputRunStats(string outputPath, TimeSpan totalRuntime, IEnumerable<RunStats> runners, List<string> skippedTests)
-        {
-            var sb = new StringBuilder();
-
-            sb.AppendLine("<pre>");
-            sb.AppendLine("Total Runtime: " + totalRuntime.ToString());
-            foreach (var r in runners.OrderByDescending(t => t.RunTime))
-            {
-                sb.AppendLine(string.Format("{0} = {1} -- {2}  ExitCode:{3}", r.RunTime, r.FinishOrder, r.Name, r.ExitCode));
-            }
-
-            if (skippedTests.Count > 0)
-            {
-                sb.AppendLine();
-                sb.AppendLine("Did not run:");
-                foreach (var r in skippedTests)
-                {
-                    sb.AppendFormat("'{0}'", r);
-                    sb.AppendLine();
-                }
-            }
-            sb.AppendLine("</pre>");
-
-            File.WriteAllText(_runnerSettings.ResultsStatsFilepath, sb.ToString());
-
-            //var toOutput = new
-            //{
-            //    TotalRuntime = totalRuntime,
-            //    Tests = runners.OrderByDescending(t => t.RunTime).ToList(),
-            //    DidNotRun = skippedTests
-            //};
-
-            //toOutput.ToXml().Save(Path.Combine(outputPath, "RunStats.html"));
-        }
-
-        private string MergeResults(string outputPath)
-        {
-            var outputResultsXmlPath = _runnerSettings.ResultsXmlFilepath;
-            var outputResultsReportPath = _runnerSettings.ResultsHtmlReportFilepath;
-
-            CleanupPreviousFiles(outputResultsXmlPath, outputResultsReportPath);
-
-            MergeResults(outputPath, outputResultsXmlPath);
-
-            GenerateHtmlReport(outputPath, outputResultsXmlPath, outputResultsReportPath);
-
-            var mergedContents = File.ReadAllText(outputResultsXmlPath);
-            return mergedContents;
-        }
-
-        private static void CleanupPreviousFiles(string outputResultsXmlPath, string outputResultsReportPath)
-        {
-            File.Delete(outputResultsXmlPath);
-            File.Delete(outputResultsReportPath);
-        }
-
-        private void MergeResults(string outputPath, string outputResultsXmlPath)
-        {
-            _logger.Log("Merged at" + outputPath);
-            var mergedResults = _resultMerger.MergeResults(outputPath);
-            _logger.Log("Merge results: " + mergedResults.XmlOutput);
-
-            foreach (var file in Directory.GetFiles(outputPath, "*.xml", SearchOption.TopDirectoryOnly))
-            {
-                File.Delete(file);
-            }
-            _logger.Log("Written to: " + outputResultsXmlPath);
-
-            File.WriteAllText(outputResultsXmlPath, mergedResults.XmlOutput);
-            _logger.Log("Written: " + outputResultsXmlPath);
-
-            if (mergedResults.Failures + mergedResults.Errors > 0)
-            {
-                Console.WriteLine();
-                Console.WriteLine("ERRORS: Failures:{0}  Errors:{1}", mergedResults.Failures, mergedResults.Errors);
-            }
-            else
-            {
-                Console.WriteLine("Success, no errors!");
-            }
-        }
-
-        private void GenerateHtmlReport(string outputPath, string outputResultsXmlPath, string outputResultsReportPath)
-        {
-            var args = string.Format(@"--fileset={0} --todir {1} --out {2}", outputResultsXmlPath, outputPath, outputResultsReportPath);
-            _logger.Log("args: " + args);
-            var processStartInfo = new ProcessStartInfo(Settings.Instance.NunitReportGeneratorPath, args)
-                {
-                    CreateNoWindow = true,
-                    WindowStyle = ProcessWindowStyle.Hidden,
-                    UseShellExecute = false,
-                };
-            var processReport = new Process
-                {
-                    StartInfo = processStartInfo
-                };
-            processReport.Start();
-        }
 
 
         public IEnumerable<TestRunAction> BuildSortedAllActions(IEnumerable<string> testFixtures, IEnumerable<string> runnableCategories)
@@ -509,17 +409,6 @@ namespace concord.Builders
         public static string TimeSpanFormat(TimeSpan ts)
         {
             return string.Format("{0} min{2} {1} secs", (int) ts.TotalMinutes, ts.Seconds, (int) ts.TotalMinutes == 1 ? "" : "s");
-        }
-
-        public class RunStats
-        {
-            public string Name { get; set; }
-            public TimeSpan StartTime { get; set; }
-            public TimeSpan EndTime { get; set; }
-            public TimeSpan RunTime { get; set; }
-            public int FinishOrder { get; set; }
-
-            public int ExitCode { get; set; }
         }
 
         public class TestRunAction

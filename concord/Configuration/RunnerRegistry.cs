@@ -22,10 +22,14 @@ namespace concord.Configuration
                 .Use<ProcessRunner>();
 
             For<ILogger>().Use<Logger>();
+
             For<IResultMerger>().Use<ResultMerger>();
+            For<IResultsWriter>().Use<ResultsWriter>();
             For<IResultsParser>().Use<ResultsParser>();
+
             For<IRunnerSettingsBuilder>().Use<RunnerSettingsBuilder>();
             For<IProgressDisplay>().Use<ProgressDisplay>();
+            For<IResultsStatsWriter>().Use<ResultsStatsWriter>();
         }
     }
 }
