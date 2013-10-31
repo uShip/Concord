@@ -62,15 +62,15 @@ namespace concord.Tests.Properties {
         
         /// <summary>
         ///   Looks up a localized string similar to Total Runtime: 00:03:05.0078887
-        ///00:02:34.2589301 = 67 -- _ListingsInternational  ExitCode:0
         ///00:01:53.4835323 = 54 -- _ListingsPaymentCodes  ExitCode:0
         ///00:01:48.9752779 = 49 -- _ListingsBidFeature  ExitCode:0
         ///00:01:44.4782718 = 35 -- _ListingBookItNow  ExitCode:0
         ///00:01:23.9845272 = 69 -- SearchFeature  ExitCode:1
         ///00:01:23.8222413 = 39 -- _ListingsStatus  ExitCode:0
+        ///00:02:34.2589301 = 67 -- _ListingsInternational  ExitCode:0
         ///00:01:22.2356298 = 24 -- _BidConversationFeature  ExitCode:0
         ///00:01:21.0741129 = 22 -- _ListingConversationsFeature  ExitCode:0
-        ///00:01:19. [rest of string was truncated]&quot;;.
+        ///00:01:19.7432659 = [rest of string was truncated]&quot;;.
         /// </summary>
         internal static string ExampleResults {
             get {
