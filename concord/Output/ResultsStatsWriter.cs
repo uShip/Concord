@@ -21,7 +21,7 @@ namespace concord.Output
             sb.AppendLine("Total Runtime: " + totalRuntime.ToString());
             foreach (var r in runners.OrderByDescending(t => t.RunTime))
             {
-                sb.AppendLine(string.Format("{0} = {1} -- {2}  ExitCode:{3}", r.RunTime, r.FinishOrder, r.Name, r.ExitCode));
+                AppendTestFinishedLine(sb, r);
             }
 
             if (skippedTests.Count > 0)
@@ -47,6 +47,12 @@ namespace concord.Output
 
             //toOutput.ToXml().Save(Path.Combine(outputPath, "RunStats.html"));
         }
+
+        //TODO test that this line can be processed by ResultsParser
+        internal void AppendTestFinishedLine(StringBuilder sb, RunStats r)
+        {
+            sb.AppendLine(string.Format("{0} = {1}-{2} -- {3}  ExitCode:{4}", r.RunTime, r.StartOrder, r.FinishOrder, r.Name, r.ExitCode));
+        }
     }
 
     public class RunStats
@@ -56,7 +62,7 @@ namespace concord.Output
         public TimeSpan EndTime { get; set; }
         public TimeSpan RunTime { get; set; }
         public int FinishOrder { get; set; }
-
+        public int StartOrder { get; set; }
         public int ExitCode { get; set; }
     }
 }

@@ -42,14 +42,15 @@ namespace concord.Parsers
 
         public IEnumerable<PreviousResultData> ParseFileLines(IEnumerable<string> fileLines)
         {
-            var regex = new Regex(@"^(?<runtime>[\d:.]+) = (?<runOrder>\d+) -- (?<feature>.+)  ExitCode:(?<exitCode>.+)$");
+            var regex = new Regex(@"^(?<runtime>[\d:.]+) = (?<startOrder>\d+)-(?<finishOrder>\d+) -- (?<feature>.+)  ExitCode:(?<exitCode>.+)$");
             return fileLines
                 .Select(line => regex.Match(line))
                 .Where(x => x.Success) // && x.Groups["exitcode"].Value
                 .Select(x => new PreviousResultData
                     {
                         Runtime = TimeSpan.Parse(x.Groups["runtime"].Value),
-                        RunOrder = Int32.Parse(x.Groups["runOrder"].Value),
+                        StartOrder = Int32.Parse(x.Groups["startOrder"].Value),
+                        FinishOrder = Int32.Parse(x.Groups["finishOrder"].Value),
                         FeatureName = x.Groups["feature"].Value.TrimLongPrefix(),
                         ExitCode = Int32.Parse(x.Groups["exitCode"].Value)
                     });
@@ -59,7 +60,8 @@ namespace concord.Parsers
     public class PreviousResultData
     {
         public TimeSpan Runtime { get; set; }
-        public int RunOrder { get; set; }
+        public int StartOrder { get; set; }
+        public int FinishOrder { get; set; }
         public string FeatureName { get; set; }
         public int ExitCode { get; set; }
     }

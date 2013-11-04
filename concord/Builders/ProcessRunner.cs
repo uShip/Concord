@@ -189,6 +189,7 @@ namespace concord.Builders
                                .Each(x => x.Kill());
                     };
 
+                var startOrderInt = 0;
                 var token = options.CancellationToken;
                 Parallel.ForEach(BuildSortedAllActions(testFixturesToRun, runnableCategories),
                                  options,
@@ -197,6 +198,7 @@ namespace concord.Builders
                                          token.ThrowIfCancellationRequested();
 
                                          Interlocked.Increment(ref runningTests[action.Index]);
+                                         var startOrder = Interlocked.Increment(ref startOrderInt);
 
                                          var startTime = totalRuntime.Elapsed;
                                          var sw = new Stopwatch();
@@ -209,6 +211,7 @@ namespace concord.Builders
                                                  StartTime = startTime,
                                                  RunTime = sw.Elapsed,
                                                  EndTime = totalRuntime.Elapsed,
+                                                 StartOrder = startOrder,
                                                  FinishOrder = testResults.Count,
                                                  ExitCode = exitCode
                                              });
@@ -264,11 +267,12 @@ namespace concord.Builders
 
             //Take ones in the order of TargetRunOrder, then append any others after that
             //  Ideally the Others would go first...
-            return TargetRunOrder
-                .Select(name => actions.SingleOrDefault(x => x.Name == name))
+            var tempDebugging = TargetRunOrder
+                .Select(name => actions.SingleOrDefault(x => x.Name == name.TrimLongPrefix()))
                 .Where(foundAction => foundAction != null)
                 .Union(actions)
                 .ToList();
+            return tempDebugging;
         }
 
         private IEnumerable<TestRunAction> BuildAllActions(IEnumerable<string> testFixtures, IEnumerable<string> runnableCategories)
