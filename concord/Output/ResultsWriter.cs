@@ -9,9 +9,9 @@ namespace concord.Output
 {
     public interface IResultsWriter
     {
-        string MergeResults(string outputPath,
-                            string outputResultsXmlPath,
-                            string outputResultsReportPath);
+        string MergeResultsProcess(string outputPath,
+                                   string outputResultsXmlPath,
+                                   string outputResultsReportPath);
 
         void GenerateHtmlReport(string outputPath, string outputResultsXmlPath, string outputResultsReportPath);
     }
@@ -30,9 +30,9 @@ namespace concord.Output
             _resultMerger = resultMerger;
         }
 
-        public string MergeResults(string outputPath,
-                                   string outputResultsXmlPath,
-                                   string outputResultsReportPath)
+        public string MergeResultsProcess(string outputPath,
+                                          string outputResultsXmlPath,
+                                          string outputResultsReportPath)
         {
             CleanupPreviousFiles(outputResultsXmlPath, outputResultsReportPath);
 

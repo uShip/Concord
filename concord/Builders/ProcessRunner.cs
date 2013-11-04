@@ -241,7 +241,7 @@ namespace concord.Builders
 
             var outputResultsXmlPath = _runnerSettings.ResultsXmlFilepath;
             var outputResultsReportPath = _runnerSettings.ResultsHtmlReportFilepath;
-            var xmlOutput = _resultsWriter.MergeResults(outputPath, outputResultsXmlPath, outputResultsReportPath);
+            var xmlOutput = _resultsWriter.MergeResultsProcess(outputPath, outputResultsXmlPath, outputResultsReportPath);
 
             if (cancelled)
             {

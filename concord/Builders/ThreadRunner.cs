@@ -12,6 +12,7 @@ using concord.Configuration;
 using concord.Extensions;
 using concord.Logging;
 using concord.Nunit;
+using concord.Output;
 using concord.Wrappers;
 
 namespace concord.Builders
@@ -30,16 +31,20 @@ namespace concord.Builders
         private List<Type> _featureTypes;
         private readonly ILogger _logger;
         private readonly string _outputPath;
+        private readonly IResultsWriter _resultsWriter;
 
         private readonly bool _outputRunStats = false;
+        private RunnerSettings _runnerSettings;
 
         private ThreadRunner(string assemblyLocation, IEnumerable<Type> featureTypes,
-                            ILogger logger, string outputPath)
+                            ILogger logger, string outputPath,
+                            IResultsWriter resultsWriter)
         {
             _assemblyLocation = assemblyLocation;
             _featureTypes = featureTypes.ToList();
             _logger = logger;
             _outputPath = outputPath;
+            _resultsWriter = resultsWriter;
         }
 
         public void ConfigureRun(
@@ -50,6 +55,7 @@ namespace concord.Builders
             RunnerSettings runnerSettings)
         {
             _assemblyLocation = assemblyLocation;
+            _runnerSettings = runnerSettings;
             //TODO does this design make any sense... not all runners need the same thing
             throw new NotImplementedException("This runner needs to be completely re-worked...");
         }
@@ -121,7 +127,10 @@ namespace concord.Builders
 
             stdOut.WriteLine("Finished with tests, merging");
 
-            return MergeResults(outputPath);
+            var outputResultsXmlPath = _runnerSettings.ResultsXmlFilepath;
+            var outputResultsReportPath = _runnerSettings.ResultsHtmlReportFilepath;
+            var xmlOutput = _resultsWriter.MergeResultsProcess(outputPath, outputResultsXmlPath, outputResultsReportPath);
+            return xmlOutput;
         }
 
         public void OutputRunStats(string outputPath, TimeSpan totalRuntime, IEnumerable<CategoryRunner> runners)
@@ -135,34 +144,6 @@ namespace concord.Builders
             }
 
             File.WriteAllText(Path.Combine(outputPath, "RunStats.txt"), sb.ToString());
-        }
-
-        private string MergeResults(string outputPath)
-        {
-            var resultMerger = new ResultMerger();
-            var outputResultsXmlPath = Path.Combine(outputPath, "results.xml");
-            var outputResultsReportPath = Path.Combine(outputPath, "report.html");
-            File.Delete(outputResultsXmlPath);
-            File.Delete(outputResultsReportPath);
-            _logger.Log("Merged at" + outputPath);
-            var mergedResults = resultMerger.MergeResults(outputPath);
-            _logger.Log("Merge results: " + mergedResults.XmlOutput);
-            foreach (var file in Directory.GetFiles(outputPath, "*.xml", SearchOption.TopDirectoryOnly))
-            {
-                File.Delete(file);
-            }
-            _logger.Log("Written to: " + outputResultsXmlPath);
-            var args = string.Format(@"--fileset={0} --todir {1} --out {2}", outputResultsXmlPath, outputPath, outputResultsReportPath);
-            _logger.Log("args: " + args);
-            File.WriteAllText(outputResultsXmlPath, mergedResults.XmlOutput);
-            _logger.Log("Written: " + outputResultsXmlPath);
-            var processReport = new Process
-                {
-                    StartInfo = new ProcessStartInfo(Settings.Instance.NunitReportGeneratorPath, args)
-                };
-            processReport.Start();
-            var mergedContents = File.ReadAllText(outputResultsXmlPath);
-            return mergedContents;
         }
 
         public ITestFilter GetIncludefilter(string includeCategory)
