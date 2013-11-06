@@ -9,6 +9,8 @@
         RunnerSettingsBuilder SetResultsHtmlReportFilename(string filename);
         RunnerSettingsBuilder SetResultsStatsFilename(string filename);
 
+        RunnerSettingsBuilder SetNamespace(string ns);
+
         RunnerSettingsBuilder RunUncategorizedTestFixturesParallel(bool runParallel = true);
 
         RunnerSettings Build();

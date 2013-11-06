@@ -8,7 +8,7 @@ namespace concord.Services
 {
     internal class CategoryFinderService : ICategoryFinderService
     {
-        public IList<Type> FindTestFixtures(Assembly assembly)
+        public IList<Type> FindTestFixtures(Assembly assembly, Func<Type, bool> filterTestFixtures = null)
         {
             IEnumerable<Type> types;
             try
@@ -32,21 +32,25 @@ namespace concord.Services
                         return false;
                     }
                 };
+
+            if (filterTestFixtures != null)
+                types = types.Where(filterTestFixtures);
+
             return types
                 .Where(isTest)
                 .ToArray();
         }
 
-        public IEnumerable<string> FindTestFixturesExcludingCategories(Assembly assembly, IEnumerable<string> excludeCategories)
+        public IEnumerable<string> FindTestFixturesExcludingCategories(Assembly assembly, IEnumerable<string> excludeCategories, Func<Type, bool> filterTestFixtures = null)
         {
-            var testFixtures = FindTestFixtures(assembly);
+            var testFixtures = FindTestFixtures(assembly, filterTestFixtures);
             return testFixtures.Where(x => !x.HasCategoryAttribute(excludeCategories))
                                .Select(x => x.FullName);
         }
 
-        public IList<string> FindCategories(Assembly assembly)
+        public IList<string> FindCategories(Assembly assembly, Func<Type, bool> filterTestFixtures = null)
         {
-            var fixtures = FindTestFixtures(assembly);
+            var fixtures = FindTestFixtures(assembly, filterTestFixtures);
             return FindCategories(fixtures);
         }
 

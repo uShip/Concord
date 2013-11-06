@@ -42,10 +42,19 @@ namespace concord
                 string @out,
                 string outputPrefix,
                 int? concurrentThreads,
+                string @namespace,
                 string categories,
                 bool rerunFailedCategories,
-                bool uncategorizedInParallel)
+                bool uncategorizedInParallel,
+                bool debug)
             {
+                if (debug)
+                {
+                    Console.WriteLine("Attach if you want to, then press any key");
+                    Console.ReadKey(true);
+                }
+
+
                 var serviceLocator = ServiceLocator.Instance;
 
                 var builderFactory = serviceLocator.Get<IRunnerFactory>();
@@ -60,6 +69,7 @@ namespace concord
                                 LibraryName,
                                 Path.GetFileNameWithoutExtension(lib)));
                     }
+                    runnerSettings.SetNamespace(@namespace);
 
                     runnerSettings.RunUncategorizedTestFixturesParallel(uncategorizedInParallel);
 

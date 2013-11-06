@@ -8,6 +8,7 @@ using concord.Configuration;
 using concord.Logging;
 using concord.Parsers;
 using concord.Services;
+using FubuCore;
 
 namespace concord.Factories
 {
@@ -33,10 +34,18 @@ namespace concord.Factories
 
         public IRunner Create(RunnerSettings runnerSettings, Assembly assembly, bool rerunFailedCategories = false, string categoriesList = null)
         {
-            var categories = _categoryFinderService.FindCategories(assembly);
+            Func<Type, bool> filterTestFixtures = null;
+            if (runnerSettings.Namespace != null)
+            {
+                filterTestFixtures = type => type.Namespace
+                                                 .IfNotNull(x =>
+                                                            x.StartsWith(runnerSettings.Namespace));
+            }
+
+            var categories = _categoryFinderService.FindCategories(assembly, filterTestFixtures);
 
             var other = categories.Concat(new[] { "Long" });
-            var otherFixtures = _categoryFinderService.FindTestFixturesExcludingCategories(assembly, other).ToList();
+            var otherFixtures = _categoryFinderService.FindTestFixturesExcludingCategories(assembly, other, filterTestFixtures).ToList();
 
             if (!categories.Any() && !otherFixtures.Any())
                 throw new InvalidOperationException("Cannot run if there are no tests.");

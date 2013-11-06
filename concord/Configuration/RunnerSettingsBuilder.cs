@@ -39,6 +39,14 @@ namespace concord.Configuration
             return this;
         }
 
+        public RunnerSettingsBuilder SetNamespace(string ns)
+        {
+            if (!string.IsNullOrEmpty(ns))
+                _runnerSettings.Namespace = ns;
+
+            return this;
+        }
+
         public RunnerSettingsBuilder RunUncategorizedTestFixturesParallel(bool runParallel = true)
         {
             _runnerSettings.RunUncategorizedTestFixturesParallel = runParallel;

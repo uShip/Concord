@@ -37,6 +37,8 @@ namespace concord.Configuration
         public string ResultsHtmlReportFilename { private get; set; }
         public string ResultsStatsFilename { private get; set; }
 
+        public string Namespace { get; set; }
+
         public string ResultsXmlFilepath
         {
             get

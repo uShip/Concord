@@ -319,7 +319,7 @@ namespace concord.Builders
                     {
                         Name = x,
                         Index = cat.Index,
-                        RunTests = () => BuildFilteredBlockingProcess(x, GetIncludefilter(x))
+                        RunTests = () => BuildFilteredBlockingProcess(x, GetIncludeFilter(x))
                     };
             }
         }
@@ -397,7 +397,7 @@ namespace concord.Builders
             return "/fixture:" + fixture;
         }
 
-        public ITestFilter GetIncludefilter(string includeCategory)
+        public ITestFilter GetIncludeFilter(string includeCategory)
         {
             includeCategory = includeCategory.TrimLongPrefix();
             return new CategoryFilter(includeCategory);
