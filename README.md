@@ -22,6 +22,7 @@ You can do: `-categories@=IAMAFILEPATH.txt`  to run only specific categories
 * Make the general design of the runners use IOC, instead of hacked together as it is now
   * Use `RunnerSettings` for more stuff
   * Find an alternative to the `ConfigureRun` method?
+* Support fixtures being in multiple categories?
 
 ## Future, more versatile
 * Option to output a script that will run similar to this, or describe the run

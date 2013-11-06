@@ -116,7 +116,7 @@ namespace concord.Builders
             var testFixturesToRun = new List<string>();
             if (shouldRunOther)
             {
-                testFixturesToRun.AddRange(_otherTestFixtures);
+                testFixturesToRun = new List<string>(_otherTestFixtures);
             }
 
             var runnableCategories = _categoriesToRun.Count > 0
@@ -127,7 +127,7 @@ namespace concord.Builders
             {
                 totalToRun += testFixturesToRun.Count;
             }
-            else if (shouldRunOther)
+            else if (shouldRunOther && _otherTestFixtures.Any())
             {
                 totalToRun += 1;
             }
