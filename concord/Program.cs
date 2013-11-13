@@ -69,11 +69,12 @@ namespace concord
                                 LibraryName,
                                 Path.GetFileNameWithoutExtension(lib)));
                     }
+                    runnerSettings.RerunFailedCategories(rerunFailedCategories);
                     runnerSettings.SetNamespace(@namespace);
 
                     runnerSettings.RunUncategorizedTestFixturesParallel(uncategorizedInParallel);
 
-                    var batchBuilder = builderFactory.Create(runnerSettings.Build(), lib, rerunFailedCategories, categories);
+                    var batchBuilder = builderFactory.Create(runnerSettings.Build(), lib, categories);
 
                     batchBuilder.GetRunResultsAsXml(concurrentThreads.HasValue ? concurrentThreads.Value : 15);
                 }

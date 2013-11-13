@@ -13,7 +13,7 @@ namespace concord.Parsers
         {
             return !File.Exists(fileName)
                        ? new string[0]
-                       : File.ReadAllLines(fileName);
+                       : File.ReadLines(fileName);
         }
 
         public IEnumerable<string> GetErrorsCategories(string fileName)

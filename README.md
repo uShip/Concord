@@ -5,6 +5,7 @@ A parallel unit test runner, with poor documentation.
 
 ### Beta
 * `-rerunFailedCategories` should look at the RunStats.html file, and only run categories that failed
+  * Only considers tests that ran and failed (with a positive error code), if they did not run, it will not run them
   * Probably does not work with fixtures, (i.e. do not use along with `-uncategorizedInParallel`)
 * `-namespace` will allow you to specify a root namespace to look under
   * It uses `.StartsWith(namespace)` so it will find test fixtures in all the types under that

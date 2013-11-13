@@ -62,5 +62,7 @@ namespace concord.Configuration
         }
 
         public bool RunUncategorizedTestFixturesParallel { get; set; }
+
+        public bool RerunFailedCategories { get; set; }
     }
 }

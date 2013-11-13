@@ -27,12 +27,12 @@ namespace concord.Factories
             _runner = runner;
         }
 
-        public IRunner Create(RunnerSettings runnerSettings, string assemblyFileName, bool rerunFailedCategories = false, string categoriesList = null)
+        public IRunner Create(RunnerSettings runnerSettings, string assemblyFileName, string categoriesList = null)
         {
-            return Create(runnerSettings, Assembly.LoadFrom(assemblyFileName), rerunFailedCategories, categoriesList);
+            return Create(runnerSettings, Assembly.LoadFrom(assemblyFileName), categoriesList);
         }
 
-        public IRunner Create(RunnerSettings runnerSettings, Assembly assembly, bool rerunFailedCategories = false, string categoriesList = null)
+        public IRunner Create(RunnerSettings runnerSettings, Assembly assembly, string categoriesList = null)
         {
             Func<Type, bool> filterTestFixtures = null;
             if (runnerSettings.Namespace != null)
@@ -56,7 +56,7 @@ namespace concord.Factories
                                                       .Where(x => x.Length > 0)
                                       : new string[0];
 
-            if (rerunFailedCategories)
+            if (runnerSettings.RerunFailedCategories)
             {
                 var erroredCategories = _resultsParser.GetErrorsCategories(runnerSettings.ResultsStatsFilepath);
                 categoriesToRun = categoriesToRun.Concat(erroredCategories);

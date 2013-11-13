@@ -53,6 +53,12 @@ namespace concord.Configuration
             return this;
         }
 
+        public RunnerSettingsBuilder RerunFailedCategories(bool rerun)
+        {
+            _runnerSettings.RerunFailedCategories = rerun;
+            return this;
+        }
+
         public RunnerSettings Build()
         {
             if (_runnerSettings == null) throw new Exception("Must start with SetOutputFolder");

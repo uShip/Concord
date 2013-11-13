@@ -10,6 +10,7 @@
         RunnerSettingsBuilder SetResultsStatsFilename(string filename);
 
         RunnerSettingsBuilder SetNamespace(string ns);
+        RunnerSettingsBuilder RerunFailedCategories(bool rerun);
 
         RunnerSettingsBuilder RunUncategorizedTestFixturesParallel(bool runParallel = true);
 
