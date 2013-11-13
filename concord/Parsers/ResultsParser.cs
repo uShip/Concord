@@ -51,7 +51,7 @@ namespace concord.Parsers
                         Runtime = TimeSpan.Parse(x.Groups["runtime"].Value),
                         StartOrder = Int32.Parse(x.Groups["startOrder"].Value),
                         FinishOrder = Int32.Parse(x.Groups["finishOrder"].Value),
-                        FeatureName = x.Groups["feature"].Value.TrimLongPrefix(),
+                        FeatureName = x.Groups["feature"].Value,
                         ExitCode = Int32.Parse(x.Groups["exitCode"].Value)
                     });
         }
