@@ -15,6 +15,9 @@ namespace concord.Configuration
             ResultsXmlFilename = resultsXmlFilename;
             ResultsHtmlReportFilename = resultsHtmlReportFilename;
             ResultsStatsFilename = resultsStatsFilename;
+
+            //Defaults:
+            DisplayFailureSymbolsInProgressDisplay = true;
         }
 
         public RunnerSettings(string outputBasePath, string prependFilenames)
@@ -64,5 +67,6 @@ namespace concord.Configuration
         public bool RunUncategorizedTestFixturesParallel { get; set; }
 
         public bool RerunFailedCategories { get; set; }
+        public bool DisplayFailureSymbolsInProgressDisplay { get; set; }
     }
 }

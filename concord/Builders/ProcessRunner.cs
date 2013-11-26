@@ -102,8 +102,8 @@ namespace concord.Builders
             stdOut.WriteLine("Starting tests...");
             if (maxConcurrentRunners > 0) stdOut.WriteLine("   Running upto " + maxConcurrentRunners + " concurrently");
             stdOut.WriteLine("(ctrl-c and a few seconds to cancel, '{0}' means running, '{1}' means finished)",
-                             _progressDisplayBuilder.ArrayValueToRunningStatusChar(1),
-                             _progressDisplayBuilder.ArrayValueToRunningStatusChar(2));
+                             _progressDisplayBuilder.ArrayValueToRunningStatusChar(ProgressState.Running),
+                             _progressDisplayBuilder.ArrayValueToRunningStatusChar(ProgressState.Finished));
 
             var options = new ParallelOptions
                 {
@@ -140,7 +140,7 @@ namespace concord.Builders
 
             try
             {
-                var runningTests = new int[totalToRun];
+                var runningTests = new ProgressStats(totalToRun);
 
                 int indicatorPos = 0;
                 var buildingDisplay = new object();
@@ -155,7 +155,8 @@ namespace concord.Builders
 
                             stdOut.Write("\r");
                             stdOut.Write(_progressDisplayBuilder.BuildProgressDisplay(windowWidth, runningTests,
-                                                              ref indicatorPos));
+                                                              ref indicatorPos,
+                                                              _runnerSettings.DisplayFailureSymbolsInProgressDisplay));
                         }
                         catch (Exception exception)
                         {
@@ -197,7 +198,7 @@ namespace concord.Builders
                                      {
                                          token.ThrowIfCancellationRequested();
 
-                                         Interlocked.Increment(ref runningTests[action.Index]);
+                                         runningTests.IncrementIndex(action.Index);
                                          var startOrder = Interlocked.Increment(ref startOrderInt);
 
                                          var startTime = totalRuntime.Elapsed;
@@ -216,7 +217,11 @@ namespace concord.Builders
                                                  ExitCode = exitCode
                                              });
 
-                                         Interlocked.Increment(ref runningTests[action.Index]);
+                                         runningTests.IncrementIndex(action.Index);
+                                         if (exitCode != 0) //Go to TestFailure
+                                             runningTests.IncrementIndex(action.Index);
+                                         if (exitCode < 0) //Go to RunFailure
+                                             runningTests.IncrementIndex(action.Index);
                                      });
 
                 timer.Change(0, Timeout.Infinite);

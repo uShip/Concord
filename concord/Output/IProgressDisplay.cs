@@ -2,7 +2,7 @@
 {
     public interface IProgressDisplay
     {
-        string BuildProgressDisplay(int width, int[] runningTests, ref int indicatorPos);
-        char ArrayValueToRunningStatusChar(int value);
+        string BuildProgressDisplay(int width, ProgressStats runningTests, ref int indicatorPos, bool displayFailureSymbols);
+        char ArrayValueToRunningStatusChar(ProgressState value);
     }
 }

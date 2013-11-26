@@ -1,29 +1,40 @@
 ﻿using System;
 using System.Globalization;
-using System.Linq;
 
 namespace concord.Output
 {
     internal class ProgressDisplay : IProgressDisplay
     {
-        public string BuildProgressDisplay(int width, int[] runningTests, ref int indicatorPos)
+        public string BuildProgressDisplay(int width, ProgressStats runningTests, ref int indicatorPos, bool displayFailureSymbols)
         {
-            int totalCount = runningTests.Length;
+            int totalCount = runningTests.Count;
             int displayWidth = Math.Min(width - 4, totalCount);
+            double displayRatio = (double)displayWidth / totalCount;
 
-            int totalRunning = runningTests.Count(x => x == Running);
-            int totalFinished = runningTests.Count(x => x == Finished);
+            Func<ProgressState, string> getProgressDisplay =
+                x => new string(ArrayValueToRunningStatus(x), (int)(runningTests.GetProgressCount(x) * displayRatio));
+            Func<ProgressState, int, string> getProgressDisplayLength =
+                (x, i) => new string(ArrayValueToRunningStatus(x), (int)(i * displayRatio));
+
+            int totalRunning = runningTests.GetProgressCount(ProgressState.Running);
+            int totalFinished = displayFailureSymbols
+                                    ? runningTests.GetProgressCount(ProgressState.Finished)
+                                    : runningTests.GetCompletedCount();
 
 
-            int finishedDisplayChars = totalFinished * displayWidth / totalCount;
-            int startedDisplayChars = totalRunning * displayWidth / totalCount;
-            int remainingDisplayChars = displayWidth - finishedDisplayChars - startedDisplayChars;
+            int finishedDisplayChars = (int)(totalFinished * displayRatio);
+            int startedDisplayChars = (int)(totalRunning * displayRatio);
+            int remainingDisplayChars = displayWidth - (int)(runningTests.GetCompletedCount() * displayRatio) - startedDisplayChars;
 
-            return string.Format(@"[{0}{1}{3}{2}]",
-                                 new string(ArrayValueToRunningStatus(Finished), finishedDisplayChars),
-                                 new string(ArrayValueToRunningStatus(Running), startedDisplayChars > 0 ? (startedDisplayChars - 1) : 0),
-                                 new string(ArrayValueToRunningStatus(NotStarted), remainingDisplayChars),
-                                 startedDisplayChars > 0 ? WorkingIndicator[indicatorPos++ % WorkingIndicator.Length].ToString(CultureInfo.InvariantCulture) : "");
+            return string.Format(displayFailureSymbols
+                                     ? @"[{0}{1}{2}{3}{4}{5}]"
+                                     : @"[{2}{3}{4}{5}]",
+                                 getProgressDisplay(ProgressState.RunFailure),
+                                 getProgressDisplay(ProgressState.TestFailure),
+                                 getProgressDisplayLength(ProgressState.Finished, finishedDisplayChars),
+                                 getProgressDisplayLength(ProgressState.Running, startedDisplayChars > 0 ? (startedDisplayChars - 1) : 0),
+                                 startedDisplayChars > 0 ? WorkingIndicator[indicatorPos++ % WorkingIndicator.Length].ToString(CultureInfo.InvariantCulture) : "",
+                                 getProgressDisplayLength(ProgressState.NotStarted, remainingDisplayChars));
         }
 
         //private string BuildProgressDisplay(int width, int[] runningTests)
@@ -36,26 +47,26 @@ namespace concord.Output
 
         private readonly char[] WorkingIndicator = new[] {'|', '/', '─', '\\'};
 
-        private const int NotStarted = 0;
-        private const int Running = 1;
-        private const int Finished = 2;
-
-        public static char ArrayValueToRunningStatus(int value)
+        public static char ArrayValueToRunningStatus(ProgressState value)
         {
             switch (value)
             {
-                case NotStarted:
+                case ProgressState.NotStarted:
                     return '·';
-                case Running:
+                case ProgressState.Running:
                     return '*';
-                case Finished:
+                case ProgressState.Finished:
                     return '=';
+                case ProgressState.TestFailure:
+                    return 'x';
+                case ProgressState.RunFailure:
+                    return '?';
                 default:
                     return 'e';
             }
         }
 
-        public char ArrayValueToRunningStatusChar(int value)
+        public char ArrayValueToRunningStatusChar(ProgressState value)
         {
             return ArrayValueToRunningStatus(value);
         }
