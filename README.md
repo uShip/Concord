@@ -24,6 +24,9 @@ You can do: `-categories@=IAMAFILEPATH.txt`  to run only specific categories
   * Use `RunnerSettings` for more stuff
   * Find an alternative to the `ConfigureRun` method?
 * Support fixtures being in multiple categories?
+* Seperate RunStats.html files for retry ability and ordering (make a copy, or a combined version when retrying, so it always has the time taken for all categories)
+* An option to -excludeIgnoredFeatures from the count and from starting
+* Hit ENTER or some other key, and dump all the current status data (namely, what is running, what is queued)
 
 ## Future, more versatile
 * Option to output a script that will run similar to this, or describe the run
