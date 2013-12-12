@@ -28,6 +28,18 @@ namespace concord.Output
             return _totalToRun.Count(x => x >= (int)ProgressState.Finished);
         }
 
+        /// <summary>
+        /// Returns the display size of the count of all tests that is a completed state (includes errors)
+        /// </summary>
+        /// <param name="displayRatio"></param>
+        /// <returns></returns>
+        public int GetCompletedCount(double displayRatio)
+        {
+            return _totalToRun.Where(x => x >= (int)ProgressState.Finished)
+                              .GroupBy(x => x).Select(g => (int)(g.Count() * displayRatio))
+                              .Sum();
+        }
+
 
         public void IncrementIndex(int index)
         {

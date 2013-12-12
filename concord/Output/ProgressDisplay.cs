@@ -14,7 +14,7 @@ namespace concord.Output
             Func<ProgressState, string> getProgressDisplay =
                 x => new string(ArrayValueToRunningStatus(x), (int)(runningTests.GetProgressCount(x) * displayRatio));
             Func<ProgressState, int, string> getProgressDisplayLength =
-                (x, i) => new string(ArrayValueToRunningStatus(x), (int)(i * displayRatio));
+                (x, i) => new string(ArrayValueToRunningStatus(x), i);
 
             var totalRunning = runningTests.GetProgressCount(ProgressState.Running);
             var totalFinished = displayFailureSymbols
@@ -24,17 +24,20 @@ namespace concord.Output
 
             var finishedDisplayChars = (int)(totalFinished * displayRatio);
             var startedDisplayChars = (int)(totalRunning * displayRatio);
-            var remainingDisplayChars = displayWidth - (int)(runningTests.GetCompletedCount() * displayRatio) - startedDisplayChars;
+            var remainingDisplayChars = displayWidth - runningTests.GetCompletedCount(displayRatio) - startedDisplayChars;
 
-            return string.Format(displayFailureSymbols
-                                     ? @"[{0}{1}{2}{3}{4}{5}]"
-                                     : @"[{2}{3}{4}{5}]",
-                                 getProgressDisplay(ProgressState.RunFailure),
-                                 getProgressDisplay(ProgressState.TestFailure),
-                                 getProgressDisplayLength(ProgressState.Finished, finishedDisplayChars),
-                                 getProgressDisplayLength(ProgressState.Running, startedDisplayChars > 0 ? (startedDisplayChars - 1) : 0),
-                                 startedDisplayChars > 0 ? WorkingIndicator[indicatorPos++ % WorkingIndicator.Length].ToString(CultureInfo.InvariantCulture) : "",
-                                 getProgressDisplayLength(ProgressState.NotStarted, remainingDisplayChars));
+            var progressBar =
+                string.Format(displayFailureSymbols
+                        ? @"[{0}{1}{2}{3}{4}{5}]"
+                        : @"[{2}{3}{4}{5}]",
+                    getProgressDisplay(ProgressState.RunFailure),
+                    getProgressDisplay(ProgressState.TestFailure),
+                    getProgressDisplayLength(ProgressState.Finished, finishedDisplayChars),
+                    getProgressDisplayLength(ProgressState.Running, startedDisplayChars > 0 ? (startedDisplayChars - 1) : 0),
+                    startedDisplayChars > 0 ? WorkingIndicator[indicatorPos++ % WorkingIndicator.Length].ToString(CultureInfo.InvariantCulture) : "",
+                    getProgressDisplayLength(ProgressState.NotStarted, remainingDisplayChars));
+
+            return progressBar;
         }
 
         //private string BuildProgressDisplay(int width, int[] runningTests)
