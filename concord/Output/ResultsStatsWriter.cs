@@ -39,7 +39,7 @@ namespace concord.Output
             }
             sb.AppendLine("</pre>");
 
-            File.WriteAllText(_settings.ResultsHtmlReportFilepath, sb.ToString());
+            File.WriteAllText(_settings.ResultsStatsFilepath, sb.ToString());
         }
 
         //TODO test that this line can be processed by ResultsParser
