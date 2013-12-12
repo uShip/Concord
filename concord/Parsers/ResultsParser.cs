@@ -35,8 +35,8 @@ namespace concord.Parsers
 
         public IEnumerable<string> GetCategoriesInOrder(IEnumerable<string> fileLines)
         {
-            var previousResultDatas = ParseFileLines(fileLines).OrderByDescending(x => x.Runtime);
-            return previousResultDatas
+            return ParseFileLines(fileLines)
+                .OrderByDescending(x => x.Runtime)
                 .Select(x => x.FeatureName);
         }
 

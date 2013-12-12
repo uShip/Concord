@@ -26,14 +26,15 @@ namespace concord.Output
             var startedDisplayChars = (int)(totalRunning * displayRatio);
             var remainingDisplayChars = displayWidth - (int)(runningTests.GetCompletedCount() * displayRatio) - startedDisplayChars;
 
-            var progressBar = 
-                string.Format(displayFailureSymbols 
-                ? @"[{0}{1}{2}{3}{4}{5}]" 
-                : @"[{2}{3}{4}{5}]", 
-                getProgressDisplay(ProgressState.RunFailure), getProgressDisplay(ProgressState.TestFailure), getProgressDisplayLength(ProgressState.Finished, finishedDisplayChars), getProgressDisplayLength(ProgressState.Running, startedDisplayChars > 0 ? (startedDisplayChars - 1) : 0), startedDisplayChars > 0 ? WorkingIndicator[indicatorPos++%WorkingIndicator.Length].ToString(CultureInfo.InvariantCulture) : "", getProgressDisplayLength(ProgressState.NotStarted, remainingDisplayChars));
-//            progressBar += string.Format("\nTotal Categories Running: {0}\nTotal Categories Finished: {1}", 
-//                totalRunning, totalFinished);
-            return progressBar;
+            return string.Format(displayFailureSymbols
+                                     ? @"[{0}{1}{2}{3}{4}{5}]"
+                                     : @"[{2}{3}{4}{5}]",
+                                 getProgressDisplay(ProgressState.RunFailure),
+                                 getProgressDisplay(ProgressState.TestFailure),
+                                 getProgressDisplayLength(ProgressState.Finished, finishedDisplayChars),
+                                 getProgressDisplayLength(ProgressState.Running, startedDisplayChars > 0 ? (startedDisplayChars - 1) : 0),
+                                 startedDisplayChars > 0 ? WorkingIndicator[indicatorPos++ % WorkingIndicator.Length].ToString(CultureInfo.InvariantCulture) : "",
+                                 getProgressDisplayLength(ProgressState.NotStarted, remainingDisplayChars));
         }
 
         //private string BuildProgressDisplay(int width, int[] runningTests)
