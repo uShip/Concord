@@ -77,10 +77,12 @@
     <Compile Include="Builders\ProcessRunner.cs" />
     <Compile Include="Builders\IRunner.cs" />
     <Compile Include="Builders\ThreadRunner.cs" />
+    <Compile Include="Configuration\IRunnerSettings.cs" />
     <Compile Include="Configuration\IRunnerSettingsBuilder.cs" />
     <Compile Include="Configuration\RunnerRegistry.cs" />
     <Compile Include="Configuration\RunnerSettings.cs" />
     <Compile Include="Configuration\RunnerSettingsBuilder.cs" />
+    <Compile Include="Configuration\RunnerSettingsSingleton.cs" />
     <Compile Include="Configuration\ServiceLocator.cs" />
     <Compile Include="Extensions\ActionExtensions.cs" />
     <Compile Include="Extensions\CategoryNameComparer.cs" />
@@ -93,6 +95,7 @@
     <Compile Include="Nunit\MergedResults.cs" />
     <Compile Include="Nunit\ResultMerger.cs" />
     <Compile Include="Output\IProgressDisplay.cs" />
+    <Compile Include="Output\IResultsStatsWriter.cs" />
     <Compile Include="Output\ProgressDisplay.cs" />
     <Compile Include="Output\ProgressState.cs" />
     <Compile Include="Output\ProgressStats.cs" />

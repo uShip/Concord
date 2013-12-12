@@ -92,7 +92,7 @@ namespace concord.Builders
                 Directory.CreateDirectory(outputPath);
 
 
-            bool shouldRunOther = _categoriesToRun.Count == 0
+            var shouldRunOther = _categoriesToRun.Count == 0
                                   || _categoriesToRun.Contains("all");
 
             //var categoryMessage = "Categories run will be: " + string.Join(", ", runnableCategories);
@@ -105,14 +105,7 @@ namespace concord.Builders
                              _progressDisplayBuilder.ArrayValueToRunningStatusChar(ProgressState.Running),
                              _progressDisplayBuilder.ArrayValueToRunningStatusChar(ProgressState.Finished));
 
-            var options = new ParallelOptions
-                {
-                    MaxDegreeOfParallelism = maxConcurrentRunners > 0
-                                                 ? maxConcurrentRunners
-                                                 : -1,
-                    CancellationToken = _cancelTokenSource.Token
-                };
-
+            
             var testFixturesToRun = new List<string>();
             if (shouldRunOther)
             {
@@ -191,38 +184,11 @@ namespace concord.Builders
                     };
 
                 var startOrderInt = 0;
-                var token = options.CancellationToken;
-                Parallel.ForEach(BuildSortedAllActions(testFixturesToRun, runnableCategories),
-                                 options,
-                                 action =>
-                                     {
-                                         token.ThrowIfCancellationRequested();
+                var token = _cancelTokenSource.Token;
 
-                                         runningTests.IncrementIndex(action.Index);
-                                         var startOrder = Interlocked.Increment(ref startOrderInt);
-
-                                         var startTime = totalRuntime.Elapsed;
-                                         var sw = new Stopwatch();
-                                         sw.Start();
-                                         var exitCode = action.RunTests();
-                                         sw.Stop();
-                                         testResults.Add(new RunStats
-                                             {
-                                                 Name = action.Name,
-                                                 StartTime = startTime,
-                                                 RunTime = sw.Elapsed,
-                                                 EndTime = totalRuntime.Elapsed,
-                                                 StartOrder = startOrder,
-                                                 FinishOrder = testResults.Count,
-                                                 ExitCode = exitCode
-                                             });
-
-                                         runningTests.IncrementIndex(action.Index);
-                                         if (exitCode != 0) //Go to TestFailure
-                                             runningTests.IncrementIndex(action.Index);
-                                         if (exitCode < 0) //Go to RunFailure
-                                             runningTests.IncrementIndex(action.Index);
-                                     });
+                var buildSortedAllActions = BuildSortedAllActions(testFixturesToRun, runnableCategories)
+                    .ToArray();
+                RunActionsOnThreads(maxConcurrentRunners, buildSortedAllActions, token, stdOut, runningTests, startOrderInt, totalRuntime, testResults);
 
                 timer.Change(0, Timeout.Infinite);
                 //Tacky way to fix line printing problem
@@ -242,7 +208,7 @@ namespace concord.Builders
 
             var SkippedTests = _categories.Except(testResults.Select(a => a.Name)).ToList();
 
-            _resultsStatsWriter.OutputRunStats(_runnerSettings.ResultsStatsFilepath, totalRuntime.Elapsed, testResults, SkippedTests);
+            _resultsStatsWriter.OutputRunStats(totalRuntime.Elapsed, testResults, SkippedTests);
 
             var outputResultsXmlPath = _runnerSettings.ResultsXmlFilepath;
             var outputResultsReportPath = _runnerSettings.ResultsHtmlReportFilepath;
@@ -262,6 +228,98 @@ namespace concord.Builders
             return xmlOutput;
         }
 
+        private static void RunActionsOnThreads(int maxConcurrentRunners, IEnumerable<TestRunAction> buildSortedAllActions,
+                                               CancellationToken token, TextWriterWrapper stdOut, ProgressStats runningTests,
+                                               int startOrderInt, Stopwatch totalRuntime, ConcurrentBag<RunStats> testResults)
+        {
+            var sortedAllActions = buildSortedAllActions as TestRunAction[] ?? buildSortedAllActions.ToArray();
+            ThreadPool.SetMaxThreads(maxConcurrentRunners, maxConcurrentRunners);
+            for (var i = 0; i < sortedAllActions.Count(); i++)
+            {
+                CreateThread(sortedAllActions[i], token, stdOut, runningTests, startOrderInt, totalRuntime, testResults);
+            }
+
+            StopProcessing();
+        }
+
+        static int _threadCounter = 0;
+        
+        private static void CreateThread(TestRunAction action,
+            CancellationToken token, TextWriterWrapper stdOut, ProgressStats runningTests,
+                                               int startOrderInt, Stopwatch totalRuntime, ConcurrentBag<RunStats> testResults)
+        {
+            var parameters = new MethodParameters
+                {
+                    Action = action,
+                    RunningTests = runningTests,
+                    StartOrderInt = startOrderInt,
+                    StdOut = stdOut,
+                    TestResults = testResults,
+                    Token = token,
+                    TotalRuntime = totalRuntime
+                };
+            Interlocked.Increment(ref _threadCounter);
+            ThreadPool.QueueUserWorkItem(RunTest, parameters);
+        }
+
+        private static void StopProcessing()
+        {
+            while (_threadCounter > 0)
+                Thread.Sleep(500);
+        }
+
+        private class MethodParameters
+        {
+            public TestRunAction Action { get; set; }
+            public CancellationToken Token { get; set; }
+            public TextWriterWrapper StdOut { get; set; }
+            public ProgressStats RunningTests { get; set; }
+            public int StartOrderInt  { get; set; }
+            public Stopwatch TotalRuntime  { get; set; }
+            public ConcurrentBag<RunStats> TestResults { get; set; }
+        }
+
+        private static void RunTest(object parameters)
+        {
+            var mp = parameters as MethodParameters;
+            var action = mp.Action;
+            var token = mp.Token;
+            var stdOut = mp.StdOut;
+            var runningTests = mp.RunningTests;
+            var startOrderInt = mp.StartOrderInt;
+            var totalRuntime = mp.TotalRuntime;
+            var testResults = mp.TestResults;
+            
+
+//            stdOut.WriteLine("Just started " + action.Name);
+            token.ThrowIfCancellationRequested();
+
+            runningTests.IncrementIndex(action.Index);
+            var startOrder = Interlocked.Increment(ref startOrderInt);
+            var startTime = totalRuntime.Elapsed;
+            var sw = new Stopwatch();
+            sw.Start();
+            var exitCode = action.RunTests();
+            sw.Stop();
+            testResults.Add(new RunStats
+            {
+                Name = action.Name,
+                StartTime = startTime,
+                RunTime = sw.Elapsed,
+                EndTime = totalRuntime.Elapsed,
+                StartOrder = startOrder,
+                FinishOrder = testResults.Count,
+                ExitCode = exitCode
+            });
+//            stdOut.WriteLine("Just finished " + action.Name);
+            runningTests.IncrementIndex(action.Index);
+            if (exitCode != 0) //Go to TestFailure
+                runningTests.IncrementIndex(action.Index);
+            if (exitCode < 0) //Go to RunFailure
+                runningTests.IncrementIndex(action.Index);
+
+            Interlocked.Decrement(ref _threadCounter);
+        }
 
 
         public IEnumerable<TestRunAction> BuildSortedAllActions(IEnumerable<string> testFixtures, IEnumerable<string> runnableCategories)
@@ -273,10 +331,14 @@ namespace concord.Builders
             //Take ones in the order of TargetRunOrder, then append any others after that
             //  Ideally the Others would go first...
             var tempDebugging = TargetRunOrder
-                .Select(name => actions.SingleOrDefault(x => x.Name == name.TrimLongPrefix()))
+                .Select(name => actions.SingleOrDefault(x => x.Name == name))
                 .Where(foundAction => foundAction != null)
                 .Union(actions)
                 .ToList();
+            //            Console.WriteLine("actions are: " + string.Join(", ", actions.Select(x => x.Name)));
+            //            Console.WriteLine("targets are: " + string.Join(", ", TargetRunOrder.Select(x => x)));
+            //            Console.WriteLine("results are: " + string.Join(", ", tempDebugging.Select(x => x.Name)));
+
             return tempDebugging;
         }
 
@@ -286,7 +348,6 @@ namespace concord.Builders
             //TestFixtures that do not have a category:
             if (_runnerSettings.RunUncategorizedTestFixturesParallel)
             {
-                //TODO these should NOT be added first... want Long categories first!!
                 foreach (var fixture in testFixtures.Select((x, i) => new {Name = x, Index = i}))
                 {
                     var x = fixture.Name;
@@ -404,7 +465,6 @@ namespace concord.Builders
 
         public ITestFilter GetIncludeFilter(string includeCategory)
         {
-            includeCategory = includeCategory.TrimLongPrefix();
             return new CategoryFilter(includeCategory);
         }
 

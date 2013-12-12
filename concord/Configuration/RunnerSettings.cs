@@ -3,7 +3,7 @@ using System.IO;
 
 namespace concord.Configuration
 {
-    public class RunnerSettings
+    public class RunnerSettings : IRunnerSettings
     {
         public RunnerSettings(
             string outputBasePath,

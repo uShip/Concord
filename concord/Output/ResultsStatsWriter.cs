@@ -3,17 +3,20 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using concord.Configuration;
 
 namespace concord.Output
 {
-    public interface IResultsStatsWriter
-    {
-        void OutputRunStats(string statsOutputFile, TimeSpan totalRuntime, IEnumerable<RunStats> runners, List<string> skippedTests);
-    }
-
     public class ResultsStatsWriter : IResultsStatsWriter
     {
-        public void OutputRunStats(string statsOutputFile, TimeSpan totalRuntime, IEnumerable<RunStats> runners, List<string> skippedTests)
+        private readonly IRunnerSettings _settings;
+
+        public ResultsStatsWriter(IRunnerSettings settings)
+        {
+            _settings = settings;
+        }
+
+        public void OutputRunStats(TimeSpan totalRuntime, IEnumerable<RunStats> runners, List<string> skippedTests)
         {
             var sb = new StringBuilder();
 
@@ -36,16 +39,7 @@ namespace concord.Output
             }
             sb.AppendLine("</pre>");
 
-            File.WriteAllText(statsOutputFile, sb.ToString());
-
-            //var toOutput = new
-            //{
-            //    TotalRuntime = totalRuntime,
-            //    Tests = runners.OrderByDescending(t => t.RunTime).ToList(),
-            //    DidNotRun = skippedTests
-            //};
-
-            //toOutput.ToXml().Save(Path.Combine(outputPath, "RunStats.html"));
+            File.WriteAllText(_settings.ResultsHtmlReportFilepath, sb.ToString());
         }
 
         //TODO test that this line can be processed by ResultsParser

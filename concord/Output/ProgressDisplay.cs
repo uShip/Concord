@@ -7,34 +7,33 @@ namespace concord.Output
     {
         public string BuildProgressDisplay(int width, ProgressStats runningTests, ref int indicatorPos, bool displayFailureSymbols)
         {
-            int totalCount = runningTests.Count;
-            int displayWidth = Math.Min(width - 4, totalCount);
-            double displayRatio = (double)displayWidth / totalCount;
+            var totalCount = runningTests.Count;
+            var displayWidth = Math.Min(width - 4, totalCount);
+            var displayRatio = (double)displayWidth / totalCount;
 
             Func<ProgressState, string> getProgressDisplay =
                 x => new string(ArrayValueToRunningStatus(x), (int)(runningTests.GetProgressCount(x) * displayRatio));
             Func<ProgressState, int, string> getProgressDisplayLength =
                 (x, i) => new string(ArrayValueToRunningStatus(x), (int)(i * displayRatio));
 
-            int totalRunning = runningTests.GetProgressCount(ProgressState.Running);
-            int totalFinished = displayFailureSymbols
+            var totalRunning = runningTests.GetProgressCount(ProgressState.Running);
+            var totalFinished = displayFailureSymbols
                                     ? runningTests.GetProgressCount(ProgressState.Finished)
                                     : runningTests.GetCompletedCount();
 
 
-            int finishedDisplayChars = (int)(totalFinished * displayRatio);
-            int startedDisplayChars = (int)(totalRunning * displayRatio);
-            int remainingDisplayChars = displayWidth - (int)(runningTests.GetCompletedCount() * displayRatio) - startedDisplayChars;
+            var finishedDisplayChars = (int)(totalFinished * displayRatio);
+            var startedDisplayChars = (int)(totalRunning * displayRatio);
+            var remainingDisplayChars = displayWidth - (int)(runningTests.GetCompletedCount() * displayRatio) - startedDisplayChars;
 
-            return string.Format(displayFailureSymbols
-                                     ? @"[{0}{1}{2}{3}{4}{5}]"
-                                     : @"[{2}{3}{4}{5}]",
-                                 getProgressDisplay(ProgressState.RunFailure),
-                                 getProgressDisplay(ProgressState.TestFailure),
-                                 getProgressDisplayLength(ProgressState.Finished, finishedDisplayChars),
-                                 getProgressDisplayLength(ProgressState.Running, startedDisplayChars > 0 ? (startedDisplayChars - 1) : 0),
-                                 startedDisplayChars > 0 ? WorkingIndicator[indicatorPos++ % WorkingIndicator.Length].ToString(CultureInfo.InvariantCulture) : "",
-                                 getProgressDisplayLength(ProgressState.NotStarted, remainingDisplayChars));
+            var progressBar = 
+                string.Format(displayFailureSymbols 
+                ? @"[{0}{1}{2}{3}{4}{5}]" 
+                : @"[{2}{3}{4}{5}]", 
+                getProgressDisplay(ProgressState.RunFailure), getProgressDisplay(ProgressState.TestFailure), getProgressDisplayLength(ProgressState.Finished, finishedDisplayChars), getProgressDisplayLength(ProgressState.Running, startedDisplayChars > 0 ? (startedDisplayChars - 1) : 0), startedDisplayChars > 0 ? WorkingIndicator[indicatorPos++%WorkingIndicator.Length].ToString(CultureInfo.InvariantCulture) : "", getProgressDisplayLength(ProgressState.NotStarted, remainingDisplayChars));
+//            progressBar += string.Format("\nTotal Categories Running: {0}\nTotal Categories Finished: {1}", 
+//                totalRunning, totalFinished);
+            return progressBar;
         }
 
         //private string BuildProgressDisplay(int width, int[] runningTests)

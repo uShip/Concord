@@ -35,30 +35,21 @@ namespace concord.Extensions
 
         private static string GetCategoryAttribute(Type t)
         {
-            Func<Attribute, bool> isTheLongRunningAttribute = x => "Long".Equals(GetCategoryName(x),
-                                                                                 StringComparison
-                                                                                     .OrdinalIgnoreCase);
             var attributes = t.GetCustomAttributesEndingWith("CategoryAttribute").ToArray();
-            var firstAttribute = attributes.FirstOrDefault(x => !isTheLongRunningAttribute(x));
+            var firstAttribute = attributes.FirstOrDefault();
 
             if (firstAttribute == null) return null;
 
             var firstAttributeName = GetCategoryName(firstAttribute);
-            return attributes.Any(isTheLongRunningAttribute)
-                       ? "_" + firstAttributeName
-                       : firstAttributeName;
+            return firstAttributeName;
         }
 
         public static bool HasCategoryAttribute(this Type t, IEnumerable<string> categories)
         {
             var categoryAttribute = GetCategoryAttribute(t);
             return categoryAttribute != null
-                   && categories.Contains(categoryAttribute.TrimLongPrefix(), CategoryNameComparer.Default);
+                   && categories.Contains(categoryAttribute, CategoryNameComparer.Default);
         }
 
-        public static string TrimLongPrefix(this string category)
-        {
-            return category.TrimStart('_');
-        }
     }
 }

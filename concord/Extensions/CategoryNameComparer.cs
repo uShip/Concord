@@ -8,13 +8,12 @@ namespace concord.Extensions
 
         public bool Equals(string x, string y)
         {
-            return x.TrimLongPrefix().ToLowerInvariant() == y.TrimLongPrefix().ToLowerInvariant();
+            return x.ToLowerInvariant() == y.ToLowerInvariant();
         }
 
         public int GetHashCode(string obj)
         {
-            return obj.TrimLongPrefix()
-                      .ToLowerInvariant()
+            return obj.ToLowerInvariant()
                       .GetHashCode();
         }
     }
