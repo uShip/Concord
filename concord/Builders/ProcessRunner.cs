@@ -192,6 +192,10 @@ namespace concord.Builders
                 var buildSortedAllActions = BuildSortedAllActions(testFixturesToRun, runnableCategories)
                     .ToArray();
                 RunActionsOnThreads(maxConcurrentRunners, buildSortedAllActions, token, stdOut, runningTests, startOrderInt, totalRuntime, testResults);
+                //Waiting for complete
+                while (_threadCounter > 0)
+                    Thread.Sleep(500);
+
 
                 timer.Change(0, Timeout.Infinite);
                 //Tacky way to fix line printing problem
@@ -236,10 +240,15 @@ namespace concord.Builders
                                                CancellationToken token, TextWriterWrapper stdOut, ProgressStats runningTests,
                                                int startOrderInt, Stopwatch totalRuntime, ConcurrentBag<RunStats> testResults)
         {
-            var sortedAllActions = buildSortedAllActions as TestRunAction[] ?? buildSortedAllActions.ToArray();
-            ThreadPool.SetMaxThreads(maxConcurrentRunners, maxConcurrentRunners);
+            var sortedAllActions = buildSortedAllActions as TestRunAction[]
+                                   ?? buildSortedAllActions.ToArray();
+
+            if (maxConcurrentRunners > 0)
+                ThreadPool.SetMaxThreads(maxConcurrentRunners, maxConcurrentRunners);
+
             for (var i = 0; i < sortedAllActions.Count(); i++)
             {
+                token.ThrowIfCancellationRequested();
                 CreateThread(sortedAllActions[i], token, stdOut, runningTests, startOrderInt, totalRuntime, testResults);
             }
 
@@ -263,6 +272,7 @@ namespace concord.Builders
                     TotalRuntime = totalRuntime
                 };
             Interlocked.Increment(ref _threadCounter);
+            //Shouldn't really use built-in thread pool for long-running processes...
             ThreadPool.QueueUserWorkItem(RunTest, parameters);
         }
 
@@ -285,7 +295,10 @@ namespace concord.Builders
 
         private static void RunTest(object parameters)
         {
-            var mp = parameters as MethodParameters;
+            RunTest(parameters as MethodParameters);
+        }
+        private static void RunTest(MethodParameters mp)
+        {
             var action = mp.Action;
             var token = mp.Token;
             var stdOut = mp.StdOut;
