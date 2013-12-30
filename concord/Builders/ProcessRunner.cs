@@ -251,8 +251,6 @@ namespace concord.Builders
                 token.ThrowIfCancellationRequested();
                 CreateThread(sortedAllActions[i], token, stdOut, runningTests, startOrderInt, totalRuntime, testResults);
             }
-
-            StopProcessing();
         }
 
         static int _threadCounter = 0;
@@ -274,12 +272,6 @@ namespace concord.Builders
             Interlocked.Increment(ref _threadCounter);
             //Shouldn't really use built-in thread pool for long-running processes...
             ThreadPool.QueueUserWorkItem(RunTest, parameters);
-        }
-
-        private static void StopProcessing()
-        {
-            while (_threadCounter > 0)
-                Thread.Sleep(500);
         }
 
         private class MethodParameters
@@ -332,8 +324,12 @@ namespace concord.Builders
             runningTests.IncrementIndex(action.Index);
             if (exitCode != 0) //Go to TestFailure
                 runningTests.IncrementIndex(action.Index);
-            if (exitCode < 0) //Go to RunFailure
+            if (exitCode < 0)
+            {
+                //Go to RunFailure
                 runningTests.IncrementIndex(action.Index);
+                stdOut.WriteLine("Test failure: {0}", action.Name);
+            }
 
             Interlocked.Decrement(ref _threadCounter);
         }
