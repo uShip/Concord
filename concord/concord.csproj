@@ -40,6 +40,10 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\FubuCore.1.3.0.278\lib\FubuCore.dll</HintPath>
     </Reference>
+    <Reference Include="Newtonsoft.Json, Version=6.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\Newtonsoft.Json.6.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
     <Reference Include="nunit">
       <HintPath>..\packages\NUnit.Runners.2.6.2\tools\nunit.exe</HintPath>
     </Reference>
@@ -101,6 +105,7 @@
     <Compile Include="Output\ProgressDisplay.cs" />
     <Compile Include="Output\ProgressState.cs" />
     <Compile Include="Output\ProgressStats.cs" />
+    <Compile Include="Output\ResultsOrderService.cs" />
     <Compile Include="Output\ResultsStatsWriter.cs" />
     <Compile Include="Output\ResultsWriter.cs" />
     <Compile Include="Parsers\IResultsParser.cs" />

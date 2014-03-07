@@ -28,17 +28,20 @@ namespace concord.Builders
         private readonly IResultsParser _resultsParser;
         private readonly IProgressDisplay _progressDisplayBuilder;
         private readonly IResultsStatsWriter _resultsStatsWriter;
+        private readonly IResultsOrderService _resultsOrderService;
 
         public ProcessRunner(
             IResultsWriter resultsWriter,
             IResultsParser resultsParser,
             IProgressDisplay progressDisplayBuilder,
-            IResultsStatsWriter resultsStatsWriter)
+            IResultsStatsWriter resultsStatsWriter,
+            IResultsOrderService resultsOrderService)
         {
             _resultsWriter = resultsWriter;
             _resultsParser = resultsParser;
             _progressDisplayBuilder = progressDisplayBuilder;
             _resultsStatsWriter = resultsStatsWriter;
+            _resultsOrderService = resultsOrderService;
         }
 
         private bool _configured = false;
@@ -209,7 +212,7 @@ namespace concord.Builders
             var SkippedTests = _categories.Except(testResults.Select(a => a.Name)).ToList();
 
             _resultsStatsWriter.OutputRunStats(totalRuntime.Elapsed, testResults, SkippedTests);
-            _resultsStatsWriter.OutputRunOrder(testResults, SkippedTests);
+            _resultsOrderService.OutputRunOrder(testResults, SkippedTests);
 
             var outputResultsXmlPath = _runnerSettings.ResultsXmlFilepath;
             var outputResultsReportPath = _runnerSettings.ResultsHtmlReportFilepath;
@@ -327,7 +330,7 @@ namespace concord.Builders
         {
             var actions = BuildAllActions(testFixtures, runnableCategories).ToList();
 
-            var TargetRunOrder = _resultsParser.GetCategoriesInOrder(_runnerSettings.ResultsOrderDataFilepath);
+            var TargetRunOrder = _resultsOrderService.GetCategoriesInOrder();
 
             //Take ones in the order of TargetRunOrder, then append any others after that
             //  Ideally the Others would go first...
