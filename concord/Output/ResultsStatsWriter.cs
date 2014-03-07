@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using concord.Configuration;
+using Newtonsoft.Json;
 
 namespace concord.Output
 {
@@ -40,11 +41,6 @@ namespace concord.Output
             sb.AppendLine("</pre>");
 
             File.WriteAllText(_settings.ResultsStatsFilepath, sb.ToString());
-        }
-
-        public void OutputRunOrder(IEnumerable<RunStats> runners, List<string> skippedTests)
-        {
-            
         }
 
         //TODO test that this line can be processed by ResultsParser

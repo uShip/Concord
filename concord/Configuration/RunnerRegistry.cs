@@ -30,6 +30,7 @@ namespace concord.Configuration
             For<IRunnerSettingsBuilder>().Use<RunnerSettingsBuilder>();
             For<IProgressDisplay>().Use<ProgressDisplay>();
             For<IResultsStatsWriter>().Use<ResultsStatsWriter>();
+            For<IResultsOrderService>().Use<ResultsOrderService>();
             For<IRunnerSettings>().Use(() => RunnerSettingsSingleton.Instance);
         }
     }
