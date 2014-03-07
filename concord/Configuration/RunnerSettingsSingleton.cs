@@ -57,6 +57,11 @@ namespace concord.Configuration
             get { return _wrappee.ResultsStatsFilepath; }
         }
 
+        public string ResultsOrderDataFilepath
+        {
+            get { return _wrappee.ResultsOrderDataFilepath; }
+        }
+
         public bool RunUncategorizedTestFixturesParallel
         {
             get { return _wrappee.RunUncategorizedTestFixturesParallel; }

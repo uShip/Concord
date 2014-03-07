@@ -209,6 +209,7 @@ namespace concord.Builders
             var SkippedTests = _categories.Except(testResults.Select(a => a.Name)).ToList();
 
             _resultsStatsWriter.OutputRunStats(totalRuntime.Elapsed, testResults, SkippedTests);
+            _resultsStatsWriter.OutputRunOrder(testResults, SkippedTests);
 
             var outputResultsXmlPath = _runnerSettings.ResultsXmlFilepath;
             var outputResultsReportPath = _runnerSettings.ResultsHtmlReportFilepath;
@@ -326,7 +327,7 @@ namespace concord.Builders
         {
             var actions = BuildAllActions(testFixtures, runnableCategories).ToList();
 
-            var TargetRunOrder = _resultsParser.GetCategoriesInOrder(_runnerSettings.ResultsStatsFilepath);
+            var TargetRunOrder = _resultsParser.GetCategoriesInOrder(_runnerSettings.ResultsOrderDataFilepath);
 
             //Take ones in the order of TargetRunOrder, then append any others after that
             //  Ideally the Others would go first...

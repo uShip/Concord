@@ -10,6 +10,7 @@
         string ResultsXmlFilepath { get; }
         string ResultsHtmlReportFilepath { get; }
         string ResultsStatsFilepath { get; }
+        string ResultsOrderDataFilepath { get; }
         bool RunUncategorizedTestFixturesParallel { get; set; }
         bool RerunFailedCategories { get; set; }
         bool DisplayFailureSymbolsInProgressDisplay { get; set; }

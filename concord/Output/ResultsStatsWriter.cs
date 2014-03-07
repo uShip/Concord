@@ -42,6 +42,11 @@ namespace concord.Output
             File.WriteAllText(_settings.ResultsStatsFilepath, sb.ToString());
         }
 
+        public void OutputRunOrder(IEnumerable<RunStats> runners, List<string> skippedTests)
+        {
+            
+        }
+
         //TODO test that this line can be processed by ResultsParser
         internal void AppendTestFinishedLine(StringBuilder sb, RunStats r)
         {
