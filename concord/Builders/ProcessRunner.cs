@@ -207,7 +207,8 @@ namespace concord.Builders
                             {
                                 //Go to RunFailure
                                 runningTests.IncrementIndex(action.Index);
-                                stdOut.Write("\r! Test failure: {0} ({1})   \n", action.Name, exitCode);
+                                if (!Console.IsOutputRedirected)
+                                    stdOut.Write("\r! Test failure: {0} ({1})   \n", action.Name, exitCode);
                             }
                         });
                 }

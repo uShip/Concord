@@ -1,4 +1,5 @@
-﻿using System.Collections.Concurrent;
+﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -17,6 +18,11 @@ namespace concord.Builders
         {
             var sortedAllActions = buildSortedAllActions as TestRunAction[]
                                    ?? buildSortedAllActions.ToArray();
+
+            if (maxConcurrentRunners <= 0)
+            {
+                maxConcurrentRunners = 12;
+            }
 
             //Waiting for complete
             for (var i = 0; i < sortedAllActions.Count(); i++)
@@ -107,7 +113,8 @@ namespace concord.Builders
             {
                 //Go to RunFailure
                 runningTests.IncrementIndex(action.Index);
-                stdOut.Write("\r! Test failure: {0} ({1})   \n", action.Name, exitCode);
+                if (!Console.IsOutputRedirected)
+                    stdOut.Write("\r! Test failure: {0} ({1})   \n", action.Name, exitCode);
             }
 
             Interlocked.Decrement(ref _threadCounter);
