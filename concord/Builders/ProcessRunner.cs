@@ -144,31 +144,9 @@ namespace concord.Builders
             {
                 var runningTests = new ProgressStats(totalToRun);
 
-                int indicatorPos = 0;
-                var buildingDisplay = new object();
                 var timer = new Timer(x =>
                     {
-                        if (Console.IsOutputRedirected) return;
-                        if (!Monitor.TryEnter(buildingDisplay)) return;
-
-                        try
-                        {
-                            int windowWidth = Console.WindowWidth;
-
-                            stdOut.Write("\r");
-                            stdOut.Write(_progressDisplayBuilder.BuildProgressDisplay(windowWidth, runningTests,
-                                                              ref indicatorPos,
-                                                              _runnerSettings.DisplayFailureSymbolsInProgressDisplay));
-                        }
-                        catch (Exception exception)
-                        {
-                            stdOut.Write("display error...");
-                            throw new ApplicationException("Unable to properly build progress display.", exception);
-                        }
-                        finally
-                        {
-                            Monitor.Exit(buildingDisplay);
-                        }
+                        WriteProgressDisplay(stdOut, runningTests);
                     }, null, 0, 250);
 
                 if (Console.IsOutputRedirected)
@@ -282,6 +260,34 @@ namespace concord.Builders
 
             //Do we really need to return this? if so we should have the writing happen elsewhere...
             return xmlOutput;
+        }
+
+        private int indicatorPos = 0;
+        private readonly object buildingDisplay = new object();
+
+        private void WriteProgressDisplay(TextWriterWrapper stdOut, ProgressStats runningTests)
+        {
+            if (Console.IsOutputRedirected) return;
+            if (!Monitor.TryEnter(buildingDisplay)) return;
+
+            try
+            {
+                int windowWidth = Console.WindowWidth;
+
+                stdOut.Write("\r");
+                stdOut.Write(_progressDisplayBuilder.BuildProgressDisplay(windowWidth, runningTests,
+                                                  ref indicatorPos,
+                                                  _runnerSettings.DisplayFailureSymbolsInProgressDisplay));
+            }
+            catch (Exception exception)
+            {
+                stdOut.Write("display error...");
+                throw new ApplicationException("Unable to properly build progress display.", exception);
+            }
+            finally
+            {
+                Monitor.Exit(buildingDisplay);
+            }
         }
 
 
