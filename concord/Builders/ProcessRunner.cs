@@ -178,7 +178,7 @@ namespace concord.Builders
                         options,
                         action =>
                         {
-                            stdOut.Write(string.Format("\r> Starting: {0}   \n", action.Name));
+                            //stdOut.Write(string.Format("\r> Starting: {0}   \n", action.Name));
                             token.ThrowIfCancellationRequested();
 
                             runningTests.IncrementIndex(action.Index);
@@ -207,7 +207,7 @@ namespace concord.Builders
                             {
                                 //Go to RunFailure
                                 runningTests.IncrementIndex(action.Index);
-                                stdOut.Write("\rTest failure: {0} ({1})   \n", action.Name, exitCode);
+                                stdOut.Write("\r! Test failure: {0} ({1})   \n", action.Name, exitCode);
                             }
                         });
                 }
