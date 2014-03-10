@@ -11,8 +11,7 @@ namespace concord.Output
     public interface IResultsOrderService
     {
         void OutputRunOrder(IEnumerable<RunStats> runners, List<string> skippedTests);
-        IEnumerable<string> GetCategoriesInOrder();
-        IEnumerable<string> GetCategoriesAlternated();
+        IEnumerable<string> GetCategoriesInDesiredOrder();
     }
 
     public class ResultsOrderService : IResultsOrderService
@@ -36,6 +35,11 @@ namespace concord.Output
                 //Only copy over data from skippedTests
                 //  So if any are deleted they won't remain in there
                 runOrderData.AddRange(previousData.Where(x => skippedTests.Contains(x.Name)));
+                //Copy over failed tests
+                runOrderData.AddRange(runners.Where(x => x.ExitCode != 0));
+                //Copy over other cases...  TODO This will not work for uncategorized...
+                if (!runners.Any(x => x.Name == "all"))
+                    runOrderData.Add(previousData.FirstOrDefault(x => x.Name == "all"));
             }
             catch (Exception)
             {
@@ -43,7 +47,7 @@ namespace concord.Output
             }
 
             //Add all new data
-            runOrderData.AddRange(runners);
+            runOrderData.AddRange(runners.Where(x => x.ExitCode == 0));
 
             //Write data to file
             File.WriteAllText(path, JsonConvert.SerializeObject(runOrderData));
@@ -57,17 +61,26 @@ namespace concord.Output
                 : new List<RunStats>();
         }
 
-        public IEnumerable<string> GetCategoriesInOrder()
+        private IEnumerable<string> GetCategoriesInOrder()
         {
             return LoadPreviousRunOrder()
                 .OrderByDescending(x => x.RunTime)
                 .Select(x => x.Name);
         }
 
-        public IEnumerable<string> GetCategoriesAlternated()
+        /// <summary>
+        /// This should work the best, ideally would spread out some of the starting
+        /// </summary>
+        /// <returns></returns>
+        private IEnumerable<string> GetCategoriesAlternated()
         {
             return GetCategoriesInOrder()
                 .AlternateFromHalf();
+        }
+
+        public IEnumerable<string> GetCategoriesInDesiredOrder()
+        {
+            return GetCategoriesAlternated();
         }
     }
 }

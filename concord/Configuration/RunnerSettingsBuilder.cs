@@ -75,7 +75,7 @@ namespace concord.Configuration
         public RunnerSettings Build()
         {
             if (_runnerSettings == null) throw new Exception("Must start with SetOutputFolder");
-
+            RunnerSettingsSingleton.Instance.Wrappee = _runnerSettings;
             return _runnerSettings;
         }
     }

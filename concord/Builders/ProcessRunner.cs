@@ -68,7 +68,6 @@ namespace concord.Builders
             _categories = categories.ToList();
             _categoriesToRun = categoriesToRun.ToList();
             _runnerSettings = runnerSettings;
-            RunnerSettingsSingleton.Instance.Wrappee = _runnerSettings;
             _configured = true;
         }
 
@@ -201,6 +200,7 @@ namespace concord.Builders
                         options,
                         action =>
                         {
+                            stdOut.Write(string.Format("\r> Starting: {0}   \n", action.Name));
                             token.ThrowIfCancellationRequested();
 
                             runningTests.IncrementIndex(action.Index);
@@ -229,7 +229,7 @@ namespace concord.Builders
                             {
                                 //Go to RunFailure
                                 runningTests.IncrementIndex(action.Index);
-                                stdOut.WriteLine("\rTest failure: {0} ({1})\r", action.Name, exitCode);
+                                stdOut.Write("\rTest failure: {0} ({1})   \n", action.Name, exitCode);
                             }
                         });
                 }
@@ -237,10 +237,8 @@ namespace concord.Builders
                 {
                     var buildSortedAllActions = BuildSortedAllActions(testFixturesToRun, runnableCategories)
                         .ToArray();
+
                     RunOnThreadPool.RunActionsOnThreads(maxConcurrentRunners, buildSortedAllActions, options.CancellationToken, stdOut, runningTests, totalRuntime, testResults);
-                    //Waiting for complete
-                    while (RunOnThreadPool.ThreadCount > 0)
-                        Thread.Sleep(500);
                 }
                 else
                 {
@@ -292,7 +290,7 @@ namespace concord.Builders
         {
             var actions = BuildAllActions(testFixtures, runnableCategories).ToList();
 
-            var TargetRunOrder = _resultsOrderService.GetCategoriesAlternated();
+            var TargetRunOrder = _resultsOrderService.GetCategoriesInDesiredOrder();
 
             //Take ones in the order of TargetRunOrder, then append any others after that
             //  Ideally the Others would go first...

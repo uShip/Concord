@@ -18,20 +18,18 @@ namespace concord.Builders
             var sortedAllActions = buildSortedAllActions as TestRunAction[]
                                    ?? buildSortedAllActions.ToArray();
 
-            if (maxConcurrentRunners > 0)
-                ThreadPool.SetMaxThreads(maxConcurrentRunners, maxConcurrentRunners);
-
+            //Waiting for complete
             for (var i = 0; i < sortedAllActions.Count(); i++)
             {
                 token.ThrowIfCancellationRequested();
                 CreateThread(sortedAllActions[i], token, stdOut, runningTests, totalRuntime, testResults);
+
+                //Stop queueing items once reach the limit... really should just always set this to the ThreadPool size...
+                while (_threadCounter >= maxConcurrentRunners)
+                    Thread.Sleep(500);
             }
         }
 
-        internal static int ThreadCount
-        {
-            get { return _threadCounter; }
-        }
         private static int _threadCounter = 0;
         private static int _startOrderInt = 0;
 
@@ -81,8 +79,7 @@ namespace concord.Builders
             var totalRuntime = mp.TotalRuntime;
             var testResults = mp.TestResults;
 
-
-            //            stdOut.WriteLine("Just started " + action.Name);
+            stdOut.Write(string.Format("\r> Starting: {0}   \n", action.Name));
             token.ThrowIfCancellationRequested();
 
             runningTests.IncrementIndex(action.Index);
@@ -110,7 +107,7 @@ namespace concord.Builders
             {
                 //Go to RunFailure
                 runningTests.IncrementIndex(action.Index);
-                stdOut.WriteLine("Test failure: {0}", action.Name);
+                stdOut.Write("\rTest failure: {0} ({1})   \n", action.Name, exitCode);
             }
 
             Interlocked.Decrement(ref _threadCounter);
