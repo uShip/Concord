@@ -14,5 +14,6 @@
         bool RunUncategorizedTestFixturesParallel { get; set; }
         bool RerunFailedCategories { get; set; }
         bool DisplayFailureSymbolsInProgressDisplay { get; set; }
+        ThreadingType ThreadingType { get; set; }
     }
 }

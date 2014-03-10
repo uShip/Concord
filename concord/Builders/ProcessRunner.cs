@@ -12,7 +12,6 @@ using concord.Configuration;
 using concord.Output;
 using concord.Parsers;
 using concord.Wrappers;
-using concord.Extensions;
 
 namespace concord.Builders
 {
@@ -49,14 +48,14 @@ namespace concord.Builders
         private IEnumerable<string> _otherTestFixtures;
         private List<string> _categories;
         private List<string> _categoriesToRun;
-        private RunnerSettings _runnerSettings;
+        private IRunnerSettings _runnerSettings;
 
         public void ConfigureRun(
             string assemblyLocation,
             IEnumerable<string> categories,
             IEnumerable<string> otherTestFixtures,
             IEnumerable<string> categoriesToRun,
-            RunnerSettings runnerSettings)
+            IRunnerSettings runnerSettings)
         {
             if (_configured)
             {
@@ -69,6 +68,7 @@ namespace concord.Builders
             _categories = categories.ToList();
             _categoriesToRun = categoriesToRun.ToList();
             _runnerSettings = runnerSettings;
+            RunnerSettingsSingleton.Instance.Wrappee = _runnerSettings;
             _configured = true;
         }
 
@@ -95,7 +95,7 @@ namespace concord.Builders
                 Directory.CreateDirectory(outputPath);
 
 
-            var shouldRunOther = _categoriesToRun.Count == 0
+            bool shouldRunOther = _categoriesToRun.Count == 0
                                   || _categoriesToRun.Contains("all");
 
             //var categoryMessage = "Categories run will be: " + string.Join(", ", runnableCategories);
@@ -108,7 +108,14 @@ namespace concord.Builders
                              _progressDisplayBuilder.ArrayValueToRunningStatusChar(ProgressState.Running),
                              _progressDisplayBuilder.ArrayValueToRunningStatusChar(ProgressState.Finished));
 
-            
+            var options = new ParallelOptions
+                {
+                    MaxDegreeOfParallelism = maxConcurrentRunners > 0
+                                                 ? maxConcurrentRunners
+                                                 : -1,
+                    CancellationToken = _cancelTokenSource.Token
+                };
+
             var testFixturesToRun = new List<string>();
             if (shouldRunOther)
             {
@@ -186,16 +193,59 @@ namespace concord.Builders
                                .Each(x => x.Kill());
                     };
 
-                var startOrderInt = 0;
-                var token = _cancelTokenSource.Token;
+                if (_runnerSettings.ThreadingType == ThreadingType.UseTaskParallel)
+                {
+                    var startOrderInt = 0;
+                    var token = options.CancellationToken;
+                    Parallel.ForEach(BuildSortedAllActions(testFixturesToRun, runnableCategories),
+                        options,
+                        action =>
+                        {
+                            token.ThrowIfCancellationRequested();
 
-                var buildSortedAllActions = BuildSortedAllActions(testFixturesToRun, runnableCategories)
-                    .ToArray();
-                RunActionsOnThreads(maxConcurrentRunners, buildSortedAllActions, token, stdOut, runningTests, startOrderInt, totalRuntime, testResults);
-                //Waiting for complete
-                while (_threadCounter > 0)
-                    Thread.Sleep(500);
+                            runningTests.IncrementIndex(action.Index);
+                            var startOrder = Interlocked.Increment(ref startOrderInt);
 
+                            var startTime = totalRuntime.Elapsed;
+                            var sw = new Stopwatch();
+                            sw.Start();
+                            var exitCode = action.RunTests();
+                            sw.Stop();
+                            testResults.Add(new RunStats
+                            {
+                                Name = action.Name,
+                                StartTime = startTime,
+                                RunTime = sw.Elapsed,
+                                EndTime = totalRuntime.Elapsed,
+                                StartOrder = startOrder,
+                                FinishOrder = testResults.Count,
+                                ExitCode = exitCode
+                            });
+
+                            runningTests.IncrementIndex(action.Index);
+                            if (exitCode != 0) //Go to TestFailure
+                                runningTests.IncrementIndex(action.Index);
+                            if (exitCode < 0)
+                            {
+                                //Go to RunFailure
+                                runningTests.IncrementIndex(action.Index);
+                                stdOut.WriteLine("\rTest failure: {0} ({1})\r", action.Name, exitCode);
+                            }
+                        });
+                }
+                else if (_runnerSettings.ThreadingType == ThreadingType.UseDotNetThreadPool)
+                {
+                    var buildSortedAllActions = BuildSortedAllActions(testFixturesToRun, runnableCategories)
+                        .ToArray();
+                    RunOnThreadPool.RunActionsOnThreads(maxConcurrentRunners, buildSortedAllActions, options.CancellationToken, stdOut, runningTests, totalRuntime, testResults);
+                    //Waiting for complete
+                    while (RunOnThreadPool.ThreadCount > 0)
+                        Thread.Sleep(500);
+                }
+                else
+                {
+                    throw new Exception("Unknown how this should run...");
+                }
 
                 timer.Change(0, Timeout.Infinite);
                 //Tacky way to fix line printing problem
@@ -236,110 +286,13 @@ namespace concord.Builders
             return xmlOutput;
         }
 
-        private static void RunActionsOnThreads(int maxConcurrentRunners, IEnumerable<TestRunAction> buildSortedAllActions,
-                                               CancellationToken token, TextWriterWrapper stdOut, ProgressStats runningTests,
-                                               int startOrderInt, Stopwatch totalRuntime, ConcurrentBag<RunStats> testResults)
-        {
-            var sortedAllActions = buildSortedAllActions as TestRunAction[]
-                                   ?? buildSortedAllActions.ToArray();
-
-            if (maxConcurrentRunners > 0)
-                ThreadPool.SetMaxThreads(maxConcurrentRunners, maxConcurrentRunners);
-
-            for (var i = 0; i < sortedAllActions.Count(); i++)
-            {
-                token.ThrowIfCancellationRequested();
-                CreateThread(sortedAllActions[i], token, stdOut, runningTests, startOrderInt, totalRuntime, testResults);
-            }
-        }
-
-        static int _threadCounter = 0;
-        
-        private static void CreateThread(TestRunAction action,
-            CancellationToken token, TextWriterWrapper stdOut, ProgressStats runningTests,
-                                               int startOrderInt, Stopwatch totalRuntime, ConcurrentBag<RunStats> testResults)
-        {
-            var parameters = new MethodParameters
-                {
-                    Action = action,
-                    RunningTests = runningTests,
-                    StartOrderInt = startOrderInt,
-                    StdOut = stdOut,
-                    TestResults = testResults,
-                    Token = token,
-                    TotalRuntime = totalRuntime
-                };
-            Interlocked.Increment(ref _threadCounter);
-            //Shouldn't really use built-in thread pool for long-running processes...
-            ThreadPool.QueueUserWorkItem(RunTest, parameters);
-        }
-
-        private class MethodParameters
-        {
-            public TestRunAction Action { get; set; }
-            public CancellationToken Token { get; set; }
-            public TextWriterWrapper StdOut { get; set; }
-            public ProgressStats RunningTests { get; set; }
-            public int StartOrderInt  { get; set; }
-            public Stopwatch TotalRuntime  { get; set; }
-            public ConcurrentBag<RunStats> TestResults { get; set; }
-        }
-
-        private static void RunTest(object parameters)
-        {
-            RunTest(parameters as MethodParameters);
-        }
-        private static void RunTest(MethodParameters mp)
-        {
-            var action = mp.Action;
-            var token = mp.Token;
-            var stdOut = mp.StdOut;
-            var runningTests = mp.RunningTests;
-            var startOrderInt = mp.StartOrderInt;
-            var totalRuntime = mp.TotalRuntime;
-            var testResults = mp.TestResults;
-            
-
-//            stdOut.WriteLine("Just started " + action.Name);
-            token.ThrowIfCancellationRequested();
-
-            runningTests.IncrementIndex(action.Index);
-            var startOrder = Interlocked.Increment(ref startOrderInt);
-            var startTime = totalRuntime.Elapsed;
-            var sw = new Stopwatch();
-            sw.Start();
-            var exitCode = action.RunTests();
-            sw.Stop();
-            testResults.Add(new RunStats
-            {
-                Name = action.Name,
-                StartTime = startTime,
-                RunTime = sw.Elapsed,
-                EndTime = totalRuntime.Elapsed,
-                StartOrder = startOrder,
-                FinishOrder = testResults.Count,
-                ExitCode = exitCode
-            });
-//            stdOut.WriteLine("Just finished " + action.Name);
-            runningTests.IncrementIndex(action.Index);
-            if (exitCode != 0) //Go to TestFailure
-                runningTests.IncrementIndex(action.Index);
-            if (exitCode < 0)
-            {
-                //Go to RunFailure
-                runningTests.IncrementIndex(action.Index);
-                stdOut.WriteLine("Test failure: {0}", action.Name);
-            }
-
-            Interlocked.Decrement(ref _threadCounter);
-        }
 
 
         public IEnumerable<TestRunAction> BuildSortedAllActions(IEnumerable<string> testFixtures, IEnumerable<string> runnableCategories)
         {
             var actions = BuildAllActions(testFixtures, runnableCategories).ToList();
 
-            var TargetRunOrder = _resultsOrderService.GetCategoriesInOrder();
+            var TargetRunOrder = _resultsOrderService.GetCategoriesAlternated();
 
             //Take ones in the order of TargetRunOrder, then append any others after that
             //  Ideally the Others would go first...
@@ -348,10 +301,6 @@ namespace concord.Builders
                 .Where(foundAction => foundAction != null)
                 .Union(actions)
                 .ToList();
-            //            Console.WriteLine("actions are: " + string.Join(", ", actions.Select(x => x.Name)));
-            //            Console.WriteLine("targets are: " + string.Join(", ", TargetRunOrder.Select(x => x)));
-            //            Console.WriteLine("results are: " + string.Join(", ", tempDebugging.Select(x => x.Name)));
-
             return tempDebugging;
         }
 

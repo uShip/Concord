@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using concord.Configuration;
+using concord.Extensions;
 using Newtonsoft.Json;
 
 namespace concord.Output
@@ -11,6 +12,7 @@ namespace concord.Output
     {
         void OutputRunOrder(IEnumerable<RunStats> runners, List<string> skippedTests);
         IEnumerable<string> GetCategoriesInOrder();
+        IEnumerable<string> GetCategoriesAlternated();
     }
 
     public class ResultsOrderService : IResultsOrderService
@@ -60,6 +62,12 @@ namespace concord.Output
             return LoadPreviousRunOrder()
                 .OrderByDescending(x => x.RunTime)
                 .Select(x => x.Name);
+        }
+
+        public IEnumerable<string> GetCategoriesAlternated()
+        {
+            return GetCategoriesInOrder()
+                .AlternateFromHalf();
         }
     }
 }

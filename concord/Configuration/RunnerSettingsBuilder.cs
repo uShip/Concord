@@ -59,10 +59,23 @@ namespace concord.Configuration
             return this;
         }
 
+        public RunnerSettingsBuilder UseTaskParallel()
+        {
+            _runnerSettings.ThreadingType = ThreadingType.UseTaskParallel;
+            return this;
+        }
+
+        public RunnerSettingsBuilder UseDotNetThreadPool()
+        {
+            _runnerSettings.ThreadingType = ThreadingType.UseDotNetThreadPool;
+            return this;
+        }
+
+
         public RunnerSettings Build()
         {
             if (_runnerSettings == null) throw new Exception("Must start with SetOutputFolder");
-            RunnerSettingsSingleton.Instance.Wrappee = _runnerSettings;
+
             return _runnerSettings;
         }
     }

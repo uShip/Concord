@@ -9,7 +9,7 @@ namespace concord.Builders
                           IEnumerable<string> categories,
                           IEnumerable<string> otherTestFixtures,
                           IEnumerable<string> categoriesToRun,
-                          RunnerSettings runnerSettings);
+                          IRunnerSettings runnerSettings);
 
         string GetRunResultsAsXml();
         string GetRunResultsAsXml(int concurrentRunners);

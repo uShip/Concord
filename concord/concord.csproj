@@ -82,6 +82,7 @@
   <ItemGroup>
     <Compile Include="Builders\ProcessRunner.cs" />
     <Compile Include="Builders\IRunner.cs" />
+    <Compile Include="Builders\RunOnThreadPool.cs" />
     <Compile Include="Builders\ThreadRunner.cs" />
     <Compile Include="Configuration\IRunnerSettings.cs" />
     <Compile Include="Configuration\IRunnerSettingsBuilder.cs" />
@@ -92,6 +93,7 @@
     <Compile Include="Configuration\ServiceLocator.cs" />
     <Compile Include="Extensions\ActionExtensions.cs" />
     <Compile Include="Extensions\CategoryNameComparer.cs" />
+    <Compile Include="Extensions\IEnumerableExtensions.cs" />
     <Compile Include="Extensions\TypeExtensions.cs" />
     <Compile Include="Factories\RunnerFactory.cs" />
     <Compile Include="Factories\IRunnerFactory.cs" />

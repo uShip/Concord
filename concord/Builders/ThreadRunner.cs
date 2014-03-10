@@ -34,7 +34,7 @@ namespace concord.Builders
         private readonly IResultsWriter _resultsWriter;
 
         private readonly bool _outputRunStats = false;
-        private RunnerSettings _runnerSettings;
+        private IRunnerSettings _runnerSettings;
 
         private ThreadRunner(string assemblyLocation, IEnumerable<Type> featureTypes,
                             ILogger logger, string outputPath,
@@ -52,7 +52,7 @@ namespace concord.Builders
             IEnumerable<string> categories,
             IEnumerable<string> otherTestFixtures,
             IEnumerable<string> categoriesToRun,
-            RunnerSettings runnerSettings)
+            IRunnerSettings runnerSettings)
         {
             _assemblyLocation = assemblyLocation;
             _runnerSettings = runnerSettings;

@@ -74,6 +74,9 @@ namespace concord
 
                     runnerSettings.RunUncategorizedTestFixturesParallel(uncategorizedInParallel);
 
+                    //runnerSettings.UseTaskParallel();
+                    runnerSettings.UseDotNetThreadPool();
+
                     var batchBuilder = builderFactory.Create(runnerSettings.Build(), lib, categories);
 
                     batchBuilder.GetRunResultsAsXml(concurrentThreads.HasValue ? concurrentThreads.Value : 15);

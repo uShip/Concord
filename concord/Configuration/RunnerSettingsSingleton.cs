@@ -79,5 +79,11 @@ namespace concord.Configuration
             get { return _wrappee.DisplayFailureSymbolsInProgressDisplay; }
             set { _wrappee.DisplayFailureSymbolsInProgressDisplay = value; }
         }
+
+        public ThreadingType ThreadingType
+        {
+            get { return _wrappee.ThreadingType; }
+            set { _wrappee.ThreadingType = value; }
+        }
     }
 }

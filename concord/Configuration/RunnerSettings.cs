@@ -79,5 +79,12 @@ namespace concord.Configuration
 
         public bool RerunFailedCategories { get; set; }
         public bool DisplayFailureSymbolsInProgressDisplay { get; set; }
+        public ThreadingType ThreadingType { get; set; }
+    }
+
+    public enum ThreadingType
+    {
+        UseTaskParallel,
+        UseDotNetThreadPool
     }
 }
