@@ -34,6 +34,8 @@ namespace concord.Builders
                 while (_threadCounter >= maxConcurrentRunners)
                     Thread.Sleep(500);
             }
+            while (_threadCounter > 0)
+                Thread.Sleep(500);
         }
 
         private static int _threadCounter = 0;
