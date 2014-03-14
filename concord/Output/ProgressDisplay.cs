@@ -12,7 +12,14 @@ namespace concord.Output
             var displayRatio = (double)displayWidth / totalCount;
 
             Func<ProgressState, string> getProgressDisplay =
-                x => new string(ArrayValueToRunningStatus(x), (int)(runningTests.GetProgressCount(x) * displayRatio));
+                x =>
+                {
+                    var floatWidth = runningTests.GetProgressCount(x) * displayRatio;
+                    //Round up decimals to 1
+                    floatWidth = (floatWidth > 0 && floatWidth < 1) ? 1
+                        : floatWidth;
+                    return new string(ArrayValueToRunningStatus(x), (int)floatWidth);
+                };
             Func<ProgressState, int, string> getProgressDisplayLength =
                 (x, i) => new string(ArrayValueToRunningStatus(x), i);
 
@@ -24,7 +31,6 @@ namespace concord.Output
 
             var finishedDisplayChars = (int)(totalFinished * displayRatio);
             var startedDisplayChars = (int)(totalRunning * displayRatio);
-            var remainingDisplayChars = displayWidth - runningTests.GetCompletedCount(displayRatio) - startedDisplayChars;
 
             var progressBar =
                 string.Format(displayFailureSymbols
@@ -35,7 +41,10 @@ namespace concord.Output
                     getProgressDisplayLength(ProgressState.Finished, finishedDisplayChars),
                     getProgressDisplayLength(ProgressState.Running, startedDisplayChars > 0 ? (startedDisplayChars - 1) : 0),
                     startedDisplayChars > 0 ? WorkingIndicator[indicatorPos++ % WorkingIndicator.Length].ToString(CultureInfo.InvariantCulture) : "",
-                    getProgressDisplayLength(ProgressState.NotStarted, remainingDisplayChars));
+                    "{0}");
+            var remainingDisplayChars = displayWidth - (progressBar.Length - 3 + 2);
+            if (remainingDisplayChars < 0) remainingDisplayChars = 0;
+            progressBar = string.Format(progressBar, getProgressDisplayLength(ProgressState.NotStarted, remainingDisplayChars));
 
             return progressBar;
         }
