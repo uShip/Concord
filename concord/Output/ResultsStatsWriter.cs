@@ -50,7 +50,7 @@ namespace concord.Output
         }
     }
 
-    public class RunStats
+    public class RunStats : RunHistoryStats
     {
         public string Name { get; set; }
         public TimeSpan StartTime { get; set; }
@@ -59,5 +59,25 @@ namespace concord.Output
         public int FinishOrder { get; set; }
         public int StartOrder { get; set; }
         public int ExitCode { get; set; }
+
+        public int TestRunId { get; set; }
+    }
+
+    public abstract class RunHistoryStats
+    {
+        public void SetAverage(int datapoints, TimeSpan average)
+        {
+            DatapointsInAverage = datapoints;
+            AverageTime = average;
+        }
+
+        public void AddDatapoint(TimeSpan runLength)
+        {
+            var diff = runLength.TotalMilliseconds - AverageTime.TotalMilliseconds;
+            var diffAvg = diff / ++DatapointsInAverage;
+            AverageTime = AverageTime.Add(TimeSpan.FromMilliseconds(diffAvg));
+        }
+        public int DatapointsInAverage { get; private set; }
+        public TimeSpan AverageTime { get; private set; }
     }
 }

@@ -29,9 +29,10 @@ namespace concord.Output
             if (string.IsNullOrEmpty(path)) return;
 
             var runOrderData = new List<RunStats>();
+            var runHistoryLookup = new Dictionary<string, RunHistoryStats>();
             try
             {
-                var previousData = LoadPreviousRunOrder();
+                var previousData = LoadPreviousRunOrder().ToList();
                 //Only copy over data from skippedTests
                 //  So if any are deleted they won't remain in there
                 runOrderData.AddRange(previousData.Where(x => skippedTests.Contains(x.Name)));
@@ -40,6 +41,12 @@ namespace concord.Output
                 //Copy over other cases...  TODO This will not work for uncategorized...
                 if (!runners.Any(x => x.Name == "all"))
                     runOrderData.Add(previousData.FirstOrDefault(x => x.Name == "all"));
+
+                runOrderData.Each(x => --x.TestRunId);
+
+
+                //Keep average stats:
+                runHistoryLookup = previousData.ToDictionary(k => k.Name, v => (RunHistoryStats)v);
             }
             catch (Exception)
             {
@@ -48,6 +55,15 @@ namespace concord.Output
 
             //Add all new data
             runOrderData.AddRange(runners.Where(x => x.ExitCode == 0));
+
+            //Keep average stats:
+            runOrderData.Each(x =>
+            {
+                if (!runHistoryLookup.ContainsKey(x.Name)) return;
+                var history = runHistoryLookup[x.Name];
+                x.SetAverage(history.DatapointsInAverage, history.AverageTime);
+                x.AddDatapoint(x.RunTime);
+            });
 
             //Write data to file
             File.WriteAllText(path, JsonConvert.SerializeObject(runOrderData));
