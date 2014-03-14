@@ -35,6 +35,8 @@ namespace concord.Extensions
 
         private static string GetCategoryAttribute(Type t)
         {
+            if (t.GetCustomAttributesEndingWith("IgnoreAttribute").Any()) return null;
+
             var attributes = t.GetCustomAttributesEndingWith("CategoryAttribute").ToArray();
             var firstAttribute = attributes.FirstOrDefault();
 
