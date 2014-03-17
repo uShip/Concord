@@ -30,7 +30,7 @@ namespace concord.Output
 
 
             var finishedDisplayChars = (int)(totalFinished * displayRatio);
-            var startedDisplayChars = (int)(totalRunning * displayRatio);
+            var startedDisplayChars = (int)Math.Ceiling(totalRunning * displayRatio);
 
             var progressBar =
                 string.Format(displayFailureSymbols

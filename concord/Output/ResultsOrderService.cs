@@ -59,9 +59,11 @@ namespace concord.Output
             //Keep average stats:
             runOrderData.Each(x =>
             {
-                if (!runHistoryLookup.ContainsKey(x.Name)) return;
-                var history = runHistoryLookup[x.Name];
-                x.SetAverage(history.DatapointsInAverage, history.AverageTime);
+                if (runHistoryLookup.ContainsKey(x.Name))
+                {
+                    var history = runHistoryLookup[x.Name];
+                    x.SetAverage(history.DatapointsInAverage, history.AverageTime);
+                }
                 x.AddDatapoint(x.RunTime);
             });
 
