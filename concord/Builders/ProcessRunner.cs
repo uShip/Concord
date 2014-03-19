@@ -48,6 +48,7 @@ namespace concord.Builders
         private IEnumerable<string> _otherTestFixtures;
         private List<string> _categories;
         private List<string> _categoriesToRun;
+        private List<string> _categoriesToExclude; 
         private IRunnerSettings _runnerSettings;
 
         public void ConfigureRun(
@@ -55,6 +56,7 @@ namespace concord.Builders
             IEnumerable<string> categories,
             IEnumerable<string> otherTestFixtures,
             IEnumerable<string> categoriesToRun,
+            IEnumerable<string> categoriesToExclude,
             IRunnerSettings runnerSettings)
         {
             if (_configured)
@@ -67,6 +69,7 @@ namespace concord.Builders
             _otherTestFixtures = otherTestFixtures;
             _categories = categories.ToList();
             _categoriesToRun = categoriesToRun.ToList();
+            _categoriesToExclude = categoriesToExclude.ToList();
             _runnerSettings = runnerSettings;
             _configured = true;
         }
@@ -124,6 +127,9 @@ namespace concord.Builders
             var runnableCategories = _categoriesToRun.Count > 0
                                          ? _categories.Intersect(_categoriesToRun).ToList()
                                          : _categories;
+
+            runnableCategories = runnableCategories.Except(_categoriesToExclude).ToList();
+
             int totalToRun = runnableCategories.Count();
             if (_runnerSettings.RunUncategorizedTestFixturesParallel)
             {

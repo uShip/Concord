@@ -52,6 +52,7 @@ namespace concord.Builders
             IEnumerable<string> categories,
             IEnumerable<string> otherTestFixtures,
             IEnumerable<string> categoriesToRun,
+            IEnumerable<string> categoriesToExclude,
             IRunnerSettings runnerSettings)
         {
             _assemblyLocation = assemblyLocation;

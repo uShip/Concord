@@ -6,7 +6,7 @@ namespace concord.Factories
 {
     public interface IRunnerFactory
     {
-        IRunner Create(RunnerSettings runnerSettings, string assemblyFileName, string categoriesList = null);
-        IRunner Create(RunnerSettings runnerSettings, Assembly assembly, string categoriesList = null);
+        IRunner Create(RunnerSettings runnerSettings, string assemblyFileName, string categoriesList = null, string excludeCategoriesList = null);
+        IRunner Create(RunnerSettings runnerSettings, Assembly assembly, string categoriesList = null, string excludeCategoriesList = null);
     }
 }

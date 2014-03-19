@@ -46,7 +46,8 @@ namespace concord
                 string categories,
                 bool rerunFailedCategories,
                 bool uncategorizedInParallel,
-                bool debug)
+                bool debug,
+                string excludeCategories)
             {
                 if (debug)
                 {
@@ -77,7 +78,7 @@ namespace concord
                     //runnerSettings.UseTaskParallel();
                     runnerSettings.UseDotNetThreadPool();
 
-                    var batchBuilder = builderFactory.Create(runnerSettings.Build(), lib, categories);
+                    var batchBuilder = builderFactory.Create(runnerSettings.Build(), lib, categories, excludeCategories);
 
                     batchBuilder.GetRunResultsAsXml(concurrentThreads.HasValue ? concurrentThreads.Value : 15);
                 }
