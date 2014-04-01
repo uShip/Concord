@@ -45,31 +45,31 @@
       <HintPath>..\packages\Newtonsoft.Json.6.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="nunit">
-      <HintPath>..\packages\NUnit.Runners.2.6.2\tools\nunit.exe</HintPath>
+      <HintPath>..\packages\NUnit.Runners.2.6.3\tools\nunit.exe</HintPath>
     </Reference>
     <Reference Include="nunit-agent">
-      <HintPath>..\packages\NUnit.Runners.2.6.2\tools\nunit-agent.exe</HintPath>
+      <HintPath>..\packages\NUnit.Runners.2.6.3\tools\nunit-agent.exe</HintPath>
     </Reference>
     <Reference Include="nunit-console">
-      <HintPath>..\packages\NUnit.Runners.2.6.2\tools\nunit-console.exe</HintPath>
+      <HintPath>..\packages\NUnit.Runners.2.6.3\tools\nunit-console.exe</HintPath>
     </Reference>
     <Reference Include="nunit-console-runner">
-      <HintPath>..\packages\NUnit.Runners.2.6.2\tools\lib\nunit-console-runner.dll</HintPath>
+      <HintPath>..\packages\NUnit.Runners.2.6.3\tools\lib\nunit-console-runner.dll</HintPath>
     </Reference>
     <Reference Include="nunit-editor">
-      <HintPath>..\packages\NUnit.Runners.2.6.2\tools\nunit-editor.exe</HintPath>
+      <HintPath>..\packages\NUnit.Runners.2.6.3\tools\nunit-editor.exe</HintPath>
     </Reference>
     <Reference Include="nunit.core">
-      <HintPath>..\packages\NUnit.Runners.2.6.2\tools\lib\nunit.core.dll</HintPath>
+      <HintPath>..\packages\NUnit.Runners.2.6.3\tools\lib\nunit.core.dll</HintPath>
     </Reference>
     <Reference Include="nunit.core.interfaces">
-      <HintPath>..\packages\NUnit.Runners.2.6.2\tools\lib\nunit.core.interfaces.dll</HintPath>
+      <HintPath>..\packages\NUnit.Runners.2.6.3\tools\lib\nunit.core.interfaces.dll</HintPath>
     </Reference>
     <Reference Include="nunit.util">
-      <HintPath>..\packages\NUnit.Runners.2.6.2\tools\lib\nunit.util.dll</HintPath>
+      <HintPath>..\packages\NUnit.Runners.2.6.3\tools\lib\nunit.util.dll</HintPath>
     </Reference>
     <Reference Include="pnunit-launcher">
-      <HintPath>..\packages\NUnit.Runners.2.6.2\tools\pnunit-launcher.exe</HintPath>
+      <HintPath>..\packages\NUnit.Runners.2.6.3\tools\pnunit-launcher.exe</HintPath>
     </Reference>
     <Reference Include="StructureMap">
       <HintPath>..\packages\structuremap.2.6.4.1\lib\net40\StructureMap.dll</HintPath>
