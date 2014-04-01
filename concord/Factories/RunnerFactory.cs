@@ -1,11 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using StructureMap;
 using concord.Builders;
 using concord.Configuration;
-using concord.Logging;
 using concord.Parsers;
 using concord.Services;
 using FubuCore;

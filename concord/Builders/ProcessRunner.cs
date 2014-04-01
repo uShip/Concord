@@ -10,7 +10,6 @@ using NUnit.Core;
 using NUnit.Core.Filters;
 using concord.Configuration;
 using concord.Output;
-using concord.Parsers;
 using concord.Wrappers;
 
 namespace concord.Builders
@@ -24,20 +23,17 @@ namespace concord.Builders
     {
         private readonly CancellationTokenSource _cancelTokenSource = new CancellationTokenSource();
         private readonly IResultsWriter _resultsWriter;
-        private readonly IResultsParser _resultsParser;
         private readonly IProgressDisplay _progressDisplayBuilder;
         private readonly IResultsStatsWriter _resultsStatsWriter;
         private readonly IResultsOrderService _resultsOrderService;
 
         public ProcessRunner(
             IResultsWriter resultsWriter,
-            IResultsParser resultsParser,
             IProgressDisplay progressDisplayBuilder,
             IResultsStatsWriter resultsStatsWriter,
             IResultsOrderService resultsOrderService)
         {
             _resultsWriter = resultsWriter;
-            _resultsParser = resultsParser;
             _progressDisplayBuilder = progressDisplayBuilder;
             _resultsStatsWriter = resultsStatsWriter;
             _resultsOrderService = resultsOrderService;
