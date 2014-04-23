@@ -28,7 +28,7 @@ namespace concord.Builders
     internal class ThreadRunner : IRunner
     {
         private string _assemblyLocation;
-        private List<Type> _featureTypes;
+        private readonly List<Type> _featureTypes;
         private readonly ILogger _logger;
         private readonly string _outputPath;
         private readonly IResultsWriter _resultsWriter;

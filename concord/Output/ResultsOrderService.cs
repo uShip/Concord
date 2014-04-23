@@ -62,9 +62,11 @@ namespace concord.Output
                 if (runHistoryLookup.ContainsKey(x.Name))
                 {
                     var history = runHistoryLookup[x.Name];
-                    x.SetAverage(history.DatapointsInAverage, history.AverageTime);
+                    x.CopyHistoryStatsFrom(history);
                 }
                 x.AddDatapoint(x.RunTime);
+                if (x.ExitCode != 0)
+                    x.IncrementFailedCount();
             });
 
             //Write data to file

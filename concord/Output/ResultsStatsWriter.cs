@@ -65,10 +65,11 @@ namespace concord.Output
 
     public abstract class RunHistoryStats
     {
-        public void SetAverage(int datapoints, TimeSpan average)
+        public void CopyHistoryStatsFrom(RunHistoryStats history)
         {
-            DatapointsInAverage = datapoints;
-            AverageTime = average;
+            DatapointsInAverage = history.DatapointsInAverage;
+            AverageTime = history.AverageTime;
+            FailureCount = history.FailureCount;
         }
 
         public void AddDatapoint(TimeSpan runLength)
@@ -77,7 +78,15 @@ namespace concord.Output
             var diffAvg = diff / ++DatapointsInAverage;
             AverageTime = AverageTime.Add(TimeSpan.FromMilliseconds(diffAvg));
         }
+
+        public void IncrementFailedCount()
+        {
+            FailureCount++;
+        }
+
         public int DatapointsInAverage { get; private set; }
         public TimeSpan AverageTime { get; private set; }
+
+        public int FailureCount { get; private set; }
     }
 }
