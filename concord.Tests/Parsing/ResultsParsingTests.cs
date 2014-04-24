@@ -28,8 +28,8 @@ namespace concord.Tests.Parsing
             var categories = _classUnderTest.GetErrorsCategories(results);
 
             // Assert
-            categories.Count().Should().Be(1);
-            categories.First().Should().Be("SearchFeature");
+            categories.Count().Should().Be(14);
+            categories.First().Should().Be("ListingsHypermedia");
         }
 
         [Test]
@@ -42,8 +42,8 @@ namespace concord.Tests.Parsing
             var categories = _classUnderTest.GetCategoriesInOrder(results);
 
             // Assert
-            categories.Count().Should().Be(70);
-            categories.First().Should().Be("ListingsInternational");
+            categories.Count().Should().Be(120);
+            categories.First().Should().Be("NearbyLoadAlerts");
         }
     }
 }
