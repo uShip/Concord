@@ -42,7 +42,7 @@ namespace concord.Output
                     getProgressDisplayLength(ProgressState.Running, startedDisplayChars > 0 ? (startedDisplayChars - 1) : 0),
                     startedDisplayChars > 0 ? WorkingIndicator[indicatorPos++ % WorkingIndicator.Length].ToString(CultureInfo.InvariantCulture) : "",
                     "{0}");
-            var remainingDisplayChars = displayWidth - (progressBar.Length - 3 + 2);
+            var remainingDisplayChars = displayWidth - (progressBar.Length - "{0}".Length);
             if (remainingDisplayChars < 0) remainingDisplayChars = 0;
             progressBar = string.Format(progressBar, getProgressDisplayLength(ProgressState.NotStarted, remainingDisplayChars));
 

@@ -3,16 +3,16 @@
   <metadata>
     <id>concord</id>
     <version>$version$</version>
-    <title>concord test runner</title>
+    <title>Concord Parallel Category Test Runner</title>
     <authors>Greg Walker, Stephen Guerra</authors>
     <owners>uShip</owners>
     <licenseUrl>http://LICENSE_URL_HERE_OR_DELETE_THIS_LINE</licenseUrl>
     <projectUrl>https://github.com/uShip/Concord</projectUrl>
     <iconUrl>http://ICON_URL_HERE_OR_DELETE_THIS_LINE</iconUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
-    <description>A parallel runner for the nunit runner, allowing easier porting from unit tests to parallelized unit tests</description>
+    <description>A parallel runner for nunit runners, primarily based on running categories parallel, allowing easier porting from unit tests to parallelized unit tests</description>
     <releaseNotes>Improved or fixed things...</releaseNotes>
-    <copyright>Copyright © uShip 2013</copyright>
+    <copyright>Copyright © uShip 2013-2014</copyright>
     <!--Cannot have references unless they exist in the lib folder,
         but we want a tool nuget package-->
     <!--<references>
