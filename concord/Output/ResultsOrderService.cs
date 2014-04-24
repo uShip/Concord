@@ -77,7 +77,7 @@ namespace concord.Output
         {
             var path = _settings.ResultsOrderDataFilepath;
             return File.Exists(path)
-                ? JsonConvert.DeserializeObject<List<RunStats>>(File.ReadAllText(path)).Where(x => x != null)
+                ? JsonConvert.DeserializeObject<IEnumerable<RunStats>>(File.ReadAllText(path)).Where(x => x != null)
                 : new List<RunStats>();
         }
 

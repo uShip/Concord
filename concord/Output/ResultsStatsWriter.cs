@@ -4,7 +4,6 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using concord.Configuration;
-using Newtonsoft.Json;
 
 namespace concord.Output
 {
@@ -84,9 +83,9 @@ namespace concord.Output
             FailureCount++;
         }
 
-        public int DatapointsInAverage { get; private set; }
-        public TimeSpan AverageTime { get; private set; }
+        public int DatapointsInAverage { get; set; }
+        public TimeSpan AverageTime { get; set; }
 
-        public int FailureCount { get; private set; }
+        public int FailureCount { get; set; }
     }
 }
