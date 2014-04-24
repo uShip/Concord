@@ -40,7 +40,10 @@ namespace concord.Output
                 runOrderData.AddRange(runners.Where(x => x.ExitCode != 0));
                 //Copy over other cases...  TODO This will not work for uncategorized...
                 if (!runners.Any(x => x.Name == "all"))
-                    runOrderData.Add(previousData.FirstOrDefault(x => x.Name == "all"));
+                {
+                    var testDataForOthers = previousData.FirstOrDefault(x => x.Name == "all");
+                    if (testDataForOthers != null) runOrderData.Add(testDataForOthers);
+                }
 
                 runOrderData.Each(x => --x.TestRunId);
 
