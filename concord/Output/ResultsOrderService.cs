@@ -87,7 +87,8 @@ namespace concord.Output
         private IEnumerable<string> GetCategoriesInOrder()
         {
             return LoadPreviousRunOrder()
-                .OrderByDescending(x => x.RunTime)
+                .OrderByDescending(x => x.AverageTime)
+                .ThenByDescending(x => x.RunTime)
                 .Select(x => x.Name);
         }
 
