@@ -104,7 +104,7 @@ namespace concord.Output
             public override string ToString()
             {
                 //return sb.ToString();
-                return string.Format("<div style='position:relative;width:{1}px;height:{2}px'>{0}</div>", sb, _maxWidth, _maxHeight + 20);
+                return string.Format("<div style='position:relative;width:{1}px;height:{2}px'>{0}</div>", sb, _maxWidth, _maxHeight);
             }
         }
     }
