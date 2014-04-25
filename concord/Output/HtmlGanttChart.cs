@@ -83,6 +83,8 @@ namespace concord.Output
         public class HtmlDraw
         {
             StringBuilder sb = new StringBuilder();
+            private int _maxWidth = 0;
+            private int _maxHeight = 0;
 
             ///Draw a relatively positioned rectangle
             public void DrawRectangle(string borderColor, float borderWidth, float x, float y, float width, float height, string title = null)
@@ -93,14 +95,16 @@ namespace concord.Output
                     x, y,
                     width, height,
                     title == null ? "" : "title='" + title + "'");
+                if (_maxWidth < (int)(x + width))
+                    _maxWidth = (int)(x + width);
+                if (_maxHeight < (int)(y + height))
+                    _maxHeight = (int)(y + height);
             }
 
             public override string ToString()
             {
                 //return sb.ToString();
-                return "<div style='position:relative'>"
-                    + sb
-                    + "</div>";
+                return string.Format("<div style='position:relative;width:{1}px;height:{2}px'>{0}</div>", sb, _maxWidth, _maxHeight + 20);
             }
         }
     }
