@@ -32,6 +32,8 @@ namespace concord.Configuration
             For<IResultsStatsWriter>().Use<ResultsStatsWriter>();
             For<IResultsOrderService>().Use<ResultsOrderService>();
             For<IRunnerSettings>().Use(() => RunnerSettingsSingleton.Instance);
+
+            For<IHtmlGanttChart>().Use<HtmlGanttChart>();
         }
     }
 }

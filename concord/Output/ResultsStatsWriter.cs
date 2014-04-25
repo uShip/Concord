@@ -10,15 +10,19 @@ namespace concord.Output
     public class ResultsStatsWriter : IResultsStatsWriter
     {
         private readonly IRunnerSettings _settings;
+        private readonly IHtmlGanttChart _ganttChartBuilder;
 
-        public ResultsStatsWriter(IRunnerSettings settings)
+        public ResultsStatsWriter(IRunnerSettings settings, IHtmlGanttChart ganttChartBuilder)
         {
             _settings = settings;
+            _ganttChartBuilder = ganttChartBuilder;
         }
 
         public void OutputRunStats(TimeSpan totalRuntime, IEnumerable<RunStats> runners, List<string> skippedTests)
         {
             var sb = new StringBuilder();
+
+            sb.AppendLine(_ganttChartBuilder.GenerateGanttChart(runners));
 
             sb.AppendLine("<pre>");
             sb.AppendLine("Total Runtime: " + totalRuntime.ToString());

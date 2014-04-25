@@ -102,6 +102,7 @@
     <Compile Include="Nunit\IResultMerger.cs" />
     <Compile Include="Nunit\MergedResults.cs" />
     <Compile Include="Nunit\ResultMerger.cs" />
+    <Compile Include="Output\HtmlGanttChart.cs" />
     <Compile Include="Output\IProgressDisplay.cs" />
     <Compile Include="Output\IResultsStatsWriter.cs" />
     <Compile Include="Output\ProgressDisplay.cs" />
