@@ -109,14 +109,17 @@ namespace concord.Builders
             });
             //            stdOut.WriteLine("Just finished " + action.Name);
             runningTests.IncrementIndex(action.Index);
-            if (exitCode != 0) //Go to TestFailure
+            if (exitCode != 0)
+            {
+                //Go to TestFailure
                 runningTests.IncrementIndex(action.Index);
+                if (!Console.IsOutputRedirected)
+                    stdOut.Write("\r! Test failure: {0} ({1})   \n", action.Name, exitCode);
+            }
             if (exitCode < 0)
             {
                 //Go to RunFailure
                 runningTests.IncrementIndex(action.Index);
-                if (!Console.IsOutputRedirected)
-                    stdOut.Write("\r! Test failure: {0} ({1})   \n", action.Name, exitCode);
             }
 
             Interlocked.Decrement(ref _threadCounter);
