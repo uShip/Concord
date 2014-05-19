@@ -60,7 +60,10 @@ namespace concord.Output
                     ++i;
                     continue;
                 }
-                g.DrawRectangle(d.Success ? "#00008B" : "#8B0000", 1, d.Offset, i * lineHeight, d.Length, opts.BarWidth, d.Name);
+                g.DrawRectangle(
+                    d.Success ? "#00008B" : "#8B0000",
+                    d.Success ? "#0000FF" : "#FF0000",
+                    1, d.Offset, i * lineHeight, d.Length, opts.BarWidth, d.Name);
                 data.Remove(d);
             }
 
@@ -87,11 +90,12 @@ namespace concord.Output
             private int _maxHeight = 0;
 
             ///Draw a relatively positioned rectangle
-            public void DrawRectangle(string borderColor, float borderWidth, float x, float y, float width, float height, string title = null)
+            public void DrawRectangle(string fillColor, string borderColor, float borderWidth, float x, float y, float width, float height, string title = null)
             {
-                sb.AppendFormat("<div style='position:absolute;border:solid {0} {1}px;left:{2}px;top:{3}px;width:{4}px;height:{5}px' {6}></div>",
+                sb.AppendFormat("<div style='position:absolute;border:solid {0} {1}px;background-color:{2};left:{3}px;top:{4}px;width:{5}px;height:{6}px' {7}></div>",
                     borderColor,
                     borderWidth,
+                    fillColor,
                     x, y,
                     width, height,
                     title == null ? "" : "title='" + title + "'");
