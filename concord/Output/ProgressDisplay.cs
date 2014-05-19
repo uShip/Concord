@@ -38,13 +38,23 @@ namespace concord.Output
                         : @"[{2}{3}{4}{5}]",
                     getProgressDisplay(ProgressState.RunFailure),
                     getProgressDisplay(ProgressState.TestFailure),
-                    getProgressDisplayLength(ProgressState.Finished, finishedDisplayChars),
+                    "{0}",
                     getProgressDisplayLength(ProgressState.Running, startedDisplayChars > 0 ? (startedDisplayChars - 1) : 0),
                     startedDisplayChars > 0 ? WorkingIndicator[indicatorPos++ % WorkingIndicator.Length].ToString(CultureInfo.InvariantCulture) : "",
-                    "{0}");
-            var remainingDisplayChars = displayWidth - (progressBar.Length - "{0}".Length);
-            if (remainingDisplayChars < 0) remainingDisplayChars = 0;
-            progressBar = string.Format(progressBar, getProgressDisplayLength(ProgressState.NotStarted, remainingDisplayChars));
+                    "{1}");
+            var intendedDisplayCharWidth = (finishedDisplayChars)
+                                           + (progressBar.Length - "[{0}{1}]".Length);
+            var remainingDisplayChars = displayWidth - intendedDisplayCharWidth;
+            if (remainingDisplayChars < 0)
+            {
+                //Trim down finished characters if there are too many characters.
+                finishedDisplayChars += remainingDisplayChars;
+                remainingDisplayChars = 0;
+            }
+
+            progressBar = string.Format(progressBar,
+                getProgressDisplayLength(ProgressState.Finished, finishedDisplayChars),
+                getProgressDisplayLength(ProgressState.NotStarted, remainingDisplayChars));
 
             return progressBar;
         }
