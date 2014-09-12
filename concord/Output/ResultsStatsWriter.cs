@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using Newtonsoft.Json;
 using concord.Configuration;
 
 namespace concord.Output
@@ -64,6 +65,17 @@ namespace concord.Output
         public int ExitCode { get; set; }
 
         public int TestRunId { get; set; }
+
+        [JsonIgnore]
+        public bool IsCurrentRun
+        {
+            get { return TestRunId == 0; }
+        }
+        [JsonIgnore]
+        public bool IsSuccess
+        {
+            get { return ExitCode == 0; }
+        }
     }
 
     public abstract class RunHistoryStats
@@ -71,25 +83,49 @@ namespace concord.Output
         public void CopyHistoryStatsFrom(RunHistoryStats history)
         {
             DatapointsInAverage = history.DatapointsInAverage;
+
             AverageTime = history.AverageTime;
+            WeightedAverageTime = history.WeightedAverageTime;
+            FailedAverageTime = history.FailedAverageTime;
+
             FailureCount = history.FailureCount;
         }
 
-        public void AddDatapoint(TimeSpan runLength)
+        public void AddDatapoint(TimeSpan runLength, bool isSuccess)
         {
-            var diff = runLength.TotalMilliseconds - AverageTime.TotalMilliseconds;
-            var diffAvg = diff / ++DatapointsInAverage;
-            AverageTime = AverageTime.Add(TimeSpan.FromMilliseconds(diffAvg));
-        }
+            //Increment counts
+            if (!isSuccess) FailureCount++;
+            DatapointsInAverage++;
 
-        public void IncrementFailedCount()
-        {
-            FailureCount++;
+            var diff = runLength.TotalMilliseconds - AverageTime.TotalMilliseconds;
+
+            //Only including success runtime in AverageTimes
+            if (isSuccess)
+            {
+                var successDatapoints = DatapointsInAverage - FailureCount;
+                successDatapoints = Math.Max(successDatapoints, 1);
+
+                var diffAvg = diff/successDatapoints;
+                AverageTime = AverageTime.Add(TimeSpan.FromMilliseconds(diffAvg));
+
+                //For weighted average, square the diff and add that
+                WeightedAverageTime = WeightedAverageTime.Add(TimeSpan.FromMilliseconds(diffAvg*diffAvg));
+            }
+            else
+            {
+                var diffAvg = diff/FailureCount;
+                FailedAverageTime = FailedAverageTime.Add(TimeSpan.FromMilliseconds(diffAvg));
+            }
         }
 
         public int DatapointsInAverage { get; set; }
-        public TimeSpan AverageTime { get; set; }
-
         public int FailureCount { get; set; }
+
+        public TimeSpan AverageTime { get; set; }
+        /// <summary>
+        /// This will react to changes in test runtime MUCH faster after large amounts of data is collected
+        /// </summary>
+        public TimeSpan WeightedAverageTime { get; set; }
+        public TimeSpan FailedAverageTime { get; set; }
     }
 }

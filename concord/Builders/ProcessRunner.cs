@@ -252,7 +252,7 @@ namespace concord.Builders
             {
                 Environment.ExitCode = -9;
             }
-            if (testResults.Any(x => x.ExitCode != 0))
+            if (testResults.Any(x => !x.IsSuccess))
             {
                 stdOut.WriteLine("ERROR: Test process exited with error!");
                 Environment.ExitCode = -1;

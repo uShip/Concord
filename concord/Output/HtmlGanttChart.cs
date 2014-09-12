@@ -22,7 +22,7 @@ namespace concord.Output
                 Offset = (float)x.StartTime.TotalMilliseconds / DIVIDEND,
                 Length = (float)(x.EndTime - x.StartTime).TotalMilliseconds / DIVIDEND,
                 Name = x.Name,
-                Success = x.ExitCode == 0
+                Success = x.IsSuccess
             });
             var graphOptions = new LineDrawOptions
             {

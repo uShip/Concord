@@ -37,7 +37,7 @@ namespace concord.Output
                 //  So if any are deleted they won't remain in there
                 runOrderData.AddRange(previousData.Where(x => skippedTests.Contains(x.Name)));
                 //Copy over failed tests
-                runOrderData.AddRange(runners.Where(x => x.ExitCode != 0));
+                runOrderData.AddRange(runners.Where(x => !x.IsSuccess));
                 //Copy over other cases...  TODO This will not work for uncategorized...
                 if (!runners.Any(x => x.Name == "all"))
                 {
@@ -57,7 +57,7 @@ namespace concord.Output
             }
 
             //Add all new data
-            runOrderData.AddRange(runners.Where(x => x.ExitCode == 0));
+            runOrderData.AddRange(runners.Where(x => x.IsSuccess));
 
             //Keep average stats:
             runOrderData.Each(x =>
@@ -67,13 +67,15 @@ namespace concord.Output
                     var history = runHistoryLookup[x.Name];
                     x.CopyHistoryStatsFrom(history);
                 }
-                x.AddDatapoint(x.RunTime);
-                if (x.ExitCode != 0)
-                    x.IncrementFailedCount();
+                if (x.IsCurrentRun)
+                {
+                    x.AddDatapoint(x.RunTime, x.IsSuccess);
+                }
             });
 
             //Write data to file
-            File.WriteAllText(path, JsonConvert.SerializeObject(runOrderData));
+            File.WriteAllText(path, JsonConvert.SerializeObject(runOrderData.OrderBy(x => x.Name))
+                                               .Replace("},", "}," + Environment.NewLine));
         }
 
         private IEnumerable<RunStats> LoadPreviousRunOrder()
@@ -87,8 +89,9 @@ namespace concord.Output
         private IEnumerable<string> GetCategoriesInOrder()
         {
             return LoadPreviousRunOrder()
-                .OrderByDescending(x => x.AverageTime)
-                .ThenByDescending(x => x.RunTime)
+                .OrderByDescending(x => x.WeightedAverageTime)
+                .ThenByDescending(x => x.AverageTime) //For reverse compatibility only
+                .ThenByDescending(x => x.RunTime) //Empty file case
                 .Select(x => x.Name);
         }
 
