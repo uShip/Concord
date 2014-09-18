@@ -48,11 +48,32 @@ namespace concord.Output.Dto
         {
             //For weighted average, square the diff and add that
             //  Unless its just started running... don't want 0 + 20*20 when its 20
-            var weightedDiff = runLength.TotalMilliseconds - WeightedAverageTime.TotalMilliseconds;
+            //Work in seconds space since squaring 1000 miliseconds == 16 minutes...
+            var weightedDiff = runLength.TotalSeconds - WeightedAverageTime.TotalSeconds;
             var weightedDiffAvg = weightedDiff / successDatapoints;
-            WeightedAverageTime = WeightedAverageTime.Add(successDatapoints > 5
-                ? TimeSpan.FromMilliseconds(weightedDiffAvg * weightedDiffAvg)
-                : TimeSpan.FromMilliseconds(weightedDiffAvg));
+
+            //TODO maybe instead of squaring it, just limit the maximum number of successDatapoints???
+            //  So just consider the existing weighted average to represent 5 data points only
+            var weightedAdjustment = Math.Abs(weightedDiffAvg) * weightedDiffAvg;
+
+            var newWeightedAverage = WeightedAverageTime.Add(successDatapoints > 5
+                ? TimeSpan.FromSeconds(weightedAdjustment)
+                : TimeSpan.FromSeconds(weightedDiffAvg));
+
+            if (newWeightedAverage < TimeSpan.Zero)
+            {
+                //Whoops went negative, thats wrong
+                Console.WriteLine("Went into negative time... that seems wrong... GOING TO ONLY HALF IT");
+                newWeightedAverage = TimeSpan.FromMilliseconds(WeightedAverageTime.TotalMilliseconds / 2);
+            }
+            var currentValueSquared = Math.Max(30, 2 * WeightedAverageTime.TotalSeconds);
+            if (newWeightedAverage > TimeSpan.FromSeconds(currentValueSquared))
+            {
+                //Limit it to at most doubling
+                Console.WriteLine("Went up by more than double... that seems wrong... GOING TO ONLY 2X IT");
+                newWeightedAverage = WeightedAverageTime.Add(WeightedAverageTime);
+            }
+            WeightedAverageTime = newWeightedAverage;
         }
 
         private void SetFailedAverage(TimeSpan runLength)
