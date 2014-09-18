@@ -15,6 +15,7 @@ namespace concord.Parsers
                        : File.ReadLines(fileName);
         }
 
+        //TODO damnit use ResultsOrderService for this...
         public IEnumerable<string> GetErrorsCategories(string fileName)
         {
             return GetErrorsCategories(ReadFileLines(fileName));

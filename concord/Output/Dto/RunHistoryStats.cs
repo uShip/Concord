@@ -37,14 +37,36 @@ namespace concord.Output.Dto
             }
         }
 
+        /// <summary>
+        /// Average, averaged over at max 100 datapoints
+        /// </summary>
+        /// <param name="runLength"></param>
+        /// <param name="successDatapoints"></param>
         private void SetAverageTime(TimeSpan runLength, int successDatapoints)
         {
             var diff = runLength.TotalMilliseconds - AverageTime.TotalMilliseconds;
-            var diffAvg = diff / successDatapoints;
+            var diffAvg = diff / Math.Min(successDatapoints, 100);
             AverageTime = AverageTime.Add(TimeSpan.FromMilliseconds(diffAvg));
         }
 
+        /// <summary>
+        /// Average, averaged over at max 5 datapoints
+        /// </summary>
+        /// <param name="runLength"></param>
+        /// <param name="successDatapoints"></param>
         private void SetWeightedAverageTime(TimeSpan runLength, int successDatapoints)
+        {
+            var diff = runLength.TotalMilliseconds - WeightedAverageTime.TotalMilliseconds;
+            var diffAvg = diff / Math.Min(successDatapoints, 5);
+            WeightedAverageTime = WeightedAverageTime.Add(TimeSpan.FromMilliseconds(diffAvg));
+        }
+
+        /// <summary>
+        /// This is confusing to debug, so striking it for the simplier method above
+        /// </summary>
+        /// <param name="runLength"></param>
+        /// <param name="successDatapoints"></param>
+        private void SetWeightedAverageTime_Squaring_Fail(TimeSpan runLength, int successDatapoints)
         {
             //For weighted average, square the diff and add that
             //  Unless its just started running... don't want 0 + 20*20 when its 20

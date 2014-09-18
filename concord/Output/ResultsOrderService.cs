@@ -96,7 +96,6 @@ namespace concord.Output
         {
             return LoadPreviousRunOrder()
                 .OrderByDescending(x => x.WeightedAverageTime)
-                .ThenByDescending(x => x.AverageTime) //For reverse compatibility only
                 .ThenByDescending(x => x.RunTime) //Empty file case
                 .Select(x => x.Name);
         }
