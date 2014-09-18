@@ -78,8 +78,10 @@ namespace concord.Output
             });
 
             //Write data to file
-            File.WriteAllText(path, JsonConvert.SerializeObject(runOrderData.OrderBy(x => x.Name))
-                                               .Replace("},", "}," + Environment.NewLine));
+            var runStatsCollection = RunStatsCollection.BuildCurrent(runOrderData.OrderBy(x => x.Name));
+            File.WriteAllText(path, JsonConvert.SerializeObject(runStatsCollection)
+                                               .Replace("},", "}," + Environment.NewLine)
+                                               .Replace("[{", "[" + Environment.NewLine + "{"));
         }
 
         private IEnumerable<RunStats> LoadPreviousRunOrder()

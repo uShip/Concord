@@ -102,11 +102,7 @@ namespace concord.Output.Dto
         private static RunStatsCollection DeserializeRunOrder_Version0(string path)
         {
             var stats = JsonConvert.DeserializeObject<IEnumerable<RunStats>>(File.ReadAllText(path));
-            return new RunStatsCollection
-                {
-                    StatsVersion = 0,
-                    Records = stats
-                };
+            return RunStatsCollection.BuildVersion0(stats);
         }
     }
 }
