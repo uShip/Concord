@@ -104,6 +104,8 @@
     <Compile Include="Nunit\ResultMerger.cs" />
     <Compile Include="Output\Dto\RunHistoryStats.cs" />
     <Compile Include="Output\Dto\RunStats.cs" />
+    <Compile Include="Output\Dto\RunStatsCollection.cs" />
+    <Compile Include="Output\Dto\RunStatsCollectionVersioning.cs" />
     <Compile Include="Output\HtmlGanttChart.cs" />
     <Compile Include="Output\IProgressDisplay.cs" />
     <Compile Include="Output\IResultsStatsWriter.cs" />

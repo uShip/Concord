@@ -18,10 +18,12 @@ namespace concord.Output
     public class ResultsOrderService : IResultsOrderService
     {
         private readonly IRunnerSettings _settings;
+        private readonly IRunStatsCollectionVersioning _statsCollectionVersioning;
 
-        public ResultsOrderService(IRunnerSettings settings)
+        public ResultsOrderService(IRunnerSettings settings, IRunStatsCollectionVersioning statsCollectionVersioning)
         {
             _settings = settings;
+            _statsCollectionVersioning = statsCollectionVersioning;
         }
 
         public void OutputRunOrder(IEnumerable<RunStats> runners, List<string> skippedTests)
@@ -84,7 +86,7 @@ namespace concord.Output
         {
             var path = _settings.ResultsOrderDataFilepath;
             return File.Exists(path)
-                ? JsonConvert.DeserializeObject<IEnumerable<RunStats>>(File.ReadAllText(path)).Where(x => x != null)
+                ? _statsCollectionVersioning.LoadRunOrder(path).Records.Where(x => x != null)
                 : new List<RunStats>();
         }
 

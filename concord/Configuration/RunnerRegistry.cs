@@ -1,4 +1,5 @@
-﻿using StructureMap.Configuration.DSL;
+﻿using concord.Output.Dto;
+using StructureMap.Configuration.DSL;
 using concord.Builders;
 using concord.Factories;
 using concord.Logging;
@@ -31,6 +32,7 @@ namespace concord.Configuration
             For<IProgressDisplay>().Use<ProgressDisplay>();
             For<IResultsStatsWriter>().Use<ResultsStatsWriter>();
             For<IResultsOrderService>().Use<ResultsOrderService>();
+            For<IRunStatsCollectionVersioning>().Use<RunStatsCollectionVersioning>();
             For<IRunnerSettings>().Use(() => RunnerSettingsSingleton.Instance);
 
             For<IHtmlGanttChart>().Use<HtmlGanttChart>();
