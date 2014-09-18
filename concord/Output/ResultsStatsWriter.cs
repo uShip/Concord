@@ -98,6 +98,7 @@ namespace concord.Output
             DatapointsInAverage++;
 
             var diff = runLength.TotalMilliseconds - AverageTime.TotalMilliseconds;
+            var weightedDiff = runLength.TotalMilliseconds - WeightedAverageTime.TotalMilliseconds;
 
             //Only including success runtime in AverageTimes
             if (isSuccess)
@@ -109,7 +110,11 @@ namespace concord.Output
                 AverageTime = AverageTime.Add(TimeSpan.FromMilliseconds(diffAvg));
 
                 //For weighted average, square the diff and add that
-                WeightedAverageTime = WeightedAverageTime.Add(TimeSpan.FromMilliseconds(diffAvg*diffAvg));
+                //  Unless its just started running... don't want 0 + 20*20 when its 20
+                var weightedDiffAvg = weightedDiff / successDatapoints;
+                WeightedAverageTime = WeightedAverageTime.Add(successDatapoints > 5
+                    ? TimeSpan.FromMilliseconds(weightedDiffAvg * weightedDiffAvg)
+                    : TimeSpan.FromMilliseconds(weightedDiffAvg));
             }
             else
             {
