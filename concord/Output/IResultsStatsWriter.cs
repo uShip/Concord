@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using concord.Output.Dto;
 
 namespace concord.Output
 {

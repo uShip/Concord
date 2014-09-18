@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using concord.Configuration;
 using concord.Extensions;
+using concord.Output.Dto;
 using Newtonsoft.Json;
 
 namespace concord.Output

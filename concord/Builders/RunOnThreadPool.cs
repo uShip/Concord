@@ -5,6 +5,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using concord.Output;
+using concord.Output.Dto;
 using concord.Wrappers;
 using TestRunAction = concord.Builders.ProcessRunner.TestRunAction;
 

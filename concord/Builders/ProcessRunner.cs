@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using concord.Output.Dto;
 using NUnit.Core;
 using NUnit.Core.Filters;
 using concord.Configuration;
