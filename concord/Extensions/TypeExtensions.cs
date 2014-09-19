@@ -31,7 +31,9 @@ namespace concord.Extensions
 
         private static string GetCategoryName(Attribute a)
         {
-            return a.GetType().GetProperty("Name").GetValue(a).ToString();
+            return a != null
+                ? a.GetType().GetProperty("Name").GetValue(a).ToString()
+                : null;
         }
 
         private static string GetCategoryAttribute(Type t)
@@ -39,13 +41,20 @@ namespace concord.Extensions
             if (!RunnerSettingsSingleton.Instance.IncludeIgnoredFeaturesInStats
                 && t.GetCustomAttributesEndingWith("IgnoreAttribute").Any()) return null;
 
-            var attributes = t.GetCustomAttributesEndingWith("CategoryAttribute").ToArray();
+            //TODO this is failing... give priority to ones without underscores, or with fewer numbers?
+            var attributes = t.GetCustomAttributesEndingWith("CategoryAttribute").ToArray()
+                              .OrderTicketNumbersLower();
             var firstAttribute = attributes.FirstOrDefault();
 
             if (firstAttribute == null) return null;
 
             var firstAttributeName = GetCategoryName(firstAttribute);
             return firstAttributeName;
+        }
+
+        private static IEnumerable<Attribute> OrderTicketNumbersLower(this IEnumerable<Attribute> attributes)
+        {
+            return attributes.OrderBy(GetCategoryName, CategoryNameComparer.Default);
         }
 
         public static bool HasCategoryAttribute(this Type t, IEnumerable<string> categories)
