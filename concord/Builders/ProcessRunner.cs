@@ -309,7 +309,8 @@ namespace concord.Builders
             return tempDebugging;
         }
 
-        private IEnumerable<TestRunAction> BuildAllActions(IEnumerable<string> testFixtures, IEnumerable<string> runnableCategories)
+        //Internal virtual for testing
+        internal virtual IEnumerable<TestRunAction> BuildAllActions(IEnumerable<string> testFixtures, IEnumerable<string> runnableCategories)
         {
             int indexOffset = 0;
             //TestFixtures that do not have a category:
@@ -384,6 +385,7 @@ namespace concord.Builders
                         StartInfo = processStartInfo,
                     };
 
+                //Console.WriteLine("Running: {0} {1}", processStartInfo.FileName, processStartInfo.Arguments);
                 testRun.Start();
                 testRun.PriorityClass = ProcessPriorityClass.BelowNormal;
                 testRun.WaitForExit();

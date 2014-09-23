@@ -9,3 +9,5 @@ copy %SOURCEPATH%concord.exe %TARGETPATH%
 if not errorlevel 0 pause
 copy %SOURCEPATH%concord.pdb %TARGETPATH%
 if not errorlevel 0 pause
+
+xcopy %SOURCEPATH%*.* %TARGETPATH% /Y
