@@ -27,9 +27,10 @@ namespace concord.Output
             var totalFinished = displayFailureSymbols
                                     ? runningTests.GetProgressCount(ProgressState.Finished)
                                     : runningTests.GetCompletedCount();
+            var notStarted = runningTests.GetProgressCount(ProgressState.NotStarted);
 
 
-            var finishedDisplayChars = (int)(totalFinished * displayRatio);
+            var finishedDisplayChars = (int)Math.Round(totalFinished * displayRatio);
             var startedDisplayChars = (int)Math.Ceiling(totalRunning * displayRatio);
 
             var progressBar =
@@ -45,7 +46,7 @@ namespace concord.Output
             var intendedDisplayCharWidth = (finishedDisplayChars)
                                            + (progressBar.Length - "[{0}{1}]".Length);
             var remainingDisplayChars = displayWidth - intendedDisplayCharWidth;
-            if (remainingDisplayChars < 0)
+            if (remainingDisplayChars < 0 || notStarted == 0)
             {
                 //Trim down finished characters if there are too many characters.
                 finishedDisplayChars += remainingDisplayChars;
