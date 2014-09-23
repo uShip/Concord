@@ -297,15 +297,24 @@ namespace concord.Builders
         {
             var actions = BuildAllActions(testFixtures, runnableCategories).ToList();
 
-            var TargetRunOrder = _resultsOrderService.GetCategoriesInDesiredOrder();
+            var TargetRunOrder = _resultsOrderService.GetCategoriesInDesiredOrder().ToList();
 
-            //Take ones in the order of TargetRunOrder, then append any others after that
-            //  Ideally the Others would go first...
-            var tempDebugging = TargetRunOrder
-                .Select(name => actions.SingleOrDefault(x => x.Name == name))
-                .Where(foundAction => foundAction != null)
-                .Union(actions)
-                .ToList();
+            //Take anything we don't have order data for, put that first
+            //  then append any of the ones in the order of TargetRunOrder
+            var targetRunLookup = new HashSet<string>(TargetRunOrder);
+            var tempDebugging = actions.Where(x => !targetRunLookup.Contains(x.Name))
+                                       .Concat(TargetRunOrder
+                                                   .Select(name => actions.SingleOrDefault(x => x.Name == name))
+                                                   .Where(foundAction => foundAction != null))
+                                       .ToList();
+
+            ////Take ones in the order of TargetRunOrder, then append any others after that
+            ////  Ideally the Others would go first...
+            //var tempDebugging = TargetRunOrder
+            //    .Select(name => actions.SingleOrDefault(x => x.Name == name))
+            //    .Where(foundAction => foundAction != null)
+            //    .Union(actions)
+            //    .ToList();
             return tempDebugging;
         }
 

@@ -56,12 +56,22 @@ namespace concord.Tests.Parsing
             //Assert
 
             //Current Rules:
-            //  any in desiredOrder should come first
-            outputNames.Take(20).Should().ContainInOrder(desiredOrder, "test run desired order");
-            //** "all" option in this test case is not in the desiredOrder (since random names) so it will be next
-            outputNames.Skip(20).First().Should().Be("all");
-            //  any un-ordered categories go at the end, in their original order...
-            outputNames.Skip(21).Should().ContainInOrder(runnableCategories.Except(desiredOrder));
+            //** "all" option in this test case is not in the desiredOrder (since random names) so it will be first
+            outputNames.First().Should().Be("all");
+            //  any un-ordered categories go at the start, in their original order...
+            outputNames.Skip(1).Should().ContainInOrder(runnableCategories.Except(desiredOrder));
+            var rest = runnableCategories.Count + 1 - 20;
+            //  any in desiredOrder should come next
+            outputNames.Skip(rest).Count().Should().Be(20);
+            outputNames.Skip(rest).Take(20).Should().ContainInOrder(desiredOrder, "test run desired order");
+
+            ////Previous Rules:
+            ////  any in desiredOrder should come first
+            //outputNames.Take(20).Should().ContainInOrder(desiredOrder, "test run desired order");
+            ////** "all" option in this test case is not in the desiredOrder (since random names) so it will be next
+            //outputNames.Skip(20).First().Should().Be("all");
+            ////  any un-ordered categories go at the end, in their original order...
+            //outputNames.Skip(21).Should().ContainInOrder(runnableCategories.Except(desiredOrder));
         }
 
         private void MockBuildAllActions()
