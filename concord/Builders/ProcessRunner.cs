@@ -410,8 +410,14 @@ namespace concord.Builders
 
         public string BuildParameterString(string outputXmlPath, string parameters)
         {
-            return string.Format(@"{0} /xml:{1} {2}",
+            var namespaceFilter = "";
+            if (_runnerSettings.Namespace != null)
+            {
+                namespaceFilter = "/run:" + _runnerSettings.Namespace;
+            }
+            return string.Format(@"{0} {1} /xml:{2} {3}",
                                  parameters,
+                                 namespaceFilter,
                                  outputXmlPath,
                                  _assemblyLocation);
         }
