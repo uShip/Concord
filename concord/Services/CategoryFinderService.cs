@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using concord.Configuration;
 using concord.Extensions;
 
 namespace concord.Services
@@ -45,6 +46,7 @@ namespace concord.Services
         {
             var testFixtures = FindTestFixtures(assembly, filterTestFixtures);
             return testFixtures.Where(x => !x.HasCategoryAttribute(excludeCategories))
+                               .Where(t => !RunnerSettingsSingleton.Instance.IncludeIgnoredFeaturesInStats && t.IsIgnored())
                                .Select(x => x.FullName);
         }
 

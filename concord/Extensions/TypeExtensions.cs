@@ -14,6 +14,11 @@ namespace concord.Extensions
                        .Cast<Attribute>();
         }
 
+        public static bool IsIgnored(this Type t)
+        {
+            return t.GetCustomAttributesEndingWith("IgnoreAttribute").Any();
+        }
+
         public static IEnumerable<string> GetCategories(this IEnumerable<Type> types)
         {
 //             return types
@@ -39,7 +44,7 @@ namespace concord.Extensions
         private static string GetCategoryAttribute(Type t)
         {
             if (!RunnerSettingsSingleton.Instance.IncludeIgnoredFeaturesInStats
-                && t.GetCustomAttributesEndingWith("IgnoreAttribute").Any()) return null;
+                && t.IsIgnored()) return null;
 
             //TODO this is failing... give priority to ones without underscores, or with fewer numbers?
             var attributes = t.GetCustomAttributesEndingWith("CategoryAttribute").ToArray()
