@@ -68,10 +68,10 @@ namespace concord.Configuration
             set { _wrappee.RunUncategorizedTestFixturesParallel = value; }
         }
 
-        public bool IncludeIgnoredFeaturesInStats
+        public bool IncludeIgnoredFeatures
         {
-            get { return _wrappee.IncludeIgnoredFeaturesInStats; }
-            set { _wrappee.IncludeIgnoredFeaturesInStats = value; }
+            get { return _wrappee.IncludeIgnoredFeatures; }
+            set { _wrappee.IncludeIgnoredFeatures = value; }
         }
 
         public bool RerunFailedCategories

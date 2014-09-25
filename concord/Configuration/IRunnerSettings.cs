@@ -12,7 +12,7 @@
         string ResultsStatsFilepath { get; }
         string ResultsOrderDataFilepath { get; }
         bool RunUncategorizedTestFixturesParallel { get; set; }
-        bool IncludeIgnoredFeaturesInStats { get; set; }
+        bool IncludeIgnoredFeatures { get; set; }
         bool RerunFailedCategories { get; set; }
         bool DisplayFailureSymbolsInProgressDisplay { get; set; }
         ThreadingType ThreadingType { get; set; }

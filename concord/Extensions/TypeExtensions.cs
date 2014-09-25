@@ -43,7 +43,7 @@ namespace concord.Extensions
 
         private static string GetCategoryAttribute(Type t)
         {
-            if (!RunnerSettingsSingleton.Instance.IncludeIgnoredFeaturesInStats
+            if (!RunnerSettingsSingleton.Instance.IncludeIgnoredFeatures
                 && t.IsIgnored()) return null;
 
             //TODO this is failing... give priority to ones without underscores, or with fewer numbers?

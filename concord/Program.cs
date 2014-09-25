@@ -46,7 +46,8 @@ namespace concord
                 string categories,
                 bool rerunFailedCategories,
                 bool uncategorizedInParallel,
-                bool debug)
+                bool debug,
+                bool includeIgnored)
             {
                 if (debug)
                 {
@@ -71,6 +72,8 @@ namespace concord
                     }
                     runnerSettings.RerunFailedCategories(rerunFailedCategories);
                     runnerSettings.SetNamespace(@namespace);
+
+                    runnerSettings.IncludeIgnoredFeatures(includeIgnored);
 
                     runnerSettings.RunUncategorizedTestFixturesParallel(uncategorizedInParallel);
 

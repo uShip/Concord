@@ -10,22 +10,18 @@ A parallel unit test runner, with poor documentation.
 * `-namespace` will allow you to specify a root namespace to look under
   * It uses `.StartsWith(namespace)` so it will find test fixtures in all the types under that
   * If they have categories, and if those categories exist in other namespaces, **all the fixtures with those categories will be run**
-
+* `-includeIgnored` include ignored features
+  
 ### Craziness:
 You can do: `-categories@=IAMAFILEPATH.txt`  to run only specific categories   
 (This does not support feature names)
 
 ### TODO:
 * ~~Bug when using `-uncategorizedInParallel` running some that have category names...~~
-* If a full feature is ignored, do not include it in the run
-  * I don't believe I can do this with categories though, becauase a category might have two features, where one is ignored and the other isn't
-* Ability to say run by namespaces, or groups of fixtures... idk
 * Make the general design of the runners use IOC, instead of hacked together as it is now
   * Use `RunnerSettings` for more stuff
   * Find an alternative to the `ConfigureRun` method?
 * Support fixtures being in multiple categories?
-* Seperate RunStats.html files for retry ability and ordering (make a copy, or a combined version when retrying, so it always has the time taken for all categories)
-* An option to -excludeIgnoredFeatures from the count and from starting
 * Hit ENTER or some other key, and dump all the current status data (namely, what is running, what is queued)
 
 ## Future, more versatile

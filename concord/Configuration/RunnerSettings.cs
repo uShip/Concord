@@ -77,11 +77,7 @@ namespace concord.Configuration
 
         public bool RunUncategorizedTestFixturesParallel { get; set; }
 
-        public bool IncludeIgnoredFeaturesInStats
-        {
-            get { return true; }
-            set { }
-        }
+        public bool IncludeIgnoredFeatures { get; set; }
         public bool RerunFailedCategories { get; set; }
         public bool DisplayFailureSymbolsInProgressDisplay { get; set; }
         public ThreadingType ThreadingType { get; set; }

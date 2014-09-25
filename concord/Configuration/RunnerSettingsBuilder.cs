@@ -53,6 +53,12 @@ namespace concord.Configuration
             return this;
         }
 
+        public RunnerSettingsBuilder IncludeIgnoredFeatures(bool include)
+        {
+            _runnerSettings.IncludeIgnoredFeatures = include;
+            return this;
+        }
+
         public RunnerSettingsBuilder RerunFailedCategories(bool rerun)
         {
             _runnerSettings.RerunFailedCategories = rerun;
