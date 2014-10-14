@@ -27,25 +27,31 @@ namespace concord.Builders
     [Obsolete("Not working, nor finished... issues with config files getting loaded")]
     internal class ThreadRunner : IRunner
     {
-        private string _assemblyLocation;
-        private readonly List<Type> _featureTypes;
-        private readonly ILogger _logger;
-        private readonly string _outputPath;
         private readonly IResultsWriter _resultsWriter;
+        //private readonly IProgressDisplay _progressDisplayBuilder;
+        //private readonly IResultsStatsWriter _resultsStatsWriter;
+        //private readonly IResultsOrderService _resultsOrderService;
 
         private readonly bool _outputRunStats = false;
-        private IRunnerSettings _runnerSettings;
 
-        private ThreadRunner(string assemblyLocation, IEnumerable<Type> featureTypes,
-                            ILogger logger, string outputPath,
-                            IResultsWriter resultsWriter)
+        public ThreadRunner(
+            IResultsWriter resultsWriter,
+            IProgressDisplay progressDisplayBuilder,
+            IResultsStatsWriter resultsStatsWriter,
+            IResultsOrderService resultsOrderService)
         {
-            _assemblyLocation = assemblyLocation;
-            _featureTypes = featureTypes.ToList();
-            _logger = logger;
-            _outputPath = outputPath;
             _resultsWriter = resultsWriter;
+//            _progressDisplayBuilder = progressDisplayBuilder;
+//            _resultsStatsWriter = resultsStatsWriter;
+//            _resultsOrderService = resultsOrderService;
         }
+
+        private bool _configured = false;
+        private string _assemblyLocation;
+        private IEnumerable<string> _otherTestFixtures;
+        private List<string> _categories;
+        private List<string> _categoriesToRun;
+        private IRunnerSettings _runnerSettings;
 
         public void ConfigureRun(
             string assemblyLocation,
@@ -54,10 +60,18 @@ namespace concord.Builders
             IEnumerable<string> categoriesToRun,
             IRunnerSettings runnerSettings)
         {
+            if (_configured)
+            {
+                throw new InvalidOperationException("Need to at least wait until this run is complete..." + "\n"
+                                                    + "Then we can talk, but for now, just create a new one");
+            }
+
             _assemblyLocation = assemblyLocation;
+            _otherTestFixtures = otherTestFixtures;
+            _categories = categories.ToList();
+            _categoriesToRun = categoriesToRun.ToList();
             _runnerSettings = runnerSettings;
-            //TODO does this design make any sense... not all runners need the same thing
-            throw new NotImplementedException("This runner needs to be completely re-worked...");
+            _configured = true;
         }
 
         public string GetRunResultsAsXml()
@@ -73,41 +87,46 @@ namespace concord.Builders
             totalRuntime.Start();
 
 
-            var outputPath = _outputPath;
+            var outputPath = _runnerSettings.OutputBasePath;
             if (!Directory.Exists(outputPath))
                 Directory.CreateDirectory(outputPath);
 
 
-            var categories = _featureTypes.GetCategories().ToList();
-            var categoryMessage = "Categories run will be: " + string.Join(", ", categories);
-            Debug.WriteLine(categoryMessage);
-            Console.WriteLine(categoryMessage);
+            bool shouldRunOther = _categoriesToRun.Count == 0
+                      || _categoriesToRun.Contains("all");
+
+            var testFixturesToRun = new List<string>();
+            if (shouldRunOther)
+            {
+                testFixturesToRun = new List<string>(_otherTestFixtures);
+            }
+
+            var runnableCategories = _categoriesToRun.Count > 0
+                                         ? _categories.Intersect(_categoriesToRun).ToList()
+                                         : _categories;
+            int totalToRun = runnableCategories.Count();
 
             var runners = new List<CategoryRunner>();
 
             using (var countdownEvent = new CountdownEvent(1))
             {
-                int totalCount = categories.Count + 1;
+//////                //Run all other tests
+//////                var other = GetExcludeFitler(runnableCategories.ToArray());
+//////                var anyOthers = new CategoryRunner(_assemblyLocation, other, "all", outputPath, countdownEvent);
+//////                runners.Add(anyOthers);
+//////                anyOthers.RunTesterAsync();
 
-                //NOTE: Ideally we want to start something like the top (concurrentRunners/2) longest running process first
-
-                //Run all other tests
-                var other = GetExcludeFitler(categories.ToArray());
-                var anyOthers = new CategoryRunner(_assemblyLocation, other, "all", _outputPath, countdownEvent);
-                runners.Add(anyOthers);
-                anyOthers.RunTesterAsync();
-
-                foreach (var cat in categories)
+                foreach (var cat in runnableCategories)
                 {
                     var filter = GetIncludefilter(cat);
-                    var runner = new CategoryRunner(_assemblyLocation, filter, cat, _outputPath, countdownEvent);
+                    var runner = new CategoryRunner(_assemblyLocation, filter, cat, outputPath, countdownEvent);
                     runners.Add(runner);
                     runner.RunTesterAsync();
 
                     while (maxConcurrentRunners > 0 && countdownEvent.CurrentCount > maxConcurrentRunners)
                     {
                         stdOut.WriteLine("Reached limit: " + (countdownEvent.CurrentCount - 1)
-                                         + "  Runners created: " + runners.Count + " / " + totalCount);
+                                         + "  Runners created: " + runners.Count + " / " + totalToRun);
                         Thread.Sleep(2000);
                     }
                 }
@@ -117,7 +136,7 @@ namespace concord.Builders
                 while (countdownEvent.CurrentCount > 0)
                 {
                     stdOut.WriteLine("Running: " + countdownEvent.CurrentCount
-                                     + " / " + totalCount);
+                                     + " / " + totalToRun);
                     countdownEvent.Wait(2000);
                 }
             }
@@ -220,6 +239,8 @@ namespace concord.Builders
                 //    CoreExtensions.Host.InitializeService();
 
                 var pack = new TestPackage(_assemblyLocation);
+                pack.PrivateBinPath = Path.GetDirectoryName(_assemblyLocation);
+                pack.BasePath = Path.GetDirectoryName(_assemblyLocation);
                 pack.ConfigurationFile = _assemblyLocation + ".config";
                 var nu = new RemoteTestRunner();
                 //var nu = new SimpleTestRunner(Thread.CurrentThread.ManagedThreadId);
