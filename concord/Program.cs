@@ -3,10 +3,12 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using CLAP;
+using concord.Builders;
 using concord.Configuration;
 using concord.Factories;
 using concord.Logging;
 using concord.Nunit;
+using StructureMap;
 
 namespace concord
 {
@@ -47,12 +49,25 @@ namespace concord
                 bool rerunFailedCategories,
                 bool uncategorizedInParallel,
                 bool debug,
-                bool includeIgnored)
+                bool includeIgnored,
+                bool internalTestRunner)
             {
                 if (debug)
                 {
                     Console.WriteLine("Attach if you want to, then press any key");
                     Console.ReadKey(true);
+                }
+
+
+                //TODO TEMP
+                if (internalTestRunner)
+                {
+                    ObjectFactory.Container.EjectAllInstancesOf<IRunner>();
+                    ObjectFactory.Configure(x =>
+                    {
+                        x.For<IRunner>()
+                            .Use<ThreadRunner>();
+                    });
                 }
 
 

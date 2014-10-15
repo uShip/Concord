@@ -3,6 +3,8 @@ Concord
 
 A parallel unit test runner, with poor documentation.
 
+This runs tests in parallel by categories, as opposed to tests or features which is what everything else does (although uncategorised gets run as a thread as well, by default)
+
 ### Beta
 * `-rerunFailedCategories` should look at the RunStats.html file, and only run categories that failed
   * Only considers tests that ran and failed (with a positive error code), if they did not run, it will not run them
@@ -11,6 +13,7 @@ A parallel unit test runner, with poor documentation.
   * It uses `.StartsWith(namespace)` so it will find test fixtures in all the types under that
   * If they have categories, and if those categories exist in other namespaces, **all the fixtures with those categories will be run**
 * `-includeIgnored` include ignored features
+* `-uncategorizedInParallel` runs any uncategorised tests in parallel with each other.  Without this, a category `all` runs for them parallel to other categories.  Each feature gets its own ?runner? when this is enabled.
   
 ### Craziness:
 You can do: `-categories@=IAMAFILEPATH.txt`  to run only specific categories   
