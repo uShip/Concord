@@ -7,6 +7,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using concord.Builders.TestRunBuilders;
+using concord.Builders.ThreadingManagers;
 using concord.Output.Dto;
 using NUnit.Core;
 using NUnit.Core.Filters;
@@ -110,14 +111,6 @@ namespace concord.Builders
                              _progressDisplayBuilder.ArrayValueToRunningStatusChar(ProgressState.Running),
                              _progressDisplayBuilder.ArrayValueToRunningStatusChar(ProgressState.Finished));
 
-            var options = new ParallelOptions
-                {
-                    MaxDegreeOfParallelism = maxConcurrentRunners > 0
-                                                 ? maxConcurrentRunners
-                                                 : -1,
-                    CancellationToken = _cancelTokenSource.Token
-                };
-
             var testFixturesToRun = new List<string>();
             if (shouldRunOther)
             {
@@ -173,62 +166,26 @@ namespace concord.Builders
                                .Each(x => x.Kill());
                     };
 
-                if (_runnerSettings.ThreadingType == ThreadingType.UseTaskParallel)
+                //Determine what parallelizer to use
+                IParallelManager parallelManager;
+                switch (_runnerSettings.ThreadingType)
                 {
-                    var startOrderInt = 0;
-                    var token = options.CancellationToken;
-                    Parallel.ForEach(BuildSortedAllActions(testFixturesToRun, runnableCategories),
-                        options,
-                        action =>
-                        {
-                            //stdOut.Write(string.Format("\r> Starting: {0}   \n", action.Name));
-                            token.ThrowIfCancellationRequested();
-
-                            runningTests.IncrementIndex(action.Index);
-                            var startOrder = Interlocked.Increment(ref startOrderInt);
-
-                            var startTime = totalRuntime.Elapsed;
-                            var sw = new Stopwatch();
-                            sw.Start();
-                            var exitCode = action.RunTests();
-                            sw.Stop();
-                            testResults.Add(new RunStats
-                            {
-                                Name = action.Name,
-                                StartTime = startTime,
-                                RunTime = sw.Elapsed,
-                                EndTime = totalRuntime.Elapsed,
-                                StartOrder = startOrder,
-                                FinishOrder = testResults.Count,
-                                ExitCode = exitCode
-                            });
-
-                            runningTests.IncrementIndex(action.Index);
-                            if (exitCode != 0)
-                            {
-                                //Go to TestFailure
-                                runningTests.IncrementIndex(action.Index);
-                                if (!Console.IsOutputRedirected)
-                                    stdOut.Write("\r! Test failure: {0} ({1})   \n", action.Name, exitCode);
-                            }
-                            if (exitCode < 0)
-                            {
-                                //Go to RunFailure
-                                runningTests.IncrementIndex(action.Index);
-                            }
-                        });
+                    case ThreadingType.UseTaskParallel:
+                        parallelManager = new RunOnTaskParallel();
+                        break;
+                    case ThreadingType.UseDotNetThreadPool:
+                        parallelManager = new RunOnThreadPool();
+                        break;
+                    default:
+                        throw new Exception("Unknown how this should run...");
                 }
-                else if (_runnerSettings.ThreadingType == ThreadingType.UseDotNetThreadPool)
-                {
-                    var buildSortedAllActions = BuildSortedAllActions(testFixturesToRun, runnableCategories)
-                        .ToArray();
 
-                    RunOnThreadPool.RunActionsOnThreads(maxConcurrentRunners, buildSortedAllActions, options.CancellationToken, stdOut, runningTests, totalRuntime, testResults);
-                }
-                else
-                {
-                    throw new Exception("Unknown how this should run...");
-                }
+                //Run test actions
+                var buildSortedAllActions = BuildSortedAllActions(testFixturesToRun, runnableCategories)
+                    .ToArray();
+
+                parallelManager.RunActionsParallel(maxConcurrentRunners, buildSortedAllActions, _cancelTokenSource.Token, stdOut, runningTests, totalRuntime, testResults);
+
 
                 timer.Change(0, Timeout.Infinite);
                 //Tacky way to fix line printing problem

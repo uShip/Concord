@@ -8,11 +8,11 @@ using concord.Output;
 using concord.Output.Dto;
 using concord.Wrappers;
 
-namespace concord.Builders
+namespace concord.Builders.ThreadingManagers
 {
-    public class RunOnThreadPool
+    class RunOnThreadPool : IParallelManager
     {
-        internal static void RunActionsOnThreads(int maxConcurrentRunners, IEnumerable<TestRunBuilders.TestRunAction> buildSortedAllActions,
+        public void RunActionsParallel(int maxConcurrentRunners, IEnumerable<TestRunBuilders.TestRunAction> buildSortedAllActions,
             CancellationToken token, TextWriterWrapper stdOut, ProgressStats runningTests,
             Stopwatch totalRuntime, ConcurrentBag<RunStats> testResults)
         {
