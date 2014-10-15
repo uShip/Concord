@@ -175,7 +175,7 @@ namespace concord.Builders
             return new NotFilter(new CategoryFilter(excludeCategories));
         }
 
-        public class CategoryRunner : EventListener
+        public class CategoryRunner : EventListener, IDisposable
         {
             private readonly ITestFilter Filter;
             public readonly string OutputName;
@@ -184,6 +184,7 @@ namespace concord.Builders
             private readonly Stopwatch _timer = new Stopwatch();
 
             private readonly CountdownEvent countdownEventRef;
+            private TestRunner _testRunner;
 
             public CategoryRunner(string assemblyLocation, ITestFilter filter, string outputName, string outputPath, CountdownEvent countdown)
             {
@@ -207,9 +208,9 @@ namespace concord.Builders
 
             public void RunTesterAsync()
             {
-                var tr = GetTestRunner();
+                _testRunner = GetTestRunner();
 
-                tr.BeginRun(this, Filter, false, LoggingThreshold.Off);
+                _testRunner.BeginRun(this, Filter, false, LoggingThreshold.Off);
             }
 
             private void MarkAsInitalized()
@@ -226,23 +227,32 @@ namespace concord.Builders
 
             private void MarkAsFinished()
             {
+                _testRunner.Dispose();
                 _timer.Stop();
                 FinishedRunning = true;
                 IsRunning = false;
                 countdownEventRef.Signal();
             }
 
+            public void Dispose()
+            {
+                if (_testRunner != null)
+                    _testRunner.Dispose();
+            }
+
             public TestRunner GetTestRunner()
             {
-                //Doesn't help...
-                //if (!CoreExtensions.Host.Initialized)
-                //    CoreExtensions.Host.InitializeService();
+                if (!CoreExtensions.Host.Initialized)
+                {
+                    InitalizeNUnits();
+                }
 
                 var pack = new TestPackage(_assemblyLocation);
+                //TODO next two lines, really needed???
                 pack.PrivateBinPath = Path.GetDirectoryName(_assemblyLocation);
-                pack.BasePath = Path.GetDirectoryName(_assemblyLocation);
-                pack.ConfigurationFile = _assemblyLocation + ".config";
-                var nu = new RemoteTestRunner();
+                //pack.BasePath = Path.GetDirectoryName(_assemblyLocation);
+                //pack.ConfigurationFile = _assemblyLocation + ".config";
+                var nu = new MultipleTestDomainRunner();
                 //var nu = new SimpleTestRunner(Thread.CurrentThread.ManagedThreadId);
                 //var nu = new ThreadedTestRunner(new RemoteTestRunner());
                 if (!nu.Load(pack))
@@ -252,6 +262,24 @@ namespace concord.Builders
                 return nu;
             }
 
+            private void InitalizeNUnits()
+            {
+                Console.WriteLine("INITALIZING THIS STUFF");
+                // Add Standard Services to ServiceManager
+                //			ServiceManager.Services.AddService( settingsService );
+                ServiceManager.Services.AddService(new DomainManager());
+                //ServiceManager.Services.AddService( new RecentFilesService() );
+                ServiceManager.Services.AddService(new ProjectService());
+                //ServiceManager.Services.AddService( new TestLoader() );
+                ServiceManager.Services.AddService(new AddinRegistry());
+                ServiceManager.Services.AddService(new AddinManager());
+                ServiceManager.Services.AddService(new TestAgency());
+
+                // Initialize Services
+                ServiceManager.Services.InitializeServices();
+
+                CoreExtensions.Host.InitializeService();
+            }
 
             #region EventListener methods
 
