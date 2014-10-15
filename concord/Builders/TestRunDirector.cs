@@ -25,20 +25,18 @@ namespace concord.Builders
     internal class TestRunDirector : IRunner
     {
         private readonly CancellationTokenSource _cancelTokenSource = new CancellationTokenSource();
-        private readonly ITestRunBuilder _testRunBuilder;
+        private readonly ITestRunActionBuilder _testRunActionBuilder;
         private readonly IResultsWriter _resultsWriter;
         private readonly IProgressDisplay _progressDisplayBuilder;
         private readonly IResultsStatsWriter _resultsStatsWriter;
         private readonly IResultsOrderService _resultsOrderService;
 
         public TestRunDirector(
-            ITestRunBuilder testRunBuilder,
             IResultsWriter resultsWriter,
             IProgressDisplay progressDisplayBuilder,
             IResultsStatsWriter resultsStatsWriter,
             IResultsOrderService resultsOrderService)
         {
-            _testRunBuilder = testRunBuilder;
             _resultsWriter = resultsWriter;
             _progressDisplayBuilder = progressDisplayBuilder;
             _resultsStatsWriter = resultsStatsWriter;
@@ -68,9 +66,6 @@ namespace concord.Builders
             _categories = categories.ToList();
             _categoriesToRun = categoriesToRun.ToList();
             _runnerSettings = runnerSettings;
-
-            //TODO This is lame... is static runnerSettings the only other option though?
-            _testRunBuilder.Configure(assemblyLocation, runnerSettings);
 
             _configured = true;
         }
@@ -291,12 +286,13 @@ namespace concord.Builders
                 foreach (var fixture in testFixtures.Select((x, i) => new {Name = x, Index = i}))
                 {
                     var x = fixture.Name;
-                    yield return new TestRunAction
-                        {
-                            Name = "Fix-" + x,
-                            Index = fixture.Index,
-                            RunTests = () => _testRunBuilder.BuildFilteredBlockingProcess(x)
-                        };
+                    yield return _testRunActionBuilder.BuildTestRunAction("Fix-" + x, fixture.Index, x);
+                    //yield return new TestRunAction
+                    //    {
+                    //        Name = "Fix-" + x,
+                    //        Index = fixture.Index,
+                    //        RunTests = () => _testRunBuilder.BuildFilteredBlockingProcess(x)
+                    //    };
                     ++indexOffset;
                 }
             }
@@ -307,12 +303,13 @@ namespace concord.Builders
                 if (testFixtures.Any())
                 {
                     var other = GetExcludeFitler(_categories.Concat(new[] { "Long" }).ToArray());
-                    yield return new TestRunAction
-                        {
-                            Name = "all",
-                            Index = 0,
-                            RunTests = () => _testRunBuilder.BuildFilteredBlockingProcess("all", other)
-                        };
+                    yield return _testRunActionBuilder.BuildTestRunAction("all", 0, other);
+                    //yield return new TestRunAction
+                    //    {
+                    //        Name = "all",
+                    //        Index = 0,
+                    //        RunTests = () => _testRunBuilder.BuildFilteredBlockingProcess("all", other)
+                    //    };
                     indexOffset = 1;
                 }
             }
@@ -321,12 +318,13 @@ namespace concord.Builders
             foreach (var cat in runnableCategories.Select((x, i) => new {Name = x, Index = i + indexOffset}))
             {
                 var x = cat.Name;
-                yield return new TestRunAction
-                    {
-                        Name = x,
-                        Index = cat.Index,
-                        RunTests = () => _testRunBuilder.BuildFilteredBlockingProcess(x, GetIncludeFilter(x))
-                    };
+                yield return _testRunActionBuilder.BuildTestRunAction(x, cat.Index, GetIncludeFilter(x));
+                //yield return new TestRunAction
+                //    {
+                //        Name = x,
+                //        Index = cat.Index,
+                //        RunTests = () => _testRunBuilder.BuildFilteredBlockingProcess(x, GetIncludeFilter(x))
+                //    };
             }
         }
 

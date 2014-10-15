@@ -1,32 +1,30 @@
 ﻿using System;
 using System.Diagnostics;
 using System.IO;
-using System.Threading;
+using NUnit.ConsoleRunner;
 using NUnit.Core;
 using NUnit.Util;
 
 namespace concord.Builders.TestRunBuilders
 {
-    [Obsolete("DECIDE BETWEEN THIS AND ITestRunBuilder", true)]
     public class CategoryRunner : EventListener, IDisposable
     {
         private readonly ITestFilter Filter;
-        public readonly string OutputName;
+        private readonly string _outputXmlFile;
         private readonly string _assemblyLocation;
-        private readonly string _outputPath;
         private readonly Stopwatch _timer = new Stopwatch();
 
-        private readonly CountdownEvent countdownEventRef;
         private TestRunner _testRunner;
 
-        public CategoryRunner(string assemblyLocation, ITestFilter filter, string outputName, string outputPath, CountdownEvent countdown)
+        public CategoryRunner(
+            string assemblyLocation,
+            ITestFilter filter,
+            string outputXmlFile)
         {
             _assemblyLocation = assemblyLocation;
             Filter = filter;
-            OutputName = outputName;
-            _outputPath = outputPath;
+            _outputXmlFile = outputXmlFile;
 
-            countdownEventRef = countdown;
             MarkAsInitalized();
         }
 
@@ -39,6 +37,43 @@ namespace concord.Builders.TestRunBuilders
         }
 
 
+        public int Execute()
+        {
+            try
+            {
+                var result = RunTesterBlocking();
+                var summary = new ResultSummarizer(result);
+
+                return summary.Errors + summary.Failures + summary.NotRunnable;
+            }
+            catch (FileNotFoundException ex)
+            {
+                Console.WriteLine(ex.Message);
+                return ConsoleUi.FILE_NOT_FOUND;
+            }
+            catch (Exception ex)
+            {
+                //TODO need to expand on error cases better... mimic console runner
+                Console.WriteLine(ex);
+                return ConsoleUi.UNEXPECTED_ERROR;
+            }
+        }
+
+        public TestResult RunTesterBlocking()
+        {
+            using (_testRunner = GetTestRunner())
+            {
+                //MarkAsRunning();
+                var results = _testRunner.Run(this, Filter, false, LoggingThreshold.Off);
+                //MarkAsFinished();
+
+                //TESTING:
+                if (!FinishedRunning) throw new Exception("NEED TO CALL MarkAsFinished!!!");
+
+                return results;
+            }
+        }
+
         public void RunTesterAsync()
         {
             _testRunner = GetTestRunner();
@@ -49,7 +84,6 @@ namespace concord.Builders.TestRunBuilders
         private void MarkAsInitalized()
         {
             FinishedRunning = false;
-            countdownEventRef.AddCount();
         }
 
         private void MarkAsRunning()
@@ -64,7 +98,6 @@ namespace concord.Builders.TestRunBuilders
             _timer.Stop();
             FinishedRunning = true;
             IsRunning = false;
-            countdownEventRef.Signal();
         }
 
         public void Dispose()
@@ -120,8 +153,7 @@ namespace concord.Builders.TestRunBuilders
         {
             try
             {
-                var cleanedName = OutputName.Replace("?", "");
-                var writer = new XmlResultWriter(Path.Combine(_outputPath, string.Format("{0}.xml", cleanedName)));
+                var writer = new XmlResultWriter(_outputXmlFile);
                 writer.SaveTestResult(result);
             }
             finally

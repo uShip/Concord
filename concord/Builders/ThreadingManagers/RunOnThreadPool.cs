@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading;
+using concord.Builders.TestRunBuilders;
 using concord.Output;
 using concord.Output.Dto;
 using concord.Wrappers;
@@ -12,11 +13,11 @@ namespace concord.Builders.ThreadingManagers
 {
     class RunOnThreadPool : IParallelManager
     {
-        public void RunActionsParallel(int maxConcurrentRunners, IEnumerable<TestRunBuilders.TestRunAction> buildSortedAllActions,
+        public void RunActionsParallel(int maxConcurrentRunners, IEnumerable<TestRunAction> buildSortedAllActions,
             CancellationToken token, TextWriterWrapper stdOut, ProgressStats runningTests,
             Stopwatch totalRuntime, ConcurrentBag<RunStats> testResults)
         {
-            var sortedAllActions = buildSortedAllActions as TestRunBuilders.TestRunAction[]
+            var sortedAllActions = buildSortedAllActions as TestRunAction[]
                                    ?? buildSortedAllActions.ToArray();
 
             if (maxConcurrentRunners <= 0)
@@ -41,7 +42,7 @@ namespace concord.Builders.ThreadingManagers
         private static int _threadCounter = 0;
         private static int _startOrderInt = 0;
 
-        private static void CreateThread(TestRunBuilders.TestRunAction action,
+        private static void CreateThread(TestRunAction action,
             CancellationToken token, TextWriterWrapper stdOut, ProgressStats runningTests,
             Stopwatch totalRuntime, ConcurrentBag<RunStats> testResults)
         {
@@ -63,7 +64,7 @@ namespace concord.Builders.ThreadingManagers
 
         private class MethodParameters
         {
-            public TestRunBuilders.TestRunAction Action { get; set; }
+            public TestRunAction Action { get; set; }
             public CancellationToken Token { get; set; }
             public TextWriterWrapper StdOut { get; set; }
             public ProgressStats RunningTests { get; set; }

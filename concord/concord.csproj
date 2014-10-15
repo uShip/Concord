@@ -85,17 +85,17 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Builders\TestRunBuilders\BlockingProcessTestRunActionBuilder.cs" />
+    <Compile Include="Builders\TestRunBuilders\InternalTestRunActionBuilder.cs" />
+    <Compile Include="Builders\TestRunBuilders\ITestRunActionBuilder.cs" />
     <Compile Include="Builders\ThreadingManagers\IParallelManager.cs" />
     <Compile Include="Builders\ThreadingManagers\RunOnTaskParallel.cs" />
     <Compile Include="Builders\TestRunBuilders\InternalCategoryRunner.cs" />
-    <Compile Include="Builders\TestRunBuilders\BlockingProcessTestRunBuilder.cs" />
-    <Compile Include="Builders\TestRunBuilders\InternalThreadTestRunBuilder.cs" />
-    <Compile Include="Builders\TestRunBuilders\ITestRunBuilder.cs" />
+    <Compile Include="Builders\TestRunBuilders\BlockingProcessBuilder.cs" />
     <Compile Include="Builders\TestRunBuilders\TestRunAction.cs" />
     <Compile Include="Builders\TestRunDirector.cs" />
     <Compile Include="Builders\IRunner.cs" />
     <Compile Include="Builders\ThreadingManagers\RunOnThreadPool.cs" />
-    <Compile Include="Builders\ThreadRunner.cs" />
     <Compile Include="Configuration\IRunnerSettings.cs" />
     <Compile Include="Configuration\IRunnerSettingsBuilder.cs" />
     <Compile Include="Configuration\RunnerRegistry.cs" />

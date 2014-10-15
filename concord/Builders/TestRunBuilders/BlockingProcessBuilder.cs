@@ -6,7 +6,7 @@ using NUnit.Core;
 
 namespace concord.Builders.TestRunBuilders
 {
-    public class BlockingProcessTestRunBuilder : ITestRunBuilder
+    class BlockingProcessBuilder
     {
         private string _assemblyLocation;
         private IRunnerSettings _runnerSettings;
@@ -76,7 +76,7 @@ namespace concord.Builders.TestRunBuilders
 
         private string BuildOutputXmlPath(string category)
         {
-            return Path.Combine(_runnerSettings.OutputBasePath, string.Format("{0}.xml", category));
+            return Path.Combine(_runnerSettings.OutputBasePath, string.Format("{0}.xml", category.Replace("?", "")));
         }
 
         private string ToParameterString(ITestFilter filter)
