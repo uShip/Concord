@@ -7,7 +7,7 @@ namespace concord.Configuration
     public interface ISettingsBasedServiceFactory
     {
         IParallelManager GetParallelManager();
-        ITestRunActionBuilder GetTestRunActionBuilder();
+        ITestRunActionBuilder GetTestRunActionBuilder(string assemblyLocation);
     }
 
     class SettingsBasedServiceFactory : ISettingsBasedServiceFactory
@@ -32,17 +32,22 @@ namespace concord.Configuration
             }
         }
 
-        public ITestRunActionBuilder GetTestRunActionBuilder()
+        public ITestRunActionBuilder GetTestRunActionBuilder(string assemblyLocation)
         {
+            ITestRunActionBuilder testRunActionBuilder;
             switch (_runnerSettings.TestActionType)
             {
                 case TestActionType.ExternalProcesses:
-                    return new BlockingProcessTestRunActionBuilder();
+                    testRunActionBuilder = new BlockingProcessTestRunActionBuilder();
+                    break;
                 case TestActionType.InternalThreads:
-                    return new InternalTestRunActionBuilder();
+                    testRunActionBuilder = new InternalTestRunActionBuilder();
+                    break;
                 default:
                     throw new Exception("TestActionType to use is not configured");
             }
+            testRunActionBuilder.Configure(assemblyLocation, _runnerSettings);
+            return testRunActionBuilder;
         }
     }
 }

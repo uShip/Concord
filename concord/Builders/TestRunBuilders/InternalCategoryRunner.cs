@@ -108,9 +108,12 @@ namespace concord.Builders.TestRunBuilders
 
         public TestRunner GetTestRunner()
         {
-            if (!CoreExtensions.Host.Initialized)
+            lock (InitalizeLock)
             {
-                InitalizeNUnits();
+                if (!CoreExtensions.Host.Initialized)
+                {
+                    InitalizeNUnits();
+                }
             }
 
             var pack = new TestPackage(_assemblyLocation);
@@ -128,6 +131,7 @@ namespace concord.Builders.TestRunBuilders
             return nu;
         }
 
+        static readonly object InitalizeLock = new object();
         private void InitalizeNUnits()
         {
             Console.WriteLine("INITALIZING THIS STUFF");

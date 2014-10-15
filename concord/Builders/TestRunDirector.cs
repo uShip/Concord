@@ -69,7 +69,7 @@ namespace concord.Builders
             _runnerSettings = runnerSettings;
 
             var settingsBasedServiceFactory = _runnerSettings.GetServiceFactory();
-            _testRunActionBuilder = settingsBasedServiceFactory.GetTestRunActionBuilder();
+            _testRunActionBuilder = settingsBasedServiceFactory.GetTestRunActionBuilder(assemblyLocation);
             _parallelizationManager = settingsBasedServiceFactory.GetParallelManager();
 
             _configured = true;
