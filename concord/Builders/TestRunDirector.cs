@@ -5,7 +5,6 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading;
-using System.Threading.Tasks;
 using concord.Builders.TestRunBuilders;
 using concord.Builders.ThreadingManagers;
 using concord.Output.Dto;
@@ -25,7 +24,6 @@ namespace concord.Builders
     internal class TestRunDirector : IRunner
     {
         private readonly CancellationTokenSource _cancelTokenSource = new CancellationTokenSource();
-        private readonly ITestRunActionBuilder _testRunActionBuilder;
         private readonly IResultsWriter _resultsWriter;
         private readonly IProgressDisplay _progressDisplayBuilder;
         private readonly IResultsStatsWriter _resultsStatsWriter;
@@ -49,6 +47,9 @@ namespace concord.Builders
         private List<string> _categoriesToRun;
         private IRunnerSettings _runnerSettings;
 
+        private ITestRunActionBuilder _testRunActionBuilder;
+        private IParallelManager _parallelizationManager;
+
         public void ConfigureRun(
             string assemblyLocation,
             IEnumerable<string> categories,
@@ -66,6 +67,10 @@ namespace concord.Builders
             _categories = categories.ToList();
             _categoriesToRun = categoriesToRun.ToList();
             _runnerSettings = runnerSettings;
+
+            var settingsBasedServiceFactory = _runnerSettings.GetServiceFactory();
+            _testRunActionBuilder = settingsBasedServiceFactory.GetTestRunActionBuilder();
+            _parallelizationManager = settingsBasedServiceFactory.GetParallelManager();
 
             _configured = true;
         }
@@ -161,25 +166,11 @@ namespace concord.Builders
                                .Each(x => x.Kill());
                     };
 
-                //Determine what parallelizer to use
-                IParallelManager parallelManager;
-                switch (_runnerSettings.ThreadingType)
-                {
-                    case ThreadingType.UseTaskParallel:
-                        parallelManager = new RunOnTaskParallel();
-                        break;
-                    case ThreadingType.UseDotNetThreadPool:
-                        parallelManager = new RunOnThreadPool();
-                        break;
-                    default:
-                        throw new Exception("Unknown how this should run...");
-                }
-
                 //Run test actions
                 var buildSortedAllActions = BuildSortedAllActions(testFixturesToRun, runnableCategories)
                     .ToArray();
 
-                parallelManager.RunActionsParallel(maxConcurrentRunners, buildSortedAllActions, _cancelTokenSource.Token, stdOut, runningTests, totalRuntime, testResults);
+                _parallelizationManager.RunActionsParallel(maxConcurrentRunners, buildSortedAllActions, _cancelTokenSource.Token, stdOut, runningTests, totalRuntime, testResults);
 
 
                 timer.Change(0, Timeout.Infinite);
@@ -287,12 +278,6 @@ namespace concord.Builders
                 {
                     var x = fixture.Name;
                     yield return _testRunActionBuilder.BuildTestRunAction("Fix-" + x, fixture.Index, x);
-                    //yield return new TestRunAction
-                    //    {
-                    //        Name = "Fix-" + x,
-                    //        Index = fixture.Index,
-                    //        RunTests = () => _testRunBuilder.BuildFilteredBlockingProcess(x)
-                    //    };
                     ++indexOffset;
                 }
             }
@@ -304,12 +289,6 @@ namespace concord.Builders
                 {
                     var other = GetExcludeFitler(_categories.Concat(new[] { "Long" }).ToArray());
                     yield return _testRunActionBuilder.BuildTestRunAction("all", 0, other);
-                    //yield return new TestRunAction
-                    //    {
-                    //        Name = "all",
-                    //        Index = 0,
-                    //        RunTests = () => _testRunBuilder.BuildFilteredBlockingProcess("all", other)
-                    //    };
                     indexOffset = 1;
                 }
             }
@@ -319,12 +298,6 @@ namespace concord.Builders
             {
                 var x = cat.Name;
                 yield return _testRunActionBuilder.BuildTestRunAction(x, cat.Index, GetIncludeFilter(x));
-                //yield return new TestRunAction
-                //    {
-                //        Name = x,
-                //        Index = cat.Index,
-                //        RunTests = () => _testRunBuilder.BuildFilteredBlockingProcess(x, GetIncludeFilter(x))
-                //    };
             }
         }
 

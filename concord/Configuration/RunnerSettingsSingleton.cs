@@ -1,18 +1,26 @@
 ﻿using System;
+using concord.Builders.TestRunBuilders;
+using concord.Builders.ThreadingManagers;
 
 namespace concord.Configuration
 {
-    class RunnerSettingsSingleton : IRunnerSettings
+    internal class RunnerSettingsSingleton : IRunnerSettings
     {
-        private readonly static Lazy<RunnerSettingsSingleton> _lazyInstance = new Lazy<RunnerSettingsSingleton>(() => new RunnerSettingsSingleton());
+        private static readonly Lazy<RunnerSettingsSingleton> _lazyInstance = new Lazy<RunnerSettingsSingleton>(() => new RunnerSettingsSingleton());
         private IRunnerSettings _wrappee;
-        public static RunnerSettingsSingleton Instance { get { return _lazyInstance.Value; } }
 
-        public IRunnerSettings Wrappee { set { _wrappee = value; } }
+        public static RunnerSettingsSingleton Instance
+        {
+            get { return _lazyInstance.Value; }
+        }
+
+        public IRunnerSettings Wrappee
+        {
+            set { _wrappee = value; }
+        }
 
         private RunnerSettingsSingleton()
         {
-            
         }
 
         public string OutputBasePath
@@ -86,10 +94,21 @@ namespace concord.Configuration
             set { _wrappee.DisplayFailureSymbolsInProgressDisplay = value; }
         }
 
-        public ThreadingType ThreadingType
+        public ParallelizationMethod ThreadingType
         {
             get { return _wrappee.ThreadingType; }
             set { _wrappee.ThreadingType = value; }
+        }
+
+        public TestActionType TestActionType
+        {
+            get { return _wrappee.TestActionType; }
+            set { _wrappee.TestActionType = value; }
+        }
+
+        public ISettingsBasedServiceFactory GetServiceFactory()
+        {
+            return _wrappee.GetServiceFactory();
         }
     }
 }

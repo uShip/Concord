@@ -9,7 +9,7 @@ using concord.Wrappers;
 
 namespace concord.Builders.ThreadingManagers
 {
-    interface IParallelManager
+    public interface IParallelManager
     {
         void RunActionsParallel(int maxConcurrentRunners, IEnumerable<TestRunAction> buildSortedAllActions, CancellationToken token, TextWriterWrapper stdOut, ProgressStats runningTests, Stopwatch totalRuntime, ConcurrentBag<RunStats> testResults);
     }

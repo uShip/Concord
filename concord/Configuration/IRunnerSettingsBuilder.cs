@@ -2,18 +2,34 @@
 {
     public interface IRunnerSettingsBuilder
     {
-        RunnerSettingsBuilder SetOutputFolder(string outputFolder);
-        RunnerSettingsBuilder PrependFilenames(string prependWith);
+        IRunnerSettingsBuilder SetOutputFolder(string outputFolder);
+        IRunnerSettingsBuilder PrependFilenames(string prependWith);
 
-        RunnerSettingsBuilder SetResultsXmlFilename(string filename);
-        RunnerSettingsBuilder SetResultsHtmlReportFilename(string filename);
-        RunnerSettingsBuilder SetResultsStatsFilename(string filename);
+        IRunnerSettingsBuilder SetResultsXmlFilename(string filename);
+        IRunnerSettingsBuilder SetResultsHtmlReportFilename(string filename);
+        IRunnerSettingsBuilder SetResultsStatsFilename(string filename);
 
-        RunnerSettingsBuilder SetNamespace(string ns);
-        RunnerSettingsBuilder RerunFailedCategories(bool rerun);
+        IRunnerSettingsBuilder SetNamespace(string ns);
+        IRunnerSettingsBuilder RerunFailedCategories(bool rerun);
 
-        RunnerSettingsBuilder RunUncategorizedTestFixturesParallel(bool runParallel = true);
+        IRunnerSettingsBuilder RunUncategorizedTestFixturesParallel(bool runParallel = true);
+        IRunnerSettingsBuilder IncludeIgnoredFeatures(bool includeIgnored);
+
+        IParallelizationSettingsBuilder ForParallelization();
+        ITestRunActionSettingsBuilder ForTestRunAction();
 
         RunnerSettings Build();
+    }
+
+    public interface IParallelizationSettingsBuilder
+    {
+        IRunnerSettingsBuilder UseTaskParallel();
+        IRunnerSettingsBuilder UseDotNetThreadPool();
+    }
+
+    public interface ITestRunActionSettingsBuilder
+    {
+        IRunnerSettingsBuilder UseExternalProcesses();
+        IRunnerSettingsBuilder UseInternalThreads();
     }
 }

@@ -98,6 +98,7 @@
     <Compile Include="Builders\ThreadingManagers\RunOnThreadPool.cs" />
     <Compile Include="Configuration\IRunnerSettings.cs" />
     <Compile Include="Configuration\IRunnerSettingsBuilder.cs" />
+    <Compile Include="Configuration\SettingsBasedServiceFactory.cs" />
     <Compile Include="Configuration\RunnerRegistry.cs" />
     <Compile Include="Configuration\RunnerSettings.cs" />
     <Compile Include="Configuration\RunnerSettingsBuilder.cs" />

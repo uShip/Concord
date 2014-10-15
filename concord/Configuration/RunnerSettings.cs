@@ -80,12 +80,26 @@ namespace concord.Configuration
         public bool IncludeIgnoredFeatures { get; set; }
         public bool RerunFailedCategories { get; set; }
         public bool DisplayFailureSymbolsInProgressDisplay { get; set; }
-        public ThreadingType ThreadingType { get; set; }
+        public ParallelizationMethod ThreadingType { get; set; }
+        public TestActionType TestActionType { get; set; }
+
+        public ISettingsBasedServiceFactory GetServiceFactory()
+        {
+            return new SettingsBasedServiceFactory(this);
+        }
     }
 
-    public enum ThreadingType
+    public enum ParallelizationMethod
     {
+        NotSet,
         UseTaskParallel,
         UseDotNetThreadPool
+    }
+
+    public enum TestActionType
+    {
+        NotSet,
+        ExternalProcesses,
+        InternalThreads
     }
 }

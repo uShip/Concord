@@ -3,12 +3,10 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using CLAP;
-using concord.Builders;
 using concord.Configuration;
 using concord.Factories;
 using concord.Logging;
 using concord.Nunit;
-using StructureMap;
 
 namespace concord
 {
@@ -59,18 +57,6 @@ namespace concord
                 }
 
 
-                //TODO TEMP
-                if (internalTestRunner)
-                {
-                    ObjectFactory.Container.EjectAllInstancesOf<IRunner>();
-                    ObjectFactory.Configure(x =>
-                    {
-                        x.For<IRunner>()
-                            .Use<ThreadRunner>();
-                    });
-                }
-
-
                 var serviceLocator = ServiceLocator.Instance;
 
                 var builderFactory = serviceLocator.Get<IRunnerFactory>();
@@ -93,7 +79,16 @@ namespace concord
                     runnerSettings.RunUncategorizedTestFixturesParallel(uncategorizedInParallel);
 
                     //runnerSettings.UseTaskParallel();
-                    runnerSettings.UseDotNetThreadPool();
+                    runnerSettings.ForParallelization().UseDotNetThreadPool();
+
+                    if (internalTestRunner)
+                    {
+                        runnerSettings.ForTestRunAction().UseInternalThreads();
+                    }
+                    else
+                    {
+                        runnerSettings.ForTestRunAction().UseExternalProcesses();
+                    }
 
                     var batchBuilder = builderFactory.Create(runnerSettings.Build(), lib, categories);
 

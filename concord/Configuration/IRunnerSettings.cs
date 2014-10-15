@@ -15,6 +15,9 @@
         bool IncludeIgnoredFeatures { get; set; }
         bool RerunFailedCategories { get; set; }
         bool DisplayFailureSymbolsInProgressDisplay { get; set; }
-        ThreadingType ThreadingType { get; set; }
+        ParallelizationMethod ThreadingType { get; set; }
+        TestActionType TestActionType { get; set; }
+
+        ISettingsBasedServiceFactory GetServiceFactory();
     }
 }

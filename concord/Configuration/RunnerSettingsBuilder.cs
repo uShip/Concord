@@ -2,17 +2,17 @@
 
 namespace concord.Configuration
 {
-    public class RunnerSettingsBuilder : IRunnerSettingsBuilder
+    public class RunnerSettingsBuilder : IRunnerSettingsBuilder, IParallelizationSettingsBuilder, ITestRunActionSettingsBuilder
     {
         private RunnerSettings _runnerSettings;
 
-        public RunnerSettingsBuilder SetOutputFolder(string outputBasePath)
+        public IRunnerSettingsBuilder SetOutputFolder(string outputBasePath)
         {
             _runnerSettings = new RunnerSettings(outputBasePath);
             return this;
         }
 
-        public RunnerSettingsBuilder PrependFilenames(string prependWith)
+        public IRunnerSettingsBuilder PrependFilenames(string prependWith)
         {
             if (_runnerSettings == null) throw new Exception("Must start with SetOutputFolder");
 
@@ -21,25 +21,25 @@ namespace concord.Configuration
             return this;
         }
 
-        public RunnerSettingsBuilder SetResultsXmlFilename(string filename)
+        public IRunnerSettingsBuilder SetResultsXmlFilename(string filename)
         {
             _runnerSettings.ResultsXmlFilename = filename;
             return this;
         }
 
-        public RunnerSettingsBuilder SetResultsHtmlReportFilename(string filename)
+        public IRunnerSettingsBuilder SetResultsHtmlReportFilename(string filename)
         {
             _runnerSettings.ResultsHtmlReportFilename = filename;
             return this;
         }
 
-        public RunnerSettingsBuilder SetResultsStatsFilename(string filename)
+        public IRunnerSettingsBuilder SetResultsStatsFilename(string filename)
         {
             _runnerSettings.ResultsStatsFilename = filename;
             return this;
         }
 
-        public RunnerSettingsBuilder SetNamespace(string ns)
+        public IRunnerSettingsBuilder SetNamespace(string ns)
         {
             if (!string.IsNullOrEmpty(ns))
                 _runnerSettings.Namespace = ns;
@@ -47,33 +47,55 @@ namespace concord.Configuration
             return this;
         }
 
-        public RunnerSettingsBuilder RunUncategorizedTestFixturesParallel(bool runParallel = true)
+        public IRunnerSettingsBuilder RunUncategorizedTestFixturesParallel(bool runParallel = true)
         {
             _runnerSettings.RunUncategorizedTestFixturesParallel = runParallel;
             return this;
         }
 
-        public RunnerSettingsBuilder IncludeIgnoredFeatures(bool include)
+        public IRunnerSettingsBuilder IncludeIgnoredFeatures(bool include)
         {
             _runnerSettings.IncludeIgnoredFeatures = include;
             return this;
         }
 
-        public RunnerSettingsBuilder RerunFailedCategories(bool rerun)
+        public IRunnerSettingsBuilder RerunFailedCategories(bool rerun)
         {
             _runnerSettings.RerunFailedCategories = rerun;
             return this;
         }
 
-        public RunnerSettingsBuilder UseTaskParallel()
+        public IParallelizationSettingsBuilder ForParallelization()
         {
-            _runnerSettings.ThreadingType = ThreadingType.UseTaskParallel;
             return this;
         }
 
-        public RunnerSettingsBuilder UseDotNetThreadPool()
+        public ITestRunActionSettingsBuilder ForTestRunAction()
         {
-            _runnerSettings.ThreadingType = ThreadingType.UseDotNetThreadPool;
+            return this;
+        }
+
+        public IRunnerSettingsBuilder UseTaskParallel()
+        {
+            _runnerSettings.ThreadingType = ParallelizationMethod.UseTaskParallel;
+            return this;
+        }
+
+        public IRunnerSettingsBuilder UseDotNetThreadPool()
+        {
+            _runnerSettings.ThreadingType = ParallelizationMethod.UseDotNetThreadPool;
+            return this;
+        }
+
+        public IRunnerSettingsBuilder UseExternalProcesses()
+        {
+            _runnerSettings.TestActionType = TestActionType.ExternalProcesses;
+            return this;
+        }
+
+        public IRunnerSettingsBuilder UseInternalThreads()
+        {
+            _runnerSettings.TestActionType = TestActionType.InternalThreads;
             return this;
         }
 

@@ -1,5 +1,4 @@
-﻿using concord.Configuration;
-using NUnit.Core;
+﻿using NUnit.Core;
 
 namespace concord.Builders.TestRunBuilders
 {
