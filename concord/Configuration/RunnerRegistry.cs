@@ -20,7 +20,7 @@ namespace concord.Configuration
                 .Use<RunnerFactory>();
 
             For<IRunner>()
-                .Use<ProcessRunner>();
+                .Use<TestRunDirector>();
 
             For<ILogger>().Use<Logger>();
 

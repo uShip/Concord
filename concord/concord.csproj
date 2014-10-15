@@ -85,7 +85,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Builders\ProcessRunner.cs" />
+    <Compile Include="Builders\TestRunBuilders\InternalCategoryRunner.cs" />
+    <Compile Include="Builders\TestRunBuilders\BlockingProcessTestRunBuilder.cs" />
+    <Compile Include="Builders\TestRunBuilders\InternalThreadTestRunBuilder.cs" />
+    <Compile Include="Builders\TestRunBuilders\ITestRunBuilder.cs" />
+    <Compile Include="Builders\TestRunBuilders\TestRunAction.cs" />
+    <Compile Include="Builders\TestRunDirector.cs" />
     <Compile Include="Builders\IRunner.cs" />
     <Compile Include="Builders\RunOnThreadPool.cs" />
     <Compile Include="Builders\ThreadRunner.cs" />

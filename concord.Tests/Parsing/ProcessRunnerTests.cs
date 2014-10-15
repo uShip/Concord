@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using concord.Builders;
+using concord.Builders.TestRunBuilders;
 using concord.Output;
 using FluentAssertions;
 using NUnit.Framework;
@@ -17,7 +18,7 @@ namespace concord.Tests.Parsing
         //{
         //    get { return _services.ClassUnderTest; }
         //}
-        private ProcessRunner ClassUnderTest;
+        private TestRunDirector ClassUnderTest;
 
         private IResultsOrderService _resultsOrderService = MockRepository.GenerateMock<IResultsOrderService>();
 
@@ -28,7 +29,7 @@ namespace concord.Tests.Parsing
             //ObjectFactory.Configure(x => x.AddRegistry<RunnerRegistry>());
             //_services = new RhinoAutoMocker<ProcessRunner>();
 
-            ClassUnderTest = MockRepository.GeneratePartialMock<ProcessRunner>(
+            ClassUnderTest = MockRepository.GeneratePartialMock<TestRunDirector>(
                 MockRepository.GenerateMock<IResultsWriter>(),
                 MockRepository.GenerateMock<IProgressDisplay>(),
                 MockRepository.GenerateMock<IResultsStatsWriter>(),
@@ -83,13 +84,13 @@ namespace concord.Tests.Parsing
                                var testFixtures = invocation.Arguments[0] as IEnumerable<string>;
                                var runnableCategories = invocation.Arguments[1] as IEnumerable<string>;
 
-                               var returnList = new List<ProcessRunner.TestRunAction>();
+                               var returnList = new List<TestRunAction>();
 
                                var indexOffset = 0;
                                if (testFixtures.Any())
                                {
                                    returnList.Add(
-                                       new ProcessRunner.TestRunAction
+                                       new TestRunAction
                                        {
                                            Name = "all",
                                            Index = 0,
@@ -102,7 +103,7 @@ namespace concord.Tests.Parsing
                                returnList.AddRange(
                                    from cat in runnableCategories.Select((x, i) => new { Name = x, Index = i + indexOffset })
                                    let x = cat.Name
-                                   select new ProcessRunner.TestRunAction
+                                   select new TestRunAction
                                    {
                                        Name = x,
                                        Index = cat.Index,
