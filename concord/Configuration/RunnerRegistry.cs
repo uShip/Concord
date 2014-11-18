@@ -1,4 +1,8 @@
 ﻿using concord.Output.Dto;
+using concord.RazorTemplates.Models;
+using RazorEngine;
+using RazorEngine.Configuration;
+using RazorEngine.Templating;
 using StructureMap.Configuration.DSL;
 using concord.Builders;
 using concord.Factories;
@@ -36,6 +40,17 @@ namespace concord.Configuration
             For<IRunnerSettings>().Use(() => RunnerSettingsSingleton.Instance);
 
             For<IHtmlGanttChart>().Use<HtmlGanttChart>();
+
+            //For Razor Templating
+//            For<ITemplateService>()
+//                .Singleton()
+//                .Use(() => new TemplateService(
+//                    new FluentTemplateServiceConfiguration(x =>
+//                        x.IncludeNamespaces(typeof (FancyResults).Namespace)
+//                        // .WithEncoding(Encoding.Html)
+//                        )));
+            For<ITemplateService>().Singleton().Use<TemplateService>();
+            For<IResultsTemplateWriter>().Use<ResultsTemplateWriter>();
         }
     }
 }
