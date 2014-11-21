@@ -56,6 +56,9 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\structuremap.3.1.2.138\lib\net40\StructureMap.dll</HintPath>
     </Reference>
+    <Reference Include="StructureMap.AutoMocking">
+      <HintPath>..\packages\structuremap.automocking.3.1.0.133\lib\net40\StructureMap.AutoMocking.dll</HintPath>
+    </Reference>
     <Reference Include="StructureMap.Net4">
       <HintPath>..\packages\structuremap.3.1.2.138\lib\net40\StructureMap.Net4.dll</HintPath>
     </Reference>
@@ -80,6 +83,8 @@
     </Otherwise>
   </Choose>
   <ItemGroup>
+    <Compile Include="Framework\InteractionContext.cs" />
+    <Compile Include="Framework\MockExtensions.cs" />
     <Compile Include="Parsing\ProgressDisplayTests.cs" />
     <Compile Include="Parsing\ProgressStatsTests.cs" />
     <Compile Include="Parsing\ProcessRunnerTests.cs" />

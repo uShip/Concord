@@ -1,7 +1,40 @@
-﻿@model concord.RazorTemplates.Models.FancyResults
+﻿@using concord.Configuration
+@using concord.Output
+@using concord.Output.Dto
+@using StructureMap
+@model concord.RazorTemplates.Models.FancyResults
 
 @{
     Layout = null;
+}
+
+@helper GanttChartBuilder()
+{
+    var ganttChart = ContainerReference.Container.GetInstance<IHtmlGanttChart>();
+
+    var lineNumber = 0;
+    foreach (var line in ganttChart.SeperateIntoLines(Model.Runners))
+    {
+        @TestLineBuilder(lineNumber, line)
+        lineNumber++;
+    }
+}
+@helper TestLineBuilder(int lineNumber, IEnumerable<RunStats> line)
+{
+    foreach (var test in line)
+    {
+        var left = test.StartTime.TotalMilliseconds / DIVISOR;
+        var top = lineNumber * LineHeight;
+        <div style="position:absolute;left:@(left)px;top:@(top)px;"></div>
+    }
+}
+@functions
+{
+        private const int DIVISOR = 1000;
+        private const int BarPadding = 2;
+        private const int BarWidth = 10;
+
+        private const int LineHeight = BarPadding + BarWidth;
 }
 
 <!DOCTYPE html>
@@ -9,10 +42,61 @@
 <html>
     <head>
         <title>Run Stats - Fancy!</title>
+        
+        <style>
+            
+        </style>
     </head>
     <body>
-        <div>
-              Total Runtime: @Model.TotalRuntime
+        <div id="fancyGanttChart">
+            @{
+                //var data = Model.Runners.OrderBy(x => x.StartOrder);
+
+                //var DIVIDEND = 1000;
+                //var graphData = data.Select(x => new //HtmlGanttChart.LineData
+                //{
+                //    Offset = (float)x.StartTime.TotalMilliseconds / DIVIDEND,
+                //    Length = (float)(x.EndTime - x.StartTime).TotalMilliseconds / DIVIDEND,
+                //    Name = x.Name,
+                //    Success = x.IsSuccess,
+
+                //    FailurePercentage = x.FailureCount * 100.0 / x.DatapointsInAverage
+                //});
+                
+                
+                <div style='position:relative;'>
+                    @GanttChartBuilder()
+                </div>
+                
+                
+
+                //<div id="fancyGanttChart_placeholder"></div>
+                //IF JQUERY RENDER: @Html.Raw("var chartData = " + JsonConvert.SerializeObject(graphData) + ";")
+
+                
+                
+                
+                @*var maxWidth = 100;
+                var maxHeight = 100;
+                
+                <div style='position:relative;width:@(maxWidth)px;height:@(maxHeight)px'>
+                    @string.Format("<div style='position:absolute;border:solid {0} {1}px;background-color:{2};left:{3}px;top:{4}px;width:{5}px;height:{6}px' {7}></div>",
+                        borderColor,
+                        borderWidth,
+                        fillColor,
+                        x, y,
+                        width, height,
+                        title == null ? "" : "title='" + title + "'");
+                </div>*@
+            }
         </div>
+
+        <div>
+            Total Runtime: @Model.TotalRuntime
+        </div>
+        
+        <script type="text/javascript">
+    
+        </script>
     </body>
 </html>

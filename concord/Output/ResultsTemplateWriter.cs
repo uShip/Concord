@@ -1,7 +1,5 @@
 ﻿using System;
 using System.IO;
-using concord.RazorTemplates.Models;
-using RazorEngine.Configuration;
 using RazorEngine.Templating;
 
 namespace concord.Output
@@ -25,6 +23,9 @@ namespace concord.Output
         public string OutputResults<T>(T model, string outputFile = null)
         {
             var outputTemplate = File.ReadAllText(Path.Combine(TemplateFolderPath, typeof(T).Name + ".cshtml"));
+
+            //Need actual references
+            //var useless1 = typeof (StructureMap.Container);
 
             var outputBody = _templateService.Parse<T>(outputTemplate, model, null, typeof (T).Name);
             //var outputBody = _templateService.Parse(outputTemplate, model, null, typeof (T).Name);

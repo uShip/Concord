@@ -1,5 +1,4 @@
 ﻿using System;
-using StructureMap;
 
 namespace concord.Configuration
 {
@@ -10,7 +9,6 @@ namespace concord.Configuration
 
         private ServiceLocator()
         {
-            ObjectFactory.Configure(x => x.AddRegistry<RunnerRegistry>());
         }
 
         public static ServiceLocator Instance
@@ -20,7 +18,7 @@ namespace concord.Configuration
 
         public T Get<T>()
         {
-            return ObjectFactory.GetInstance<T>();
+            return ContainerReference.Container.GetInstance<T>();
         }
     }
 }
