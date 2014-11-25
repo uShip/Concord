@@ -1,5 +1,7 @@
 ﻿using System;
 using System.IO;
+using System.Web;
+using System.Web.Mvc;
 using RazorEngine.Templating;
 
 namespace concord.Output
@@ -26,6 +28,9 @@ namespace concord.Output
 
             //Need actual references
             //var useless1 = typeof (StructureMap.Container);
+            //var useful1 = typeof (JsonConvert);
+            var useful2 = typeof (MvcHtmlString);
+            var useful3 = typeof(HtmlString);
 
             var outputBody = _templateService.Parse<T>(outputTemplate, model, null, typeof (T).Name);
             //var outputBody = _templateService.Parse(outputTemplate, model, null, typeof (T).Name);

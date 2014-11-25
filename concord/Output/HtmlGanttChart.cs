@@ -9,6 +9,9 @@ namespace concord.Output
     public interface IHtmlGanttChart
     {
         string GenerateGanttChart(IEnumerable<RunStats> runners);
+
+        //IEnumerable<LineData> BuildLineData(IEnumerable<RunStats> runners);
+        List<List<RunStats>> SeperateIntoLines(IEnumerable<RunStats> runners);
     }
 
     public class HtmlGanttChart : IHtmlGanttChart
@@ -28,16 +31,58 @@ namespace concord.Output
             var graphOptions = new LineDrawOptions
             {
                 BarPadding = 2,
-                BarWidth = 10
+                BarHeight = 10
             };
             return DrawHorizontalLines(graphData, graphOptions);
+        }
+
+        /// <summary>
+        /// This duplicates much of the logic in DrawHorizontalLines... but using only RunStats
+        /// </summary>
+        /// <param name="runners"></param>
+        /// <returns></returns>
+        public List<List<RunStats>> SeperateIntoLines(IEnumerable<RunStats> runners)
+        {
+            Func<RunStats, double> getOffset = stats => stats.StartTime.TotalMilliseconds;
+            Func<RunStats, double> getLength = x => (x.EndTime - x.StartTime).TotalMilliseconds;
+
+
+            var data = runners.ToList();
+
+            var outputContainer = new List<List<RunStats>>();
+            var currentLine = new List<RunStats>();
+
+            RunStats d = null;
+            while (data.Count > 0)
+            {
+                if (d == null)
+                    d = data.First(x => getOffset(x) == data.Min(y => getOffset(y)));
+                else
+                {
+                    var d1 = d;
+                    var filtered = data.Where(x => getOffset(x) >= (getOffset(d1) + getLength(d1))).ToArray();
+                    d = filtered.FirstOrDefault(x => getOffset(x) == filtered.Min(y => getOffset(y)));
+                }
+                if (d == null)
+                {
+                    outputContainer.Add(currentLine);
+                    currentLine = new List<RunStats>();
+                    continue;
+                }
+                currentLine.Add(d);
+                data.Remove(d);
+            }
+
+            outputContainer.Add(currentLine);
+
+            return outputContainer;
         }
 
         string DrawHorizontalLines(IEnumerable<LineData> rawData, LineDrawOptions opts)
         {
             var data = rawData.ToList();
 
-            var lineHeight = opts.BarWidth + opts.BarPadding;
+            var lineHeight = opts.BarHeight + opts.BarPadding;
 
             var h = (int)Math.Ceiling(data.Count * lineHeight);
             var w = (int)Math.Ceiling(data.Max(x => x.Offset + x.Length + 1));
@@ -64,7 +109,7 @@ namespace concord.Output
                 g.DrawRectangle(
                     d.Success ? "#00008B" : "#8B0000",
                     d.Success ? "#0000FF" : "#FF0000",
-                    1, d.Offset, i * lineHeight, d.Length, opts.BarWidth, d.Name);
+                    1, d.Offset, i * lineHeight, d.Length, opts.BarHeight, d.Name);
                 data.Remove(d);
             }
 
@@ -72,7 +117,7 @@ namespace concord.Output
         }
         class LineDrawOptions
         {
-            public float BarWidth { get; set; }
+            public float BarHeight { get; set; }
             public float BarPadding { get; set; }
         }
         class LineData

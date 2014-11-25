@@ -1,40 +1,57 @@
 ﻿@using concord.Configuration
 @using concord.Output
 @using concord.Output.Dto
-@using StructureMap
+@using concord.Output.JsonConverters
+@using Newtonsoft.Json
 @model concord.RazorTemplates.Models.FancyResults
 
 @{
     Layout = null;
 }
 
+
 @helper GanttChartBuilder()
 {
     var ganttChart = ContainerReference.Container.GetInstance<IHtmlGanttChart>();
 
-    var lineNumber = 0;
-    foreach (var line in ganttChart.SeperateIntoLines(Model.Runners))
-    {
-        @TestLineBuilder(lineNumber, line)
-        lineNumber++;
+    var testLines = ganttChart.SeperateIntoLines(Model.Runners);
+
+    <div style='position:relative;height:@(testLines.Count * LineHeight)px;'>
+    @{
+        var lineNumber = 0;
+        foreach (var line in testLines)
+        {
+            @TestLineBuilder(lineNumber, line)
+            lineNumber++;
+        }
     }
+    </div>
 }
 @helper TestLineBuilder(int lineNumber, IEnumerable<RunStats> line)
 {
     foreach (var test in line)
     {
-        var left = test.StartTime.TotalMilliseconds / DIVISOR;
+        Func<TimeSpan, double> toPixels = x => x.TotalMilliseconds / DIVISOR;
+        var left = toPixels(test.StartTime);
         var top = lineNumber * LineHeight;
-        <div style="position:absolute;left:@(left)px;top:@(top)px;"></div>
+        <div id="@(test.Name)" style="position:absolute;left:@(left)px;top:@(top)px;width:@(toPixels(test.RunTime))px;height:@(BarHeight)px;border: 1px solid black;" title="@(test.Name)"></div>
     }
 }
 @functions
 {
         private const int DIVISOR = 1000;
         private const int BarPadding = 2;
-        private const int BarWidth = 10;
+        private const int BarHeight = 10;
 
-        private const int LineHeight = BarPadding + BarWidth;
+        private const int LineHeight = BarPadding + BarHeight;
+
+    string GetRunnersInJson()
+    {
+        //var ganttChart = ContainerReference.Container.GetInstance<IHtmlGanttChart>();
+        //
+        //return JsonConvert.SerializeObject(ganttChart.SeperateIntoLines(Model.Runners), new TimeSpanJsonConverter());
+        return JsonConvert.SerializeObject(Model.Runners, new TimeSpanJsonConverter());
+    }
 }
 
 <!DOCTYPE html>
@@ -42,9 +59,41 @@
 <html>
     <head>
         <title>Run Stats - Fancy!</title>
+
+        <script src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
+        <script src="https://cdn.rawgit.com/anomal/RainbowVis-JS/master/rainbowvis.js"></script>
+        <script src="https://cdn.rawgit.com/eoinmurray/histogram/master/histogram.js"></script>
+        <link rel="stylesheet" href="http://yui.yahooapis.com/pure/0.5.0/pure-min.css">
         
-        <style>
-            
+        <style type="text/css">
+            .button-success,
+            .button-error,
+            .button-warning,
+            .button-secondary {
+                color: white;
+                border-radius: 4px;
+                text-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);
+            }
+
+             .ganttChartButton {
+                 font-size: 70%;
+                 margin: .25em;
+             }
+
+            .button-success {
+                background: rgb(28, 184, 65); /* this is a green */
+            }
+
+            .button-error {
+                background: rgb(202, 60, 60); /* this is a maroon */
+            }
+
+            .button-warning {
+                background: rgb(223, 117, 20); /* this is an orange */
+            }
+            .button-warning.pure-button-active {
+                background: #99500e; /* this is an orange */
+            }
         </style>
     </head>
     <body>
@@ -64,9 +113,10 @@
                 //});
                 
                 
-                <div style='position:relative;'>
-                    @GanttChartBuilder()
-                </div>
+                
+                @GanttChartBuilder()
+                <div id="GanttChartButtons"></div>
+                <div id="GanttChartLegend"></div>
                 
                 
 
@@ -96,7 +146,168 @@
         </div>
         
         <script type="text/javascript">
-    
+            //#Settings
+            //{ get:function(v) {}, LowerIsBetter:true, Min:0, Max:100 }
+            availableFields = {
+                Success: { get: function (v) { return v.ExitCode == 0 ? 1 : 0; }, LowerIsBetter:false, Min: 0 },
+                RunTime: { get: function (v) { return v.RunTime; } },
+                FailurePercent: { get: function (v) { return v.FailureCount * 100 / v.DatapointsInAverage; }, Min: 0 },
+                WeightedAverageTime: { get: function (v) { return v.WeightedAverageTime; } },
+                FailedAverageTime: { get: function (v) { return v.FailedAverageTime; } },
+                AverageTime: { get: function (v) { return v.AverageTime; } }
+            };
+
+            testRunData = @Raw(GetRunnersInJson());
+            testRunMaximums = GetMaximums(testRunData);
+            //#Settings
+
+            //#Initialization
+            function GetMaximums(data) {
+                //var flattened = $(data).map(function() { return this; });
+                var flattened = testRunData;
+
+                var output = {};
+                jQuery.each(flattened, function(index, value) {
+                    //CheckMinMax(output, "RunTime", value.RunTime);
+                    //CheckMinMax(output, "FailurePercent", value.FailureCount * 100 / value.DatapointsInAverage);
+                    //CheckMinMax(output, "WeightedAverageTime", value.WeightedAverageTime);
+                    //CheckMinMax(output, "FailedAverageTime", value.FailedAverageTime);
+                    //CheckMinMax(output, "AverageTime", value.AverageTime);
+
+                    jQuery.each(availableFields, function(name, fieldData) {
+                        CheckMinMax(output, name, fieldData.get(value));
+                    });
+                });
+
+                return output;
+            }
+            function CheckMinMax(object, field, newValue) {
+                var minValue = object[field + "_min"];
+                if (minValue === undefined || newValue < minValue)
+                    object[field + "_min"] = newValue;
+
+                var maxValue = object[field + "_max"];
+                if (maxValue === undefined || newValue > maxValue)
+                    object[field + "_max"] = newValue;
+            }
+
+            function BuildButtons() {
+                var container = jQuery('#GanttChartButtons');
+
+                jQuery.each(availableFields, function(name, valueGetter) {
+                    container.append('<div id="GanttButton_' + name + '" class="ganttChartButton pure-button button-warning" onclick="SetColors(\'' + name + '\')">' + name + "</div>");
+                });
+            }
+            BuildButtons();
+            //#Initialization
+
+
+            function SetColors(usingFieldName) {
+                var fieldData = availableFields[usingFieldName];
+                var rainbow = GetRainbow(usingFieldName, fieldData);
+
+                SetButtonActive(usingFieldName);
+
+                jQuery.each(testRunData, function(index, testRun) {
+                    var element = jQuery('#' + testRun.Name);
+                    //console.log(element);
+                    var testValue = fieldData.get(testRun);
+                    //console.log(testValue);
+                    //console.log(rainbow.colourAt(testValue));
+                    element.css('background-color', '#' + rainbow.colourAt(testValue));
+                });
+
+                var allValues =  $(testRunData).map(function() { return fieldData.get(this); });
+                jQuery('#GanttChartLegend').empty().append(BuildHistogram(allValues.toArray(), rainbow));
+            }
+            function SetButtonActive(usingFieldName) {
+                var allButtons = jQuery('#GanttChartButtons > .ganttChartButton.pure-button-active');
+                allButtons.removeClass("pure-button-active");
+
+                jQuery('#GanttButton_' + usingFieldName).addClass("pure-button-active");
+            }
+            function GetRainbow(fieldName, fieldData) {
+                var rainbow = new Rainbow();
+
+                var LowerIsBetter = fieldData.LowerIsBetter === undefined ? true : fieldData.LowerIsBetter;
+
+                if (LowerIsBetter === true) {
+                    rainbow.setSpectrum('white', 'yellow', 'red');
+                } else {
+                    rainbow.setSpectrum('grey', 'green');
+                }
+
+                var min = fieldData.Min === undefined ? testRunMaximums[fieldName + "_min"] : fieldData.Min;
+                var max = fieldData.Max === undefined ? testRunMaximums[fieldName + "_max"] : fieldData.Max;
+                rainbow.setNumberRange(min, max);
+
+                return rainbow;
+            }
+
+            //function SetLegend(rainbow, min, max, fieldData) {
+            //    var legend = jQuery('#GanttChartLegend');
+
+            //    var formatFunc = fieldData.FormatValue || function(v) { return v; };
+
+            //    var maxElement = jQuery("<div>Max value: " + formatFunc(max) + "</div>");
+            //    maxElement.css('background-color', '#' + rainbow.colourAt(max));
+            //    legend.append(maxElement);
+
+            //    //Blah idk how to do this... need a histogram.
+            //    var median = 10;
+            //    var medianElement = jQuery("<div>Median value: " + formatFunc(median) + "</div>");
+            //    medianElement.css('background-color', '#' + rainbow.colourAt(median));
+            //    legend.append(medianElement);
+
+            //    var minElement = jQuery("<div>Min value: " + formatFunc(min) + "</div>");
+            //    minElement.css('background-color', '#' + rainbow.colourAt(min));
+            //    legend.append(minElement);
+            //}
+            function BuildHistogram(arrayOfNumbers, rainbow) {
+
+                var formatFunc = function(v) { return v.y + ' at value: ' + v.x; };
+
+                var binCount = 12;
+                var HEIGHT = 100;
+                var WIDTH = 100;
+
+                //clean input
+                //arrayOfNumbers = $(arrayOfNumbers).map(function() { return Number(this); });
+                //arrayOfNumbers.sort();
+                //console.log(JSON.stringify(arrayOfNumbers));
+
+                var data = histogram({
+                    data: arrayOfNumbers,
+                    bins: binCount
+                });
+
+                //console.log(JSON.stringify(data));
+
+                console.log(data);
+                var flattened = $(data).map(function() { return { x: this.x, y: this.y }; });
+                console.log(flattened);
+
+                var binWidth = WIDTH / binCount - 1;
+
+                var minValue = 0;
+                var maxValue = Math.max.apply(Math, flattened.map(function () { return this.y; }));
+
+                var container = jQuery("<div style='position:relative;height:" + HEIGHT + "px;width:" + WIDTH + "px'></div>");
+                jQuery.each(flattened, function(index, value) {
+
+                    var left = index * (binWidth + 1);
+
+                    var hRatio = (value.y - minValue) / (minValue + maxValue);
+                    var top = HEIGHT * (1 - hRatio);
+                    var height = HEIGHT * hRatio;
+
+                    var color = rainbow.colourAt(value.x);
+
+                    container.append('<div style="position:absolute;left:' + left + 'px;top:' + top + 'px;width:' + binWidth + 'px;height:' + height + 'px;background-color:#' + color + ';border: 1px solid #999;" title="' + formatFunc(value) + '"></div>');
+                });
+
+                return container;
+            }
         </script>
     </body>
 </html>
