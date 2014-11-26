@@ -94,6 +94,17 @@
             .button-warning.pure-button-active {
                 background: #99500e; /* this is an orange */
             }
+
+
+            .section {
+                margin-bottom: 1em;
+            }
+            .sectionHeader {
+            }
+
+            #GanttChartButtons {
+                width: 600px;
+            }
         </style>
     </head>
     <body>
@@ -113,11 +124,16 @@
                 //});
                 
                 
-                
+                <div class="section">
+                <div class="sectionHeader">Gantt Chart:</div>
                 @GanttChartBuilder()
+                </div>
+                
+                <div class="section">
+                <div class="sectionHeader">Histograms:</div>
                 <div id="GanttChartButtons"></div>
                 <div id="GanttChartLegend"></div>
-                
+                </div>
                 
 
                 //<div id="fancyGanttChart_placeholder"></div>
@@ -147,14 +163,18 @@
         
         <script type="text/javascript">
             //#Settings
-            //{ get:function(v) {}, LowerIsBetter:true, Min:0, Max:100 }
+            //{ get:function(v) {}, LowerIsBetter:true, Min:0, Max:100, Label:"hi", default:true }
             availableFields = {
-                Success: { get: function (v) { return v.ExitCode == 0 ? 1 : 0; }, LowerIsBetter:false, Min: 0 },
+                Success: { get: function (v) { return v.ExitCode == 0 ? 1 : 0; }, LowerIsBetter:false, Min: 0, default:true },
                 RunTime: { get: function (v) { return v.RunTime; } },
                 FailurePercent: { get: function (v) { return v.FailureCount * 100 / v.DatapointsInAverage; }, Min: 0 },
                 WeightedAverageTime: { get: function (v) { return v.WeightedAverageTime; } },
                 FailedAverageTime: { get: function (v) { return v.FailedAverageTime; } },
-                AverageTime: { get: function (v) { return v.AverageTime; } }
+                AverageTime: { get: function (v) { return v.AverageTime; } },
+                TimeWasters: { Label: "Time Wasters (Historic)", get: function (v) { return v.FailureCount * v.FailedAverageTime; } },
+                TimeWastersProj: { Label: "Time Wasters (Projected)", get: function (v) { return (v.FailureCount * 100 / v.DatapointsInAverage) * v.FailedAverageTime; } },
+                WeightedVsLast: { Label: "Weighted Vs RunTime", get: function (v) { return v.RunTime / v.WeightedAverageTime; } },
+                AverageVsLast: { Label: "Average Vs RunTime", get: function (v) { return v.RunTime / v.AverageTime; } },
             };
 
             testRunData = @Raw(GetRunnersInJson());
@@ -195,7 +215,12 @@
                 var container = jQuery('#GanttChartButtons');
 
                 jQuery.each(availableFields, function(name, valueGetter) {
-                    container.append('<div id="GanttButton_' + name + '" class="ganttChartButton pure-button button-warning" onclick="SetColors(\'' + name + '\')">' + name + "</div>");
+                    var displayName = valueGetter.Label || name;
+                    container.append('<div id="GanttButton_' + name + '" class="ganttChartButton pure-button button-warning" onclick="SetColors(\'' + name + '\')">' + displayName + "</div>");
+
+                    if (valueGetter.default) {
+                        SetColors(name);
+                    }
                 });
             }
             BuildButtons();
@@ -267,9 +292,9 @@
 
                 var formatFunc = function(v) { return v.y + ' at value: ' + v.x; };
 
-                var binCount = 12;
+                var binCount = 30;
                 var HEIGHT = 100;
-                var WIDTH = 100;
+                var WIDTH = 300;
 
                 //clean input
                 //arrayOfNumbers = $(arrayOfNumbers).map(function() { return Number(this); });
