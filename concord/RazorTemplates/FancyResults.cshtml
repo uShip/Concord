@@ -65,6 +65,10 @@
         <script src="https://cdn.rawgit.com/eoinmurray/histogram/master/histogram.js"></script>
         <link rel="stylesheet" href="http://yui.yahooapis.com/pure/0.5.0/pure-min.css">
         
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.8.4/moment.min.js"></script>
+
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/tinysort/1.5.6/jquery.tinysort.min.js"></script>
+
         <style type="text/css">
             .button-success,
             .button-error,
@@ -105,6 +109,108 @@
             #GanttChartButtons {
                 width: 600px;
             }
+
+
+            .leadingZero {
+                color:#888;
+            }
+            .booleanValue {
+                font-size: 3em;
+                line-height: 0;
+                vertical-align: middle;
+            }
+            .booleanValue.true {
+                color:#080;
+            }
+            .booleanValue.false {
+                color:#800;
+            }
+
+
+.testRuns {
+	margin:0 7px;
+	padding:0px;
+	width:80%;
+	box-shadow: 2px 2px 5px #888888;
+	border:1px solid #666666;
+	
+	border-bottom-left-radius:5px;
+	border-bottom-right-radius:5px;
+	border-top-right-radius:5px;
+	border-top-left-radius:5px;
+}.testRuns table{
+    border-collapse: collapse;
+        border-spacing: 0;
+	width:100%;
+	height:100%;
+	margin:0px;padding:0px;
+}.testRuns tbody tr:last-child td:last-child {
+	border-bottom-right-radius:5px;
+}
+.testRuns table thead th:first-child {
+	border-top-left-radius:5px;
+}
+.testRuns table thead th:last-child {
+	border-top-right-radius:5px;
+}.testRuns tbody tr:last-child td:first-child{
+	border-bottom-left-radius:5px;
+}.testRuns tr:hover td{
+	background-color:#ffffff;
+}
+.testRuns tbody {
+    background-color:#ffd4aa;
+}
+.testRuns td{
+	vertical-align:middle;
+	
+	background-color:#ffd4aa;
+
+	border:1px solid #666666;
+	border-width:0px 1px 1px 0px;
+	text-align:right;
+	padding:3px;
+	font-size:12px;
+	font-family:Arial;
+	font-weight:normal;
+	color:#000000;
+}.testRuns tbody tr:last-child td{
+	border-width:0px 1px 0px 0px;
+}.testRuns tr td:last-child{
+	border-width:0px 0px 1px 0px;
+}.testRuns tbody tr:last-child td:last-child{
+	border-width:0px 0px 0px 0px;
+}
+.testRuns thead th{
+	background:-o-linear-gradient(bottom, #ff7f00 5%, #bf5f00 100%);
+	background:-webkit-gradient( linear, left top, left bottom, color-stop(0.05, #ff7f00), color-stop(1, #bf5f00) );
+	background:-moz-linear-gradient( center top, #ff7f00 5%, #bf5f00 100% );
+	filter:progid:DXImageTransform.Microsoft.gradient(startColorstr="#ff7f00", endColorstr="#bf5f00");
+	background: -o-linear-gradient(top,#ff7f00,bf5f00);
+
+	background-color:#ff7f00;
+	border:0px solid #666666;
+	text-align:center;
+	border-width:0px 0px 1px 1px;
+	font-size:14px;
+	font-family:Arial;
+	font-weight:bold;
+	color:#ffffff;
+}
+.testRuns thead:hover th{
+	background:-o-linear-gradient(bottom, #ff7f00 5%, #bf5f00 100%);
+	background:-webkit-gradient( linear, left top, left bottom, color-stop(0.05, #ff7f00), color-stop(1, #bf5f00) );
+	background:-moz-linear-gradient( center top, #ff7f00 5%, #bf5f00 100% );
+	filter:progid:DXImageTransform.Microsoft.gradient(startColorstr="#ff7f00", endColorstr="#bf5f00");
+	background: -o-linear-gradient(top,#ff7f00,bf5f00);
+
+	background-color:#ff7f00;
+}
+.testRuns thead th:first-child{
+	border-width:0px 0px 1px 0px;
+}
+.testRuns thead th:last-child{
+	border-width:0px 0px 1px 1px;
+}
         </style>
     </head>
     <body>
@@ -125,14 +231,19 @@
                 
                 
                 <div class="section">
-                <div class="sectionHeader">Gantt Chart:</div>
-                @GanttChartBuilder()
+                    <div class="sectionHeader">Gantt Chart:</div>
+                    @GanttChartBuilder()
                 </div>
                 
                 <div class="section">
-                <div class="sectionHeader">Histograms:</div>
-                <div id="GanttChartButtons"></div>
-                <div id="GanttChartLegend"></div>
+                    <div class="sectionHeader">Histograms:</div>
+                    <div id="GanttChartButtons"></div>
+                    <div id="GanttChartLegend"></div>
+                </div>
+                
+                <div class="section">
+                    <div class="sectionHeader">Grid:</div>
+                    <div id="ResultsGrid" class="testRuns"></div>
                 </div>
                 
 
@@ -165,7 +276,7 @@
             //#Settings
             //{ get:function(v) {}, LowerIsBetter:true, Min:0, Max:100, Label:"hi", default:true }
             availableFields = {
-                Success: { get: function (v) { return v.ExitCode == 0 ? 1 : 0; }, LowerIsBetter:false, Min: 0, default:true },
+                Success: { get: function (v) { return v.ExitCode === 0 ? 1 : 0; }, LowerIsBetter:false, Min: 0, default:true },
                 RunTime: { get: function (v) { return v.RunTime; } },
                 FailurePercent: { get: function (v) { return v.FailureCount * 100 / v.DatapointsInAverage; }, Min: 0 },
                 WeightedAverageTime: { get: function (v) { return v.WeightedAverageTime; } },
@@ -259,7 +370,7 @@
                 if (LowerIsBetter === true) {
                     rainbow.setSpectrum('white', 'yellow', 'red');
                 } else {
-                    rainbow.setSpectrum('grey', 'green');
+                    rainbow.setSpectrum('red', 'grey', 'green');
                 }
 
                 var min = fieldData.Min === undefined ? testRunMaximums[fieldName + "_min"] : fieldData.Min;
@@ -308,9 +419,9 @@
 
                 //console.log(JSON.stringify(data));
 
-                console.log(data);
+                //console.log(data);
                 var flattened = $(data).map(function() { return { x: this.x, y: this.y }; });
-                console.log(flattened);
+                //console.log(flattened);
 
                 var binWidth = WIDTH / binCount - 1;
 
@@ -334,5 +445,182 @@
                 return container;
             }
         </script>
+        
+        <script type="text/javascript">
+            var chartConfigBase = {
+                columns: {
+                    "Failures": {
+                        format: function (v){ return v.toString().replace(/^(\d+.\d{3})\d*$/, "$1") + " %"; },
+                        Max: 12.5
+                    },
+                    //"ExitCode": {
+                    //    format: function (v){ return v; }
+                    //}
+                    "ExitCode": {
+                        Max:1
+                    },
+                    "IsSuccess": {
+                        Max:-1 //disabled max
+                    },
+                    "IsCurrent": {
+                        Max:-1
+                    }
+                }
+            }
+
+            var BuildChartData = function(data) {
+                return data.map(function(d) { return new ChartData(d); });
+            };
+            var BuildMaxChartData = function(chartData) {
+                var output = {};
+                jQuery.each(chartData[0], function(name, value) {
+                    var valuesArray = chartData.map(function(d) { return d[name]; });
+                    var maxValue = GetMaxValue(valuesArray);
+                    if (!isNaN(maxValue)) {
+                        output[name] = maxValue;
+                    }
+                });
+                return output;
+            };
+            function ChartData(testRun) {
+                return {
+                    "Name": testRun.Name,
+                    //"StartTime": testRun.StartTime,
+                    //"EndTime": testRun.EndTime,
+                    "RunTime": moment.duration(testRun.RunTime),
+                    //"FinishOrder": testRun.FinishOrder,
+                    //"StartOrder": testRun.StartOrder,
+                    "ExitCode": testRun.ExitCode === 0 ? "" : testRun.ExitCode,
+                    //"TestRunId": testRun.TestRunId,
+                    "Count": testRun.DatapointsInAverage,
+                    //"FailureCount": testRun.FailureCount,
+
+                    "Failures": (testRun.FailureCount * 100 / testRun.DatapointsInAverage),
+
+                    "AverageTime": moment.duration(testRun.AverageTime),
+                    "WeightedAverageTime": moment.duration(testRun.WeightedAverageTime),
+                    "FailedAverageTime": moment.duration(testRun.FailedAverageTime),
+
+                    "IsSuccess": testRun.ExitCode === 0 ? true : false,
+                    "IsCurrent": testRun.TestRunId === 0 ? true : false
+                };
+            }
+
+
+
+            function BuildHtmlTable(config, data) {
+                var output = '<table>';
+
+                output += '<thead>';
+                output += BuildHtmlTableRow(config, data[0], true);
+                output += '</thead>';
+
+                output += '<tbody>';
+                jQuery.each(data, function(index, value) {
+                    output += BuildHtmlTableRow(config, value);
+                });
+                output += '</tbody>';
+
+                output += '</table>';
+                return output;
+            }
+            function BuildHtmlTableRow(chartConfig, rowData, header) {
+                var output = '<tr>';
+
+                jQuery.each(rowData, function(name, value) {
+                    if (header) {
+                        output += '<th class="cell_' + name + '">' + name + '</td>';
+                    }else{
+                        var rawValue = ' data-value="' + value + '"';
+                        output += '<td class="cell_' + name + '"' + rawValue + '>'
+                            + FormatValue(chartConfig, name, value)
+                            + '</td>';
+                    }
+                });
+
+                output += '</tr>';
+                return output;
+            }
+
+            function AddBackgroundPercentages(htmlTable, chartConfig, maxData) {
+                var columnsConfig = chartConfig && chartConfig.columns;
+
+                jQuery.each(maxData, function(name, maxValue) {
+                    var overrideMax = (columnsConfig[name] === undefined || columnsConfig[name].Max === undefined)
+                        ? maxValue
+                        : columnsConfig[name].Max;
+                    maxValue = overrideMax;
+
+                    if (maxValue <= 0)
+                        return;
+
+                    var cells = htmlTable.find("tbody > tr > .cell_" + name);
+                    //cells.css("background", "linear-gradient(to right, rgba(0, 0, 0, 0) 40%, rgba(0, 102, 0, 170) 40%)");
+                    cells.css("background", function (){
+                        //"linear-gradient(to right, rgba(0, 0, 0, 0) 40%, rgba(0, 102, 0, 170) 40%)")
+                        var rawValue = $(this).data('value');
+                        var percent = rawValue * 100 / maxValue;
+                        if (percent >= 100)
+                            return "#E89680";
+                        return "linear-gradient(to left, rgba(255, 186, 119, 170) " + percent + "%, rgba(0, 0, 0, 0) " + percent + "%)";
+                    });
+                });
+            }
+
+            function FormatValue(chartConfig, name, value) {
+                var columnsConfig = chartConfig && chartConfig.columns;
+                if (columnsConfig
+                    && columnsConfig[name]
+                    && columnsConfig[name].format !== undefined) {
+                    return chartConfig.columns[name].format(value);
+                }
+                if (moment.isDuration(value)) {
+                    //with twix.js:
+                    //return value.simpleFormat("m:ss.SSS");
+                    var minutes = Math.abs(value.minutes()),
+                        seconds = Math.abs(value.seconds()),
+                        milliseconds = Math.round(Math.abs(value.milliseconds()));
+                    var rawOutput = (minutes ? minutes : '0') + ':' +
+                    (seconds ? ("00" + seconds).slice(-2) : '00') + '.' +
+                    (milliseconds ? ("000" + milliseconds).slice(-3) : '000');
+                    var htmlOutput = rawOutput.replace(/^[0:\.]+/, "<span class='leadingZero'>$&</span>");
+                    return htmlOutput;
+                }
+                if (typeof(value) === "boolean") {
+                    return "<span class='booleanValue " + value + "'>&#8226;</span>";
+                }
+                return value;
+            }
+            function GetMaxValue(valuesArray) {
+
+                return Math.max.apply(Math, valuesArray);
+            }
+
+
+            function AddTableSorting(table) {
+                var aAsc = [];
+                function sortTable(e) {
+                    var nr = $(e.currentTarget).index();
+                    aAsc[nr] = aAsc[nr]=='desc'?'asc':'desc';
+                    table.find('tbody>tr').tsort('td:eq('+nr+')', {
+                        order:aAsc[nr],
+                        data:"value"
+                    });
+                }
+                table.find('thead th:last').siblings().on('click',sortTable);
+            }
+
+
+            $(function() {
+                var data = BuildChartData(testRunData);
+                $("#ResultsGrid").html(BuildHtmlTable(chartConfigBase, data));
+
+                //Add background percentages
+                var maxData = BuildMaxChartData(data);
+                AddBackgroundPercentages($("#ResultsGrid"), chartConfigBase, maxData);
+
+                AddTableSorting($("#ResultsGrid"));
+            });
+        </Script>
     </body>
 </html>

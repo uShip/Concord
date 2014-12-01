@@ -1,6 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Net;
 using concord.Output;
@@ -11,7 +11,6 @@ using FluentAssertions;
 using Newtonsoft.Json;
 using NUnit.Framework;
 using RazorEngine.Templating;
-using Rhino.Mocks;
 
 namespace concord.Tests.Parsing
 {
@@ -68,6 +67,7 @@ namespace concord.Tests.Parsing
         public void Should_build_template_using_actual_data()
         {
             //Arrange
+            CopyTemplates();
             var testData = JsonConvert.DeserializeObject<RunStatsCollection>(DownloadOrderDataArtifact())
                                       .Records.ToArray();
 
@@ -87,6 +87,27 @@ namespace concord.Tests.Parsing
             Debug.WriteLine(output);
         }
 
+        public void CopyTemplates()
+        {
+            var templateDestination = Path.Combine(Environment.CurrentDirectory, "RazorTemplates");
+            //Comes from \concord.texts\bin\Debug...
+            var templateSource = Path.GetFullPath("..\\..\\..\\concord\\RazorTemplates");
+
+            if (Directory.Exists(templateDestination) && Directory.Exists(templateSource))
+            {
+                foreach (var template in Directory.EnumerateFiles(templateSource, "*.cshtml"))
+                {
+                    File.Copy(template, Path.Combine(templateDestination, Path.GetFileName(template)), true);
+                }
+            }
+            else
+            {
+                throw new Exception("Unable to find RazorTemplates, are these the right paths?"
+                                    + "\nDestination: " + templateDestination
+                                    + "\nSource: " + templateSource);
+            }
+        }
+
         public string DownloadOrderDataArtifact()
         {
             var TEAMCITY_SERVER = "snail:88";
@@ -97,12 +118,19 @@ namespace concord.Tests.Parsing
             var TeamCity8 = "app/rest/builds/{1}/artifacts/content/{2}";
 
 
-            var buildLocator = string.Format("buildType:(id:{0})", APK_JOB);
+            var buildLocator = string.Format("buildType:(id:{0}),canceled:false", APK_JOB);
             var path = string.Format("http://{0}/guestAuth/" + TeamCity7, TEAMCITY_SERVER, buildLocator, APK_PATH);
 
             using (var wc = new WebClient())
             {
-                return wc.DownloadString(path);
+                try
+                {
+                    return wc.DownloadString(path);
+                }
+                catch (Exception ex)
+                {
+                    throw new Exception("Failed downloading: " + path, ex);
+                }
             }
         }
     }
