@@ -11,7 +11,15 @@ namespace concord.Output
         string GenerateGanttChart(IEnumerable<RunStats> runners);
 
         //IEnumerable<LineData> BuildLineData(IEnumerable<RunStats> runners);
-        List<List<RunStats>> SeperateIntoLines(IEnumerable<RunStats> runners);
+
+        /// <summary>
+        /// This duplicates much of the logic in DrawHorizontalLines... but using only RunStats
+        /// </summary>
+        /// <param name="runners"></param>
+        /// <param name="testRunId"></param>
+        /// <returns></returns>
+        /// <remarks>Note: This will ignore any RunStats where TestRunId does not equal testRunId</remarks>
+        List<List<RunStats>> SeperateIntoLines(IEnumerable<RunStats> runners, int testRunId = 0);
     }
 
     public class HtmlGanttChart : IHtmlGanttChart
@@ -40,14 +48,15 @@ namespace concord.Output
         /// This duplicates much of the logic in DrawHorizontalLines... but using only RunStats
         /// </summary>
         /// <param name="runners"></param>
+        /// <param name="testRunId"></param>
         /// <returns></returns>
-        public List<List<RunStats>> SeperateIntoLines(IEnumerable<RunStats> runners)
+        public List<List<RunStats>> SeperateIntoLines(IEnumerable<RunStats> runners, int testRunId = 0)
         {
             Func<RunStats, double> getOffset = stats => stats.StartTime.TotalMilliseconds;
             Func<RunStats, double> getLength = x => (x.EndTime - x.StartTime).TotalMilliseconds;
 
 
-            var data = runners.ToList();
+            var data = runners.Where(x => x.TestRunId == testRunId).ToList();
 
             var outputContainer = new List<List<RunStats>>();
             var currentLine = new List<RunStats>();

@@ -90,6 +90,7 @@
   <ItemGroup>
     <Compile Include="Framework\InteractionContext.cs" />
     <Compile Include="Framework\MockExtensions.cs" />
+    <Compile Include="Output\HtmlGanttChartTests.cs" />
     <Compile Include="Parsing\ProgressDisplayTests.cs" />
     <Compile Include="Parsing\ProgressStatsTests.cs" />
     <Compile Include="Parsing\ProcessRunnerTests.cs" />
