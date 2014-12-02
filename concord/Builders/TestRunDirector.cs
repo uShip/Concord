@@ -191,8 +191,12 @@ namespace concord.Builders
 
             var SkippedTests = _categories.Except(testResults.Select(a => a.Name)).ToList();
 
+
+            var runnerHistories = _resultsOrderService.CombineWithRunnersHistories(testResults, SkippedTests);
             _resultsStatsWriter.OutputRunStats(totalRuntime.Elapsed, testResults, SkippedTests);
-            _resultsOrderService.OutputRunOrder(testResults, SkippedTests);
+            _resultsStatsWriter.OutputRunStats(totalRuntime.Elapsed, runnerHistories);
+            _resultsOrderService.OutputRunOrder(runnerHistories);
+
 
             var outputResultsXmlPath = _runnerSettings.ResultsXmlFilepath;
             var outputResultsReportPath = _runnerSettings.ResultsHtmlReportFilepath;

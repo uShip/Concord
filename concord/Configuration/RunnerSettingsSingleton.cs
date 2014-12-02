@@ -1,6 +1,4 @@
 ﻿using System;
-using concord.Builders.TestRunBuilders;
-using concord.Builders.ThreadingManagers;
 
 namespace concord.Configuration
 {

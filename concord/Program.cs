@@ -7,6 +7,7 @@ using concord.Configuration;
 using concord.Factories;
 using concord.Logging;
 using concord.Nunit;
+using concord.Output;
 
 namespace concord
 {
@@ -48,7 +49,8 @@ namespace concord
                 bool uncategorizedInParallel,
                 bool debug,
                 bool includeIgnored,
-                bool internalTestRunner)
+                bool internalTestRunner,
+                bool fancyOutput)
             {
                 if (debug)
                 {
@@ -58,6 +60,12 @@ namespace concord
 
 
                 var serviceLocator = ServiceLocator.Instance;
+
+                //Does this need to go earlier? -- yes
+                if (fancyOutput)
+                {
+                    serviceLocator.Inject<IResultsStatsWriter, ResultsStatsTemplateWriter>();
+                }
 
                 var builderFactory = serviceLocator.Get<IRunnerFactory>();
 

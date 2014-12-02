@@ -11,8 +11,10 @@ namespace concord.Output
 {
     public interface IResultsOrderService
     {
-        void OutputRunOrder(IEnumerable<RunStats> runners, List<string> skippedTests);
+        void OutputRunOrder(RunStatsCollection runStatsCollection);
         IEnumerable<string> GetCategoriesInDesiredOrder();
+
+        RunStatsCollection CombineWithRunnersHistories(IEnumerable<RunStats> runners, List<string> skippedTests);
     }
 
     public class ResultsOrderService : IResultsOrderService
@@ -26,10 +28,10 @@ namespace concord.Output
             _statsCollectionVersioning = statsCollectionVersioning;
         }
 
-        public void OutputRunOrder(IEnumerable<RunStats> runners, List<string> skippedTests)
+        public RunStatsCollection CombineWithRunnersHistories(IEnumerable<RunStats> runners, List<string> skippedTests)
         {
             var path = _settings.ResultsOrderDataFilepath;
-            if (string.IsNullOrEmpty(path)) return;
+            if (string.IsNullOrEmpty(path)) return null;
 
             var runOrderData = new List<RunStats>();
             var runHistoryLookup = new Dictionary<string, RunHistoryStats>();
@@ -77,8 +79,20 @@ namespace concord.Output
                 }
             });
 
-            //Write data to file
             var runStatsCollection = RunStatsCollection.BuildCurrent(runOrderData.OrderBy(x => x.Name));
+            return runStatsCollection;
+        }
+
+        /// <summary>
+        /// This must be called with the results from CombineWithRunnersHistories
+        /// </summary>
+        /// <param name="runStatsCollection"></param>
+        public void OutputRunOrder(RunStatsCollection runStatsCollection)
+        {
+            var path = _settings.ResultsOrderDataFilepath;
+            if (string.IsNullOrEmpty(path)) return;
+
+            //Write data to file
             File.WriteAllText(path, JsonConvert.SerializeObject(runStatsCollection)
                                                .Replace("},", "}," + Environment.NewLine)
                                                .Replace("[{", "[" + Environment.NewLine + "{"));

@@ -1,4 +1,5 @@
 ﻿using System;
+using StructureMap;
 
 namespace concord.Configuration
 {
@@ -19,6 +20,17 @@ namespace concord.Configuration
         public T Get<T>()
         {
             return ContainerReference.Container.GetInstance<T>();
+        }
+
+        public void Inject<T, TInstance>()
+            where T : class
+            where TInstance : T
+        {
+            var container = ContainerReference.Container;
+            //var instance = container.GetInstance<TInstance>();
+            //container.Inject<T>(instance);
+            container.EjectAllInstancesOf<T>();
+            container.Configure(x => x.For<T>().Use<TInstance>());
         }
     }
 }

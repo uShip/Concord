@@ -14,6 +14,7 @@ This runs tests in parallel by categories, as opposed to tests or features which
   * If they have categories, and if those categories exist in other namespaces, **all the fixtures with those categories will be run**
 * `-includeIgnored` include ignored features
 * `-uncategorizedInParallel` runs any uncategorised tests in parallel with each other.  Without this, a category `all` runs for them parallel to other categories.  Each feature gets its own ?runner? when this is enabled.
+* `-fancyOutput` output much more advanced output file (RunStats.html) using Razor template (requires dependencies therein)(i.e. it works on my machine)
   
 ### Craziness:
 You can do: `-categories@=IAMAFILEPATH.txt`  to run only specific categories   

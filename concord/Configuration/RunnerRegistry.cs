@@ -49,7 +49,7 @@ namespace concord.Configuration
 //                        x.IncludeNamespaces(typeof (FancyResults).Namespace)
 //                        // .WithEncoding(Encoding.Html)
 //                        )));
-            For<ITemplateService>().Singleton().Use<TemplateService>();
+            For<ITemplateService>().Singleton().Use(new TemplateService());
             For<IResultsTemplateWriter>().Use<ResultsTemplateWriter>();
         }
     }

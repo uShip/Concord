@@ -47,6 +47,11 @@ namespace concord.Output
             File.WriteAllText(_settings.ResultsStatsFilepath, sb.ToString());
         }
 
+        public void OutputRunStats(TimeSpan totalRuntime, RunStatsCollection runStatsCollection)
+        {
+            //Do nothing, this format of output is going to be obsolete soon?
+        }
+
         //TODO test that this line can be processed by ResultsParser
         internal void AppendTestFinishedLine(StringBuilder sb, RunStats r)
         {

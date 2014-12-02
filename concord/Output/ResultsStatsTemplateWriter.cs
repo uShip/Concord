@@ -17,14 +17,22 @@ namespace concord.Output
             _templateWriter = templateWriter;
         }
 
+        [Obsolete("This is the old method... leaving for optional usage, when this becomes the default output, remove this")]
         public void OutputRunStats(TimeSpan totalRuntime, IEnumerable<RunStats> runners, List<string> skippedTests)
         {
-            //IEnumerable<LineData> rawData
+            //Do nothing, this is obsolete
+        }
+
+        public void OutputRunStats(TimeSpan totalRuntime, RunStatsCollection runStatsCollection)
+        {
+            //TODO handle null history
+            if (runStatsCollection == null)
+                throw new NotImplementedException("TODO Need to handle null history at sometime...");
+
             var model = new FancyResults
             {
                 TotalRuntime = totalRuntime,
-                Runners = runners,
-                SkippedTests = skippedTests
+                Runners = runStatsCollection.Records
             };
 
             _templateWriter.OutputResults(model, _settings.ResultsStatsFilepath);
