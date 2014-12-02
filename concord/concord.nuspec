@@ -40,8 +40,9 @@
   <files>
     <!--Need to copy all references that the exe needs manually... nuget was meant for libraries, not tools.
         Alternatively we could make a chocolatey nuget package-->
-    <file src="bin\*\*.dll" target="tools" />
-    <file src="bin\*\*.exe" target="tools" exclude="**concord*" />
+    <file src="bin\$Configuration$\*.dll" target="tools" />
+    <file src="bin\$Configuration$\*.exe" target="tools" exclude="**concord*" />
+    <file src="bin\$Configuration$\**\*.cshtml" target="tools" />
     <!--If not doing a tools package, could do this:-->
     <!--<file src="bin\*\*.dll" target="lib\net45" />
     <file src="bin\*\*.exe" target="lib\net45" exclude="**concord*" />-->
