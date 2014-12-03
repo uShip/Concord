@@ -1,8 +1,7 @@
 ﻿@using concord.Configuration
+@using concord.Extensions
 @using concord.Output
 @using concord.Output.Dto
-@using concord.Output.JsonConverters
-@using Newtonsoft.Json
 @model concord.RazorTemplates.Models.FancyResults
 
 @{
@@ -50,7 +49,7 @@
         //var ganttChart = ContainerReference.Container.GetInstance<IHtmlGanttChart>();
         //
         //return JsonConvert.SerializeObject(ganttChart.SeperateIntoLines(Model.Runners), new TimeSpanJsonConverter());
-        return JsonConvert.SerializeObject(Model.Runners, new TimeSpanJsonConverter());
+        return Model.Runners.GetJson_TimespansAsMs();
     }
 }
 

@@ -119,6 +119,7 @@
     <Compile Include="Configuration\ServiceLocator.cs" />
     <Compile Include="Extensions\ActionExtensions.cs" />
     <Compile Include="Extensions\CategoryNameComparer.cs" />
+    <Compile Include="Extensions\ObjectExtensions.cs" />
     <Compile Include="Extensions\IEnumerableExtensions.cs" />
     <Compile Include="Extensions\TypeExtensions.cs" />
     <Compile Include="Factories\RunnerFactory.cs" />

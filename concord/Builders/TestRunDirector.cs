@@ -192,15 +192,13 @@ namespace concord.Builders
             var SkippedTests = _categories.Except(testResults.Select(a => a.Name)).ToList();
 
 
-            var runnerHistories = _resultsOrderService.CombineWithRunnersHistories(testResults, SkippedTests);
-            _resultsStatsWriter.OutputRunStats(totalRuntime.Elapsed, testResults, SkippedTests);
-            _resultsStatsWriter.OutputRunStats(totalRuntime.Elapsed, runnerHistories);
-            _resultsOrderService.OutputRunOrder(runnerHistories);
-
-
+            //Standard nunit output files
             var outputResultsXmlPath = _runnerSettings.ResultsXmlFilepath;
             var outputResultsReportPath = _runnerSettings.ResultsHtmlReportFilepath;
             var xmlOutput = _resultsWriter.MergeResultsProcess(outputPath, outputResultsXmlPath, outputResultsReportPath);
+
+
+            OutputEnhancedRunStats(testResults, SkippedTests, totalRuntime);
 
             if (cancelled)
             {
@@ -214,6 +212,15 @@ namespace concord.Builders
 
             //Do we really need to return this? if so we should have the writing happen elsewhere...
             return xmlOutput;
+        }
+
+        private void OutputEnhancedRunStats(ConcurrentBag<RunStats> testResults, List<string> SkippedTests, Stopwatch totalRuntime)
+        {
+            //Extra output files
+            var runnerHistories = _resultsOrderService.CombineWithRunnersHistories(testResults, SkippedTests);
+            _resultsStatsWriter.OutputRunStats(totalRuntime.Elapsed, testResults, SkippedTests);
+            _resultsStatsWriter.OutputRunStats(totalRuntime.Elapsed, runnerHistories);
+            _resultsOrderService.OutputRunOrder(runnerHistories);
         }
 
         private int indicatorPos = 0;
