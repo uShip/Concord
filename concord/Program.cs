@@ -8,6 +8,7 @@ using concord.Factories;
 using concord.Logging;
 using concord.Nunit;
 using concord.Output;
+using concord.Services;
 
 namespace concord
 {
@@ -35,6 +36,22 @@ namespace concord
             {
                 var resultMerger = ServiceLocator.Instance.Get<IResultMerger>();
                 File.WriteAllText(@out, resultMerger.MergeResults(path).XmlOutput);
+            }
+
+            [Verb]
+            public static void DisplayCategories(
+                string lib,
+                string @out
+                )
+
+            {
+                var serviceLocator = ServiceLocator.Instance;
+                var finder = serviceLocator.Get<ICategoryFinderService>();
+                _runnerSettingsBuilder.SetOutputFolder(@out);
+                _runnerSettingsBuilder.Build();
+                var categories = finder.FindCategories(Assembly.LoadFrom(lib), null);
+                var outputFile = Path.Combine(@out, "categories.txt");
+                File.WriteAllLines(outputFile, categories);
             }
 
             [Verb]
